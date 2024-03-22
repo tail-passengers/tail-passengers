@@ -1,0 +1,52 @@
+/*selectMode.js에서 새롭게 추가된 CSS, 상의 후 수정 예정 */
+.tp-sl-card-content {
+	padding: 3%;
+}
+
+.tp-sl-card-content-child {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 3rem;
+}
+
+.tp-sl-title-container {
+	font-size: 4rem;
+}
+
+.tp-sl-card-row-height {
+	height: 50vh;
+}
+
+.tp-sl-card-title {
+	font-size: 4rem;
+}
+
+.tp-sl-card-text {
+	font-size: 2rem;
+}
+
+.tp-sl-btn-primary {
+  animation: flashText 1.5s ease-out alternate infinite;
+}
+
+.tp-sl-btn-primary:hover {
+	animation: none;
+}
+
+.tp-sl-card-row:hover .tp-sl-btn-parent:not(:hover) > .btn {
+	animation: none;
+	opacity: 0.5;
+}
+
+@keyframes flash{
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes flashText {
+  to {
+    opacity: 0.15;
+  }
+}

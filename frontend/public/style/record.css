@@ -1,0 +1,84 @@
+.record-container {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.record-row {
+	display: flex;
+	width:90%;
+	height:15vh;
+}
+
+.record-user-box {
+	flex:2;
+	height:100%;
+	float:left;
+}
+
+.record-row .sized-box {
+	flex:1;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	
+}
+
+.record-user-box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+
+}
+
+.record-user-box-section {
+	position: relative;
+}
+
+.record-user-box img {
+	height: auto;
+}
+
+.record-user-box-section {
+	display: flex;
+	flex: 2;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+  .record-win::before ,
+  .record-lose::before {
+	content: attr(data-text);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: var(--font-size);
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+
+.record-win::before {
+    color: rgb(105, 126, 245);
+}
+
+.record-lose::before {
+    color: rgb(234, 45, 45);
+}
+  
+
+  
+

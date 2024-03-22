@@ -1,0 +1,25 @@
+.mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0);
+    z-index: 9999;
+    opacity: .5;
+  }
+
+  .wrap {
+    position: relative;
+    height: 100%;
+    background: #157ed1;
+    text-align: center;
+    
+  }
+
+  .loadingImg {
+    position: relative;
+    display: block;
+    top: 50vh;
+    transform: translateY(-50%);
+  }

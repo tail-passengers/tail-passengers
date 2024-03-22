@@ -1,0 +1,18 @@
+.home-top-container {
+	width:90%;
+	height:30vh;
+	border:1px solid white;
+}
+
+.home-bottom-container {
+	display:flex;
+	padding: 10px;
+	width:90%;
+	height:20vh;
+	border:1px solid white;
+}
+
+.home-bottom-container div {
+	flex:1;
+	border:1px solid #999999;
+}

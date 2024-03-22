@@ -1,0 +1,22 @@
+.aboutus-title-container{
+	padding-top: 5rem;
+	padding-bottom: 5rem;
+}
+
+.aboutus-subtitle-container {
+	padding-top: 5rem;
+	padding-bottom: 5rem;
+	background-color: antiquewhite;
+	width: 100%;
+}
+
+.aboutus-profile-img-box {
+	border: 1px solid #E5CC5E;
+	width: 60%;
+}
+
+.aboutus-profile-card {
+	flex: 1; 
+	max-width: 33.33%;  
+  }
+  

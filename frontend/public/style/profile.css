@@ -1,0 +1,256 @@
+.tp-pf-card-content-child {
+	flex-wrap: wrap;
+	max-width: 60rem;
+	border: 1px solid #E5CC5E;
+	gap: 0;
+	overflow: hidden;
+}
+
+.tp-pf-nav-container {
+	display: flex;
+	flex-direction: row;
+	justify-items: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.tp-pf-nav-tabs {
+	width: 100%;
+}
+
+.tp-pf-nav-link {
+	width: 100%;
+	height: 100%;
+	margin-bottom: 0.1em;
+}
+
+.tp-pf-nav-link.active {
+	color: #fff !important;
+	border: none;
+	border-bottom: 2px solid #E5CC5E !important;
+}
+
+.tp-pf-nav-link:not(.active) {
+	color: #fff !important;
+	opacity: 0.5;
+}
+
+.tp-pf-card-container {
+	width: 100%;
+}
+
+.tp-pf-forms {
+	justify-content: space-around;
+	flex: 3;
+	flex-wrap: wrap;
+	min-width: none;
+	width: 60%;
+}
+
+.tp-pf-photo-box {
+	width: 10rem;
+	height: 10rem;
+	background-color: #08151C !important;
+	border: 1px double #E5CC5E;
+	border-width: 5px;
+}
+
+.tp-pf-photo-thumnail {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.tp-pf-input-group {
+	padding: 2%;
+}
+
+.tp-pf-elembox {
+	display: flex;
+	flex-wrap: wrap !important;
+	width: 100% !important;
+}
+
+.tp-pf-label {
+	color: #fff !important;
+	font-size: 1rem !important;
+	font-weight: bold;
+	align-items: start;
+}
+
+.tp-pf-input {
+	background-color: transparent !important;
+	border: none;
+	border-bottom: 1px solid #fff;
+	border-radius: 0%;
+	outline: none;
+	color: #fff !important;
+}
+
+.tp-pf-input:focus {
+	color: #fff !important;
+	background-color: transparent !important;
+	border-bottom: 1px solid #fff;
+}
+
+.tp-pf-input::placeholder {
+	color: #fff;
+	opacity: 0.5;
+	overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tp-pf-wd-blank {
+	width: 1%;
+}
+
+.tp-pf-ht-blank {
+	height: 1rem;
+}
+
+.tp-pf-card-title {
+	font-size: 1rem;
+}
+
+.tp-pf-btn-group {
+	justify-content: center;
+	width: 100%;
+}
+
+.tp-pf-btn {
+	width: 10rem !important;
+	height: 3rem !important;
+	font-size: 0.1rem !important;
+}
+
+.tp-pf-input {
+  font-size: 15px;
+  color: #222222;
+  width: 300px;
+  border: none;
+  border-bottom: solid #aaaaaa 1px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  position: relative;
+  background: none;
+  z-index: 5;
+}
+
+.tp-pf-input::placeholder { color: #aaaaaa; }
+.tp-pf-input:focus { outline: none; }
+
+.tp-pf-input-animation {
+  display: block;
+  position: absolute;
+	bottom: 0;
+  left: 0%;  /* right로만 바꿔주면 오 - 왼 */
+  background-color: #666;
+  width: 0;
+	max-width: max-content;
+  height: 4px;
+  border-radius: 2px;
+  transition: 3.0s;
+}
+
+input.tp-pf-input:focus ~ .tp-pf-input-animation, input.tp-pf-input:valid ~ .tp-pf-input-animation {
+  width: 100%;
+	bottom: 40px;
+  color: #666;
+}
+
+div.online-indicator {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 10px;
+  
+  background-color: #0fcc45;
+  border-radius: 50%;
+  
+  position: relative;
+}
+span.blink {
+  display: block;
+  width: 15px;
+  height: 15px;
+  
+  background-color: #0fcc45;
+  opacity: 0.7;
+  border-radius: 50%;
+  
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  100% { transform: scale(2, 2); 
+          opacity: 0;
+        }
+}
+
+.tp-online-indicator-off {
+	background-color: #390000 !important;
+	animation: none !important;
+}
+
+.tp-sl-search {
+	flex-direction: row !important;
+}
+
+.tp-fl-accept-div {
+	flex-direction: row !important;
+	width: 40%;
+}
+
+.tp-fl-btn {
+	width: auto !important;
+}
+
+.tp-fl-btn-letter {
+	font-size: 1.5rem;
+}
+
+.tp-fl-friend {
+	color:#E5CC5E;
+	text-shadow: 0 0 .1em, 0 0 .3em;
+	box-shadow: 0 0 5px #fff;
+}
+
+.tp-fl-accept-btn {
+	background-color: #2d617b !important;
+	border: 1px solid #2d617b;
+	border-width: 5px;
+	color: #fff;
+}
+
+.tp-fl-refuse-btn {
+	background-color: #842e2e !important;
+	border: 1px solid #842e2e;
+	border-width: 5px;
+	color: #fff;
+}
+
+.tp-fl-close-btn {
+	background-color: #4a4a4a !important;
+	border: 1px solid #4a4a4a;
+	border-width: 5px;
+	color: #fff;
+}
+
+.tp-friend-modal-content {
+	left: auto;
+	top: auto;
+	width: 40rem;
+	height: 15rem;
+	color: #fff;
+	font-weight: bold;
+	border: 1px solid #E5CC5E;
+}
+
+.tp-friend-modal-header, .tp-friend-modal-footer {
+	border: none;
+}
+
+.tp-friend-modal-body {
+	font-size: 2rem;
+}

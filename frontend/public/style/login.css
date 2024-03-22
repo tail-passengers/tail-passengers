@@ -1,0 +1,67 @@
+.lg_bgc {
+	background-color:#F7F2DF;
+}
+
+.lg_card {
+	justify-content: center;
+	border-radius: 0;
+}
+
+.lg_card-title {
+	text-align: center;
+	font-size: 150%;
+}
+
+.lg_card-text {
+	align-items: center;
+	text-align: center;
+	padding: 1% 1% 5% 1% ;
+}
+
+.lg_input_box {
+	justify-content: center;
+	width: 90%;
+	margin: 4% auto;
+	}
+
+.lg_input {
+border: none;
+border-radius: 0;
+border-bottom: 1px solid #aaa;
+padding: 1% 1% 1% 1% ;
+padding-left: 5%;
+outline: none;
+background-color: #F7F2DF;
+font-style: italic;
+}
+
+.modal {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+  }
+  
+.modal__background {
+background-color: rgba(0, 0, 0, 0.6);
+width: 100%;
+height: 100%;
+position: absolute;
+}
+
+.modal__content {
+text-align: center;
+position: relative;
+border-radius: 10px;
+top: 0;
+padding: 10px 25px;
+width: 60%;
+}
+
+.hidden {
+display: none;
+}

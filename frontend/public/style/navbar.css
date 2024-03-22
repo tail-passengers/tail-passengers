@@ -1,0 +1,46 @@
+.tp-navbar {
+	padding-left: 10px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.tp-navbar-brand {
+	font-size: 30px; 
+	margin-right: 30px;
+}
+
+.tp-simple-status {
+	width: 40%;
+	height: 100%; 
+	border-left: 1px solid #4D442B;
+	flex-direction: row !important;
+}
+
+.tp-winning-percentage {
+	width: 55%;
+	border: 1px solid #E5CC5E;
+	background: none !important;
+	filter: drop-shadow(0 0 5px #fff);
+	font-family: "Roboto Condensed", sans-serif;
+	font-weight: bold;
+}
+
+.tp-progress-bar {
+	background-color: #faf0c4;
+	border: 2px solid #08151C;
+	border-radius: 25%;
+	color: #08151C;
+	flex-direction:row;
+}
+
+.tp-navbar-dropdown {
+	color: #fff;
+}
+
+.tp-navbar-dropdown:hover {
+	font-weight: bold;
+}
+
+.tp-dropdown-toggle {
+	height: 100%;
+}
