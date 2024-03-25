@@ -1,4 +1,5 @@
 all:
+	cd frontend && npm run build
 	docker-compose -f ./docker-compose.yml up --build --detach
 
 debug:
@@ -8,6 +9,7 @@ down:
 	docker-compose -f ./docker-compose.yml down
 
 re: down
+	cd frontend && npm run build
 	docker-compose -f ./docker-compose.yml up --build --detach
 
 clean: down

@@ -14,7 +14,7 @@ services:
             - web
             - frontend
         volumes:
-            - dist:/var/www/html/dist/
+            - ./frontend:/var/www/html/app
 
   db:
     image: postgres
@@ -42,7 +42,6 @@ services:
     container_name: frontend
     restart: always
     volumes:
-      - dist:/app/dist
       - ./frontend:/app
 
   channels:
@@ -53,6 +52,3 @@ services:
 networks:
     ts-network:
         driver: bridge
-
-volumes:
-  dist:
