@@ -15,12 +15,12 @@ function Profile({ initialState }) {
           //TODO - API /me 로 수정 예정
           // const nickname = $(".tp-pf-input-nickname");
           // const response = await fetch("http://127.0.0.1:8000/api/v1/users/" + nickname);
-          const response = await fetch("http://127.0.0.1:8000/api/v1/users/" + "yunjcho", {
+          const response = await fetch("https://localhost/api/v1/users/", {
               credentials: 'include'
           });
 
           const data = await response.json();
-
+          console.log("fetchUser()", data);
           //TODO - API UUID -> Nickname 변경 후 아래 코드 수정
           setState(data[0], "MY");
       } catch (error) {
@@ -29,34 +29,34 @@ function Profile({ initialState }) {
     };
 
     //TODO - 추후 API 수정 예정
-    const fetchFriends = async() => {
-      try {
-        //TODO - API UUID -> Nickname 변경 후 아래 코드 복원
-        // const nickname = $(".tp-pf-input-nickname");
-        const response = await fetch("http://127.0.0.1:8000/api/v1/friend_requests/" + "yunjcho" + "/all", {
-          credentials: 'include'
-        });
+    // const fetchFriends = async() => {
+    //   try {
+    //     //TODO - API UUID -> Nickname 변경 후 아래 코드 복원
+    //     // const nickname = $(".tp-pf-input-nickname");
+    //     const response = await fetch("http://127.0.0.1:8000/api/v1/friend_requests/" + "yunjcho" + "/all", {
+    //       credentials: 'include'
+    //     });
         
-        const data = await response.json();
-        console.log("fetchFriends()", data);
+    //     const data = await response.json();
+    //     console.log("fetchFriends()", data);
         
-        const tmpDatas = tmpData();
-        const tmpSample = [ ...data, ...tmpDatas];
-        tmpSample.sort((a, b) => {
-          if (a.friend_status !== b.friend_status) {
-              return a.friend_status - b.friend_status;
-          } else {
-              return b.status - a.status;
-          }
-        });
+    //     const tmpDatas = tmpData();
+    //     const tmpSample = [ ...data, ...tmpDatas];
+    //     tmpSample.sort((a, b) => {
+    //       if (a.friend_status !== b.friend_status) {
+    //           return a.friend_status - b.friend_status;
+    //       } else {
+    //           return b.status - a.status;
+    //       }
+    //     });
 
-        //TODO - API UUID -> Nickname 변경 후 아래 코드 수정
-        setState(tmpSample, "FRIENDS");
+    //     //TODO - API UUID -> Nickname 변경 후 아래 코드 수정
+    //     setState(tmpSample, "FRIENDS");
 
-      } catch (error) {
-          console.error("Error fetching friends data:", error);
-      }
-    };
+    //   } catch (error) {
+    //       console.error("Error fetching friends data:", error);
+    //   }
+    // };
 
     const renderUser = (user) => {
       let nickname = $(".tp-pf-input-nickname");
@@ -65,7 +65,7 @@ function Profile({ initialState }) {
       let record = $(".tp-pf-input-record");
       nickname.value = user.nickname;
       intraId.value = user.intra_id;
-      profileImg.src = "http://127.0.0.1:8000" + user.profile_image;
+      profileImg.src = "https://localhost" + user.profile_image;
       record.value = user.win_count + " WIN, " + user.lose_count + " LOSE";
     };
 

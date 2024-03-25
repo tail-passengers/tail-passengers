@@ -8,7 +8,7 @@ function Rank({ initialState }) {
 
     this.fetchUsers = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/v1/users/", {
+            const response = await fetch("https://localhost/api/v1/users/", {
                 credentials: 'include'
             });
             const data = await response.json();
@@ -19,6 +19,7 @@ function Rank({ initialState }) {
             this.setState(data);
             console.log(data);
         } catch (error) {
+            // console.log(data);
             console.error("Error fetching user data:", error);
         }
     };

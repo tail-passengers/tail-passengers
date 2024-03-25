@@ -90,11 +90,17 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
+PORT = 443
+
 # CORS 전체 허용
 CORS_ORIGIN_ALLOW_ALL = True
 
 # 쿠키가 cross-site HTTP 요청에 포함될 수 있도록 허용
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost",
+]
 
 ROOT_URLCONF = "back.urls"
 

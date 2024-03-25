@@ -5,17 +5,6 @@ function Home($container) {
         this.render();
     };
 
-    // this.fetchUserData = () => {
-    //     fetch("http://127.0.0.1:8000/users/")
-    //         .then((response) => response.json())
-    //         .then((data) => {
-    //             // console.log(data);
-    //         })
-    //         .catch((error) => {
-    //             console.error("Error fetching user data:", error);
-    //         });
-    // };
-
     this.render = () => {
         this.$container.innerHTML = `
       <div class="content default-container">
@@ -32,10 +21,6 @@ function Home($container) {
         </div>
       </div>
 	  `;
-        // this.fetchUserData();
-        // const fetchUserDataBtn =
-        //     this.$container.querySelector("#fetchUserDataBtn");
-        // fetchUserDataBtn.addEventListener("click", this.fetchUserData);
     };
 
     this.render();

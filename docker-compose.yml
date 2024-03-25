@@ -31,6 +31,7 @@ services:
     expose:
       - "443"
     command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata test_user.json && python manage.py runserver 0.0.0.0:8000"
+
     env_file:
       - ./backend/.env_sample
     depends_on:

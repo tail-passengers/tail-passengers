@@ -3,7 +3,7 @@ import { BASE_URL } from "./routeInfo.js";
 import { $ } from "./querySelector.js";
 
 export function addLoginEventListener(loginContainer) {
-    const loginUrl = "http://localhost:8000/api/v1/login";
+    const loginUrl = "https://localhost/api/v1/login";
     const loginButton = loginContainer.querySelector("#login-btn");
 
     loginButton.addEventListener("click", (e) => {
@@ -63,10 +63,11 @@ export function addNavBarLoadListener(navBarContainer) {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/v1/users/" + "yunjcho", {
+            const response = await fetch("https://localhost/api/v1/users/", {
                 credentials: 'include'
             });
             const data = await response.json();
+            console.log("data:", data);
             setState(data[0]);
         } catch (error) {
             console.error("Error fetching user data:", error);
