@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const CopyPlugin = require("copy-webpack-plugin");
 
 const envKeys = {};
 
@@ -30,6 +31,17 @@ module.exports = {
       'window.jQuery': 'jquery',
       Popper: ['popper.js', 'default']
     }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, "public/assets"),
+          to: path.resolve(__dirname, "dist/public/assets"),
+          globOptions: {
+              ignore: ["**/index.html"], // index.html 파일 제외
+          },
+        },
+      ],
+    }),
   ],
   module: {
     rules: [
@@ -37,43 +49,6 @@ module.exports = {
         test: /\.js$/,
         loader: "babel-loader",
         exclude: /node_modules/,
-      },
-      {
-        test: /\.(png|jpe?g|gif|svg)$/i,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-              outputPath: "static/img",
-            },
-          },
-        ],
-      },
-      {
-        test: /\.json$/,
-        type: "javascript/auto",
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-              outputPath: "static/fonts",
-            },
-          },
-        ],
-      },
-      {
-        test: /\.mp3$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-              outputPath: "static/sounds",
-            },
-          },
-        ],
       },
       {
         test: /\.css$/,
@@ -104,6 +79,7 @@ module.exports = {
     ],
   },
   resolve: {
+    modules: ['node_modules'],
     extensions: [".js"],
     mainFields: ["browser", "module", "main"],
   },

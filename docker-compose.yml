@@ -14,7 +14,7 @@ services:
             - web
             - frontend
         volumes:
-            - ./frontend:/var/www/html/app
+            - ./frontend/dist:/var/www/html/app
 
   db:
     image: postgres
