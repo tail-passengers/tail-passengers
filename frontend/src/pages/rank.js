@@ -1,3 +1,5 @@
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
 
 function Rank({ initialState }) {
@@ -19,7 +21,6 @@ function Rank({ initialState }) {
             this.setState(data);
             console.log(data);
         } catch (error) {
-            // console.log(data);
             console.error("Error fetching user data:", error);
         }
     };
@@ -64,12 +65,15 @@ function Rank({ initialState }) {
     };
 
     this.render = () => {
+        const language = getCurrentLanguage();
+        const locale = locales[language] || locales.en;
+
         this.$element.innerHTML = `
             <div class="content default-container">
                 <div class="container">
                     <div class="mb-3 mt-3">
-                        <div class="h1 text-left tp-color-secondary">Top Player</div>
-                        <div class="h3 text-left tp-color-primary">Thank you for playing</div>
+                        <div class="h1 text-left tp-color-secondary">${locale.rank.mainText}</div>
+                        <div class="h3 text-left tp-color-primary">${locale.rank.subText}</div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="">
@@ -77,13 +81,13 @@ function Rank({ initialState }) {
                                 <table class="table table-dark table-responsive-md" style="border-spacing: 0 10px;">
                                     <thead>
                                         <tr class="text-center align-middle">
-                                            <th class="tp-bgc-secondary">Rank</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thRank}</th>
                                             <th class="tp-bgc-secondary"></th>
-                                            <th class="tp-bgc-secondary">User Name</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thUserName}</th>
                                             <th class="tp-bgc-secondary"></th>
-                                            <th class="tp-bgc-secondary">Wins</th>
-                                            <th class="tp-bgc-secondary">Loses</th>
-                                            <th class="tp-bgc-secondary">Rank-Point</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thWins}</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thLoses}</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thRankPoint}</th>
                                         </tr>
                                     </thead>
                                     <tbody>

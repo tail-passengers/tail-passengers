@@ -56,7 +56,6 @@ export default function renderNavBar() {
   `;
 }
 
-
 document.addEventListener('click', function(event) {
   const languageButton = event.target.closest('.btn');
   if (!languageButton) return;
