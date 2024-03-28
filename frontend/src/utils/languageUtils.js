@@ -1,7 +1,11 @@
 export function getCurrentLanguage() {
-  return 'en';
+  return document.cookie.replace(/(?:(?:^|.*;\s*)language\s*=\s*([^;]*).*$)|^.*$/, "$1") || 'en';
+}
+
+export function setLanguageCookie(language) {
+  document.cookie = `language=${language}`;
 }
 
 export function changeLanguage(language) {
-  console.log(`Language changed to ${language}`);
+  setLanguageCookie(language);
 }

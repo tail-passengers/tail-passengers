@@ -1,16 +1,15 @@
 import { navigate } from "./navigate.js";
 import { BASE_URL } from "./routeInfo.js";
 import { $ } from "./querySelector.js";
+// import { renderPage } from "../component/navBar.js";
+// import { changeLanguage, getCurrentLanguage, setLanguageCookie } from "./languageUtils.js";
 
 export function addLoginEventListener(loginContainer) {
     const loginUrl = "https://localhost/api/v1/login";
     const loginButton = loginContainer.querySelector("#login-btn");
 
     loginButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        fetch(loginUrl, { credentials: "include" })
-            .then(handleLoginResponse)
-            .catch((error) => console.error("Error:", error));
+        
     });
 
     const handleLoginResponse = (response) => {
@@ -75,3 +74,22 @@ export function addNavBarLoadListener(navBarContainer) {
     };
     fetchUsers();
 }
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     const language = getCurrentLanguage();
+//     setLanguageCookie(language);
+
+//     console.log(language);
+  
+//     const languageDropdown = document.getElementById('languageDropdown');
+    
+//     if (languageDropdown) {
+//       languageDropdown.addEventListener('click', function(event) {
+//         if (event.target.tagName === 'A') {
+//           const selectedLanguage = event.target.dataset.language;
+//           changeLanguage(selectedLanguage);
+//           renderPage();
+//         }
+//       });
+//     }
+//   });
