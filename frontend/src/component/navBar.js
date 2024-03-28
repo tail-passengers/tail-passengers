@@ -56,13 +56,17 @@ export default function renderNavBar() {
   `;
 }
 
+
 document.addEventListener('click', function(event) {
   const languageButton = event.target.closest('.btn');
   if (!languageButton) return;
 
-  const language = languageButton.id.replace('language', '').toUpperCase();
-  changeLanguage(language.toLowerCase());
-  renderPage();
+  const languageID = languageButton.id;
+  if (languageID.startsWith('language')) {
+    const language = languageID.replace('language', '').toUpperCase();
+    changeLanguage(language.toLowerCase());
+    renderPage();
+  }
 });
 
 document.addEventListener('DOMContentLoaded', function() {

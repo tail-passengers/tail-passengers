@@ -74,22 +74,3 @@ export function addNavBarLoadListener(navBarContainer) {
     };
     fetchUsers();
 }
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     const language = getCurrentLanguage();
-//     setLanguageCookie(language);
-
-//     console.log(language);
-  
-//     const languageDropdown = document.getElementById('languageDropdown');
-    
-//     if (languageDropdown) {
-//       languageDropdown.addEventListener('click', function(event) {
-//         if (event.target.tagName === 'A') {
-//           const selectedLanguage = event.target.dataset.language;
-//           changeLanguage(selectedLanguage);
-//           renderPage();
-//         }
-//       });
-//     }
-//   });
