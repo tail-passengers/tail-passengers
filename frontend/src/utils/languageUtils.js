@@ -8,4 +8,6 @@ export function setLanguageCookie(language) {
 
 export function changeLanguage(language) {
   setLanguageCookie(language);
+  const languageChangeEvent = new Event("languageChange");
+  window.dispatchEvent(languageChangeEvent);
 }
