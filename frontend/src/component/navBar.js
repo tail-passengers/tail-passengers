@@ -1,8 +1,14 @@
+import locales from "../utils/locales.js";
+import { getCurrentLanguage, changeLanguage } from "../utils/languageUtils";
+
 export default function renderNavBar() {
+  const language = getCurrentLanguage();
+  const locale = locales[language] || locales.en;
+
   return `
   <nav class="navbar navbar-expand-lg tp-bg-secondary tp-navbar" data-bs-theme="dark">
     <div class="container-fluid">
-      <a class="navbar-brand tp-navbar-brand" href="/">TAIL PASSENGER</a>
+      <a class="navbar-brand tp-navbar-brand" href="/">${locale.navbar.title}</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -19,6 +25,16 @@ export default function renderNavBar() {
             <a class="nav-link active" href="/records">RECORDS</a>
           </li>
         </ul>
+        <div class="dropdown tp-bg-secondary tp-navbar-dropdown">
+          <button class="btn tp-bg-secondary dropdown-toggle tp-dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Language
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')"><i class="bi bi-translate"></i> English</a></li>
+            <li><a class="dropdown-item" href="#" onclick="changeLanguage('ko')"><i class="bi bi-translate"></i> 한국어</a></li>
+            <li><a class="dropdown-item" href="#" onclick="changeLanguage('ja')"><i class="bi bi-translate"></i> 日本語</a></li>
+          </ul>
+        </div>
         <div class="tp-simple-status default-container">
           <div class="progress tp-winning-percentage" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-bar tp-progress-bar" style="width: 25%"></div>
