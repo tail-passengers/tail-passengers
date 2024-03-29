@@ -45,8 +45,6 @@ export default function renderNavBar() {
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item" href="/profile">${locale.navBar.profile}</a></li>
-                    <li><a class="dropdown-item" href="">${locale.navBar.settings}</a></li>
-                    <li><hr class="dropdown-divider"></li>
                     <li><a id="logoutBtn" class="dropdown-item" href="#">${locale.navBar.logout}</a></li>
                   </ul>
               </div>

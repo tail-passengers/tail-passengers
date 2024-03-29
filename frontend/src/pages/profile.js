@@ -5,7 +5,7 @@ import {
   fetchUser,
   fetchMyIntraId,
   fetchAllFriends,
- } from "../utils/fetchs.js";
+ } from "../utils/fetches.js";
  import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 

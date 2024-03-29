@@ -1,18 +1,91 @@
-export default function renderFriendList() {
-	return `
-	<form class="tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
-		<table class="table table-dark table-hover">
-			<thead>
-				<tr class="tp-table-tr">
-					<th scope="tp-table-th col">NO</th>
-					<th scope="tp-table-th col">PROFILE</th>
-					<th scope="tp-table-th col">NICKNAME</th>
-					<th scope="tp-table-th col">CONNECTION</th>
-					<th scope="tp-table-th col">FRIEND REQUEST</th>
-				</tr>
-			</thead>
-			<tbody></tbody>
-		</table>
-	</form>
+import { addFriendListEventListener } from "../utils/profileEventListener.js";
+
+export default function renderFriendList(content, parentElement) {
+	let contentHTML = `
+		<form class="tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
+			<table class="table table-dark table-hover">
+				<thead>
+					<tr class="tp-table-tr">
+						<th scope="tp-table-th col">NO</th>
+						<th scope="tp-table-th col">PROFILE</th>
+						<th scope="tp-table-th col">NICKNAME</th>
+						<th scope="tp-table-th col">CONNECTION</th>
+						<th scope="tp-table-th col">FRIEND REQUEST</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</form>
 	`;
+
+	const renderFriends = (users) => {
+		let tableHTML = "";
+		if (users.length === 0) {
+			tableHTML += `
+				<tr>
+					<td colspan='5'>친구가 없습니다</td>
+				</tr>
+				<tr style="height:3px;"></tr>
+			`;
+		} else {
+			const tableRows = users.map((data, index) => {
+				let rowHTML = `
+					<tr>
+							<td class="h3 bold text-center align-middle col-1">
+								${index + 1}
+								<input type="hidden" class="tp-fl-request-id" value=${data.request_id}></input>
+							</td>
+							<td class="text-center align-middle col-1">
+								<div class="tp-fl-profile">
+								<img style="width:80%;" src=${data.profile_image} onerror="this.onerror=null; this.src='../../public/assets/img/sharkcookie.png'"></img>
+								</div>
+							</td>
+							<td class="h3 text-left align-middle tp-fl-display-intra-id col-2">
+									<input type="hidden" class="tp-fl-request-intra-id" value=${data.request_intra_id}></input>
+									<input type="hidden" class="tp-fl-response-intra-id" value=${data.response_intra_id}></input>
+							</td>
+							<td class="h3 bold text-center align-middle col-1 tp-onoff-status">
+								<div class="online-indicator">
+									<span class="blink tp-online-indicator-blink"></span>
+									<input type="hidden" class="tp-online-indicator-value" value=${data.status}></input>
+								</div>
+							</td>
+							<td class="h3 bold text-center align-middle col-1">
+								<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
+									<div class="tp-sl-btn-parent default-container">
+										<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-btn card default-container h-100 tp-fl-btn" value="ACCEPT" 
+											data-bs-toggle="tooltip" title="Accept"> 
+											<div class="card-body default-container ">
+												<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✔︎</h5>
+											</div>
+										</button>
+									</div>
+									<div class="tp-sl-btn-parent default-container">
+										<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-refuse-btn card default-container h-100 tp-fl-btn" value="REFUSE"
+											data-bs-toggle="tooltip" title="Refuse"> 
+											<div class="card-body default-container ">
+												<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✗</h5>
+											</div>
+										</button>
+									</div>
+									<input type="hidden" class="tp-friend-status" value=${data.status}></input>
+								</div>
+							</td>
+					</tr>
+					<tr style="height:3px;"></tr>
+				`;
+				return rowHTML;
+			});
+			tableHTML += tableRows.join("");
+		}
+	
+		const tableBody = document.querySelector("tbody");
+		if (tableBody) {
+			tableBody.innerHTML = tableHTML;
+		}
+	}
+	
+	parentElement.innerHTML = contentHTML;
+	renderFriends(content);
+	addFriendListEventListener();
 }

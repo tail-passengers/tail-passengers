@@ -8,7 +8,7 @@ import AboutUs from "../pages/aboutus.js";
 import SocketTest from "../pages/example_websocket.js";
 import RecordsSearch from "../pages/recordsSearch.js";
 
-export const BASE_URL = "htts://localhost";
+export const BASE_URL = "https://localhost";
 
 export const routes = [
     { path: /^\/$/, element: Home },
