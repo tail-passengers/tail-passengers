@@ -4,7 +4,6 @@ import { $ } from "../utils/querySelector.js";
 
 function Rank({ initialState }) {
     this.state = initialState;
-
     this.$element = document.createElement("div");
     this.$element.className = "content";
 
