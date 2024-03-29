@@ -1,3 +1,5 @@
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
 
 function RecordsSearch({ initialState }) {
@@ -86,6 +88,9 @@ function RecordsSearch({ initialState }) {
     ];
 
     this.render = () => {
+        const language = getCurrentLanguage();
+        const locale = locales[language] || locales.en;
+
         const gameElements = gameLogs
             .map(
                 (log) => `
@@ -118,7 +123,7 @@ function RecordsSearch({ initialState }) {
 
         this.$element.innerHTML = `
           <div class="content default-container">
-              <div class="h1" style="color:white;">Records</div>
+              <div class="h1" style="color:white;">${locale.records.mainText}</div>
               <div class="sized-box"></div>
               <div class="record-container">
 				${gameElements}
@@ -141,6 +146,11 @@ function RecordsSearch({ initialState }) {
         }
         this.render();
     };
+
+    window.addEventListener("languageChange", function() {
+        this.render();
+      }.bind(this));
+      
     this.init();
 }
 
