@@ -31,6 +31,10 @@ const jaLocale = {
   records: {
     mainText: "記録",
   },
+  profileTab: {
+    myInfoTab: "マイインフォ",
+    friendListTab: "フレンドリスト",
+  }
 };
 
 export default jaLocale;

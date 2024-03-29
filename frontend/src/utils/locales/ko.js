@@ -31,6 +31,10 @@ const koLocale = {
   records: {
     mainText: "기록",
   },
+  profileTab: {
+    myInfoTab: "내 정보",
+    friendListTab: "친구목록",
+  }
 };
 
 export default koLocale;

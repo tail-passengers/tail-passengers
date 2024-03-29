@@ -31,6 +31,10 @@ const enLocale = {
   records: {
     mainText: "Records",
   },
+  profileTab: {
+    myInfoTab: "MY",
+    friendListTab: "FRIEND",
+  }
 };
 
 export default enLocale;
