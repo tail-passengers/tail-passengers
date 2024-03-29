@@ -1,6 +1,10 @@
 import { navigate } from "./navigate.js";
 import { BASE_URL } from "./routeInfo.js";
 import { $ } from "./querySelector.js";
+import { 
+    fetchUser,
+    fetchLogoutRequest,
+} from "./fetches.js";
 // import { renderPage } from "../component/navBar.js";
 // import { changeLanguage, getCurrentLanguage, setLanguageCookie } from "./languageUtils.js";
 
@@ -9,7 +13,10 @@ export function addLoginEventListener(loginContainer) {
     const loginButton = loginContainer.querySelector("#login-btn");
 
     loginButton.addEventListener("click", (e) => {
-        
+        e.preventDefault();
+        fetch(loginUrl, { credentials: "include" })
+            .then(handleLoginResponse)
+            .catch((error) => console.error("Error:", error));
     });
 
     const handleLoginResponse = (response) => {
@@ -41,9 +48,15 @@ export function addNavBarClickListener(navBarContainer) {
         const targetURL = target.href.replace(BASE_URL, "");
         navigate(targetURL);
     });
+
+    const logoutBtn = navBarContainer.querySelector("#logoutBtn");
+    logoutBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        fetchLogoutRequest();
+    });
 }
 
-export function addNavBarLoadListener(navBarContainer) {
+export async function addNavBarLoadListener(navBarContainer) {
     const renderUser = (user) => {
         const progressBar = $(".tp-progress-bar");
         const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
@@ -60,17 +73,6 @@ export function addNavBarLoadListener(navBarContainer) {
         renderUser(content);
     };
 
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch("https://localhost/api/v1/users/", {
-                credentials: 'include'
-            });
-            const data = await response.json();
-            console.log("data:", data);
-            setState(data[0]);
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        }
-    };
-    fetchUsers();
+    let data = await fetchUser();
+    setState(data[0]);
 }
