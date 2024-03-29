@@ -1,11 +1,8 @@
-import {
-  fetchAcceptFriendRequest,
-  fetchRefuseFriendRequest,
-} from "../utils/fetchs.js";
+import { addProfileModalEventListener } from "../utils/profileEventListener.js";
 
-export default function renderRequestModal(selectBtn, parentElement) {
+export default function renderRequestModal(selectBtn, parentElement, requestId) {
 	let contentHTML = `
-		<div class="modal tp-modal-div" tabindex="-1">
+		<div class="modal tp-sl-card-row tp-modal-div" tabindex="-1">
 			<div class="modal-dialog default-container">
 				<div class="modal-content tp-modal-accept tp-bgc-primary tp-friend-modal-content">
 					<div class="modal-header tp-friend-modal-header">
@@ -17,7 +14,7 @@ export default function renderRequestModal(selectBtn, parentElement) {
 					<div class="modal-footer tp-friend-modal-footer">
 						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
 						<div class="tp-sl-btn-parent default-container">
-							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-btn card default-container h-100 tp-fl-btn" value="accept" 
+							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-modal-btn card default-container h-100 tp-fl-btn" value="accept" 
 								data-bs-toggle="tooltip" title="Accept"> 
 								<div class="card-body default-container ">
 									<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✔︎</h5>
@@ -45,7 +42,7 @@ export default function renderRequestModal(selectBtn, parentElement) {
 					<div class="modal-footer tp-friend-modal-footer">
 						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
 						<div class="tp-sl-btn-parent default-container">
-							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-refuse-btn card default-container h-100 tp-fl-btn" value="refuse" 
+							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-refuse-modal-btn card default-container h-100 tp-fl-btn" value="refuse" 
 								data-bs-toggle="tooltip" title="Refuse"> 
 								<div class="card-body default-container">
 									<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✔︎</h5>
@@ -53,52 +50,19 @@ export default function renderRequestModal(selectBtn, parentElement) {
 							</button>
 						</div>
 						<div class="tp-sl-btn-parent default-container">
-							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-close-btn card default-container h-100 tp-fl-btn" value="close"
+							<button class="btn tp-sl-btn-primary tp-pf-btn tp-fl-close-btn card default-container h-100 tp-fl-btn" value="close"
 								data-bs-toggle="tooltip" title="Close Modal" id="close-btn"> 
 								<div class="card-body default-container">
 									<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✗</h5>
 								</div>
 							</button>
-						</div>
 					</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 	`;
-
-	function addProfileModalEventListener(profileModal) {
-		const closeProfileModal = (profileModal) => {
-				profileModal.style.display = "none";
-		};
-
-		const closeButtons = profileModal.querySelectorAll("#close-btn");
-		if (closeButtons)
-		{
-			closeButtons.forEach(button => {
-				button.addEventListener("click", () => {
-						closeProfileModal(profileModal);
-				});
-			});
-		}
-
-		const acceptModalButton = profileModal.querySelector(".tp-fl-accept-btn");
-		if (acceptModalButton) {
-			acceptModalButton.addEventListener("click", () => {
-				fetchAcceptFriendRequest();
-				closeProfileModal(profileModal);
-			});
-		}
-
-		const refuseModalButton = profileModal.querySelector(".tp-fl-refuse-btn");
-		if (refuseModalButton) {
-			refuseModalButton.addEventListener("click", () => {
-				fetchRefuseFriendRequest();
-				closeProfileModal(profileModal);
-			});
-		}
-	}
-
 
 	let requestModal = document.createRange().createContextualFragment(contentHTML);
 	const prevModal = parentElement.querySelector(".tp-modal-div");
@@ -124,6 +88,5 @@ export default function renderRequestModal(selectBtn, parentElement) {
 		refuseModalContent.classList.remove("visually-hidden");
 		acceptModalContent.classList.add("visually-hidden");
 	}
-
-	return requestModal;
+	
 }
