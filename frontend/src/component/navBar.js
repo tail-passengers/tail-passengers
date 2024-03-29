@@ -41,13 +41,13 @@ export default function renderNavBar() {
                 </div>
                 <div class="dropdown tp-bg-secondary tp-navbar-dropdown">
                   <button class="btn tp-bg-secondary dropdown-toggle tp-dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    PROFILE
+                    ${locale.navBar.profile}
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="/profile">Your Profile</a></li>
-                    <li><a class="dropdown-item" href="">Settings</a></li>
+                    <li><a class="dropdown-item" href="/profile">${locale.navBar.profile}</a></li>
+                    <li><a class="dropdown-item" href="">${locale.navBar.settings}</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a id="logoutBtn" class="dropdown-item" href="#">Logout</a></li>
+                    <li><a id="logoutBtn" class="dropdown-item" href="#">${locale.navBar.logout}</a></li>
                   </ul>
               </div>
           </div>

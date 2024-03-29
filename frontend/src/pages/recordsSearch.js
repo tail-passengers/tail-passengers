@@ -146,6 +146,11 @@ function RecordsSearch({ initialState }) {
         }
         this.render();
     };
+
+    window.addEventListener("languageChange", function() {
+        this.render();
+      }.bind(this));
+      
     this.init();
 }
 

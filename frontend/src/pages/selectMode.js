@@ -86,7 +86,7 @@ function SelectMode({ initialState }) {
 
     window.addEventListener("languageChange", function() {
       this.render();
-  }.bind(this));
+    }.bind(this));
 
     this.init();
 }
