@@ -80,42 +80,6 @@ class UsersDetailViewSetTest(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_delete_without_authenticate(self):
-        """
-        권한 없이 delete test
-        """
-        url = reverse("users_detail", kwargs={"intra_id": self.user.intra_id})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_delete(self):
-        """
-        기본적인 delete test
-        """
-        self.client.force_authenticate(user=self.user)
-        initial_user_count = get_user_model().objects.count()
-        url = reverse("users_detail", kwargs={"intra_id": self.user.intra_id})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # 삭제 후 유저 수가 1 감소했는지 확인
-        self.assertEqual(get_user_model().objects.count(), initial_user_count - 1)
-        # 삭제된 유저의 pk로 유저가 존재하지 않는지 확인
-        self.assertFalse(get_user_model().objects.filter(pk=self.user.pk).exists())
-
-    def test_delete_other_pk(self):
-        """
-        다른 유저 삭제 가능한지 test
-        """
-        self.client.force_authenticate(user=self.user)
-        initial_user_count = get_user_model().objects.count()
-        url = reverse("users_detail", kwargs={"intra_id": self.other_user.intra_id})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        # 삭제 오류 후 유저 수가 동일한지 확인
-        self.assertEqual(get_user_model().objects.count(), initial_user_count)
-        # 삭제된 유저의 pk로 유저가 존재하지 않는지 확인
-        self.assertTrue(get_user_model().objects.filter(pk=self.user.pk).exists())
-
     def test_patch_without_authenticate(self):
         """
         권한 없이 patch test

@@ -31,6 +31,13 @@ class UserStatusEnum(models.TextChoices):
     OFFLINE = "0", "Offline"
 
 
+class HouseEnum(models.TextChoices):
+    GRYFFINDOR = "GR"
+    RAVENCLAW = "RA"
+    SLYTHERIN = "SL"
+    HUFFLEPUFF = "HU"
+
+
 class Users(AbstractBaseUser, PermissionsMixin):
     user_id: str or uuid = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False
@@ -40,6 +47,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     profile_image: str = models.ImageField(
         null=True, blank=True, upload_to="profile_images"
     )
+    house: str = models.CharField(choices=HouseEnum.choices, max_length=2)
     win_count: int = models.IntegerField(default=0)
     lose_count: int = models.IntegerField(default=0)
     created_time: datetime = models.DateTimeField(auto_now_add=True, editable=False)

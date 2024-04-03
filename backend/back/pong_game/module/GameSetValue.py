@@ -32,6 +32,7 @@ class PlayerStatus(Enum):
 
 
 class MessageType(Enum):
+    WAIT = "wait"
     CREATE = "create"
     READY = "ready"
     START = "start"
@@ -63,3 +64,15 @@ class TournamentStatus(Enum):
 class ResultType(Enum):
     SUCCESS = "success"
     FAIL = "fail"
+
+
+class PlayerNumber(Enum):
+    PLAYER_1 = "player1"
+    PLAYER_2 = "player2"
+    PLAYER_3 = "player3"
+    PLAYER_4 = "player4"
+
+
+class TournamentGroupName(Enum):
+    A_TEAM = "a_team"
+    B_TEAM = "b_team"

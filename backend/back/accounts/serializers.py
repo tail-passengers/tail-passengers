@@ -13,6 +13,7 @@ class UsersSerializer(serializers.ModelSerializer):
             "win_count",
             "lose_count",
             "status",
+            "house",
         )
 
 
@@ -29,4 +30,5 @@ class UsersDetailSerializer(serializers.ModelSerializer):
             "intra_id",
             "created_time",
             "updated_time",
+            "house",
         )

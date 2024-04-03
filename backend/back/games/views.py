@@ -1,6 +1,4 @@
 import uuid
-
-import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, DatabaseError
 from django.db.models import Q
@@ -91,6 +89,7 @@ class GeneralGameLogsListViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = GeneralGameLogs.objects.all()
     serializer_class: GeneralGameLogsListSerializer = GeneralGameLogsListSerializer
+    http_method_names = ["get"]
 
     def list(self, request, *args, **kwargs) -> Response:
         if "intra_id" not in kwargs:
@@ -133,6 +132,7 @@ class TournamentGameLogsListViewSet(viewsets.ModelViewSet):
     serializer_class: TournamentGameLogsListSerializer = (
         TournamentGameLogsListSerializer
     )
+    http_method_names = ["get"]
 
     def list(self, request, *args, **kwargs) -> Response:
         if "intra_id" not in kwargs and "name" not in kwargs:

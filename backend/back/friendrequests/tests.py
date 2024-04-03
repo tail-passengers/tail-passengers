@@ -69,7 +69,8 @@ class FriendListViewSetTestCase(APITestCase):
         """
         self.client.force_authenticate(user=self.user1)
         url = reverse(
-            "friend_list", kwargs={"intra_id": self.user1.intra_id, "status": "accepted"}
+            "friend_list",
+            kwargs={"intra_id": self.user1.intra_id, "status": "accepted"},
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

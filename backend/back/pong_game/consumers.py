@@ -13,6 +13,9 @@ from .module.GameSetValue import (
     GameTimeType,
     ResultType,
     NOT_ALLOWED_TOURNAMENT_NAME,
+    TournamentStatus,
+    TOURNAMENT_PLAYER_MAX_CNT,
+    TournamentGroupName,
 )
 from .module.GameSetValue import MessageType
 from games.serializers import GeneralGameLogsSerializer
@@ -273,7 +276,109 @@ class TournamentGameWaitConsumer(AsyncWebsocketConsumer):
         else:
             result = ResultType.SUCCESS.value
             self.isProcessingComplete = True
+            # TODO test 필요
+            ACTIVE_TOURNAMENTS[tournament_name] = Tournament(
+                tournament_name=tournament_name, create_user_intra_id=self.user.intra_id
+            )
 
         await self.send(
             json.dumps({"message_type": MessageType.CREATE.value, "result": result})
         )
+
+
+class TournamentGameConsumer(AsyncWebsocketConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.user: Users or None = None
+        self.tournament_name: str = ""
+        self.group_name_prefix: str = ""
+        self.group_name_a: str = ""
+        self.group_name_b: str = ""
+        self.tournament: Tournament or None = None
+
+    async def send_message(self, event) -> None:
+        message = event["message"]
+
+        # Send message to WebSocket
+        await self.send(text_data=message)
+
+    # TODO accept 위치 테스트 터지면 보기
+    async def connect(self) -> None:
+        self.user = self.scope["user"]
+        if self.user.is_authenticated:
+            self.tournament_name: str = self.scope["url_route"]["kwargs"][
+                "tournament_name"
+            ]
+            self.group_name_prefix = f"tournament_{self.tournament_name}"
+            self.group_name_a = self.group_name_prefix + "a"
+            self.group_name_b = self.group_name_prefix + "b"
+            self.tournament = ACTIVE_TOURNAMENTS.get(self.tournament_name)
+        if (
+            self.tournament is not None
+            and self.tournament.get_status() == TournamentStatus.WAIT
+        ):
+            await self.accept()
+            player_number, wait_detail_json = (
+                self.tournament.build_tournament_wait_detail_json(
+                    intra_id=self.user.intra_id
+                )
+            )
+            if int(player_number[-1]) <= TOURNAMENT_PLAYER_MAX_CNT // 2:
+                await self.channel_layer.group_add(self.group_name_a, self.channel_name)
+            else:
+                await self.channel_layer.group_add(self.group_name_b, self.channel_name)
+
+            await self.channel_layer.group_send(
+                self.group_name_a,
+                {"type": "send.message", "message": wait_detail_json},
+            )
+            await self.channel_layer.group_send(
+                self.group_name_b,
+                {"type": "send.message", "message": wait_detail_json},
+            )
+        else:
+            await self.close()
+
+    async def disconnect(self, close_code) -> None:
+        if not self.user.is_authenticated:
+            return
+
+        if self.tournament.get_status() == TournamentStatus.READY:
+            return
+
+        self.tournament.disconnect_tournament(self.user.intra_id)
+        if self.tournament.get_player_total_cnt() == 0:
+            ACTIVE_TOURNAMENTS.pop(self.tournament_name)
+
+    async def receive(self, text_data: json = None, bytes_data=None) -> None:
+        data = json.loads(text_data)
+        if data.get("message_type") == MessageType.WAIT.value:
+            number = data.get("number")
+            intra_id = data.get("intra_id")
+            if intra_id != self.user.intra_id:
+                return
+
+            if not self.tournament.try_set_ready(
+                player_number=number, intra_id=intra_id
+            ):
+                return
+
+            if self.tournament.is_all_ready():
+                await self.channel_layer.group_send(
+                    self.group_name_a,
+                    {
+                        "type": "send.message",
+                        "message": self.tournament.build_tournament_ready_json(
+                            TournamentGroupName.A_TEAM
+                        ),
+                    },
+                )
+                await self.channel_layer.group_send(
+                    self.group_name_b,
+                    {
+                        "type": "send.message",
+                        "message": self.tournament.build_tournament_ready_json(
+                            TournamentGroupName.B_TEAM
+                        ),
+                    },
+                )

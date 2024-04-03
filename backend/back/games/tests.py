@@ -142,8 +142,8 @@ class GeneralGameLogsViewSetTest(APITestCase):
         # get 데이터 확인
         self.assertEqual(response.data[0]["start_time"], self.start_time.isoformat())
         self.assertEqual(response.data[0]["end_time"], self.end_time.isoformat())
-        self.assertEqual(response.data[0]["player1_user"]["intra_id"], player1)
-        self.assertEqual(response.data[0]["player2_user"]["intra_id"], player2)
+        self.assertEqual(response.data[0]["player1"]["intra_id"], player1)
+        self.assertEqual(response.data[0]["player2"]["intra_id"], player2)
 
     def test_score_minus(self):
         """
@@ -380,15 +380,9 @@ class TournamentGameLogsViewSetTest(APITestCase):
             reverse("tournament_name_logs", kwargs={"name": self.tournament_name})
         )
         assert len(response.data) == 3
-        self.assertEqual(
-            self.user1.intra_id, response.data[0]["player1_user"]["intra_id"]
-        )
-        self.assertEqual(
-            self.user3.intra_id, response.data[1]["player1_user"]["intra_id"]
-        )
-        self.assertEqual(
-            self.user3.intra_id, response.data[2]["player1_user"]["intra_id"]
-        )
+        self.assertEqual(self.user1.intra_id, response.data[0]["player1"]["intra_id"])
+        self.assertEqual(self.user3.intra_id, response.data[1]["player1"]["intra_id"])
+        self.assertEqual(self.user3.intra_id, response.data[2]["player1"]["intra_id"])
 
         response = self.client.get(
             reverse(

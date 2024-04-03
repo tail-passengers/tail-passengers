@@ -26,5 +26,4 @@ urlpatterns = [
         ),
         name="friend_requests_detail",
     ),
-
 ]

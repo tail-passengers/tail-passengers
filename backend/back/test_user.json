@@ -18,7 +18,8 @@
       "is_active": true,
       "groups": [],
       "user_permissions": [],
-      "is_test_user": true
+      "is_test_user": true,
+      "house": "GR"
     }
   },
   {
@@ -40,7 +41,8 @@
       "is_active": true,
       "groups": [],
       "user_permissions": [],
-      "is_test_user": true
+      "is_test_user": true,
+      "house": "GR"
     }
   },
   {
@@ -62,7 +64,8 @@
       "is_active": true,
       "groups": [],
       "user_permissions": [],
-      "is_test_user": true
+      "is_test_user": true,
+      "house": "GR"
     }
   },
   {
@@ -84,7 +87,8 @@
       "is_active": true,
       "groups": [],
       "user_permissions": [],
-      "is_test_user": true
+      "is_test_user": true,
+      "house": "GR"
     }
   },
   {
@@ -106,7 +110,8 @@
       "is_active": true,
       "groups": [],
       "user_permissions": [],
-      "is_test_user": true
+      "is_test_user": true,
+      "house": "RA"
     }
   },
   {
@@ -128,7 +133,8 @@
       "is_active": true,
       "groups": [],
       "user_permissions": [],
-      "is_test_user": true
+      "is_test_user": true,
+      "house": "RA"
     }
   },
   {

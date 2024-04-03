@@ -48,6 +48,9 @@ class FriendListViewSet(viewsets.ModelViewSet):
         else:
             raise ValidationError({"detail": "잘못된 url입니다."})
         serializer = self.serializer_class(queryset, many=True)
+        for d in serializer.data:
+            req_id, res_id = d.pop("request_user_id"), d.pop("response_user_id")
+            d["friend_requests"] = res_id if req_id["intra_id"] == intra_id else req_id
         return Response(serializer.data)
 
 

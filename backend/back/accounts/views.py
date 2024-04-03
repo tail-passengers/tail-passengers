@@ -1,6 +1,5 @@
 import os
 import requests
-import uuid
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,11 +7,19 @@ from django.shortcuts import redirect
 from django.core.files.base import ContentFile
 from django.conf import settings
 from .serializers import UsersSerializer, UsersDetailSerializer
-from .models import Users
+from .models import Users, HouseEnum
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.contrib.auth import logout
+
+
+HOUSE = {
+    "Gam": HouseEnum.RAVENCLAW,
+    "Gun": HouseEnum.HUFFLEPUFF,
+    "Lee": HouseEnum.GRYFFINDOR,
+    "Gon": HouseEnum.SLYTHERIN,
+}
 
 
 # https://squirmm.tistory.com/entry/Django-DRF-Method-Override-%EB%B0%A9%EB%B2%95
@@ -68,11 +75,10 @@ class UsersDetailViewSet(viewsets.ModelViewSet):
     http_method_names = [
         "get",
         "patch",
-        "delete",
-    ]  # TODO delete 나중에 제거 예정
+    ]
     lookup_field: str = "intra_id"
 
-    # 우선 nickname과 profile_image를 제외한 모든 필드를 수정 불가로 설정
+    # nickname과 profile_image, status를 제외한 모든 필드를 수정 불가로 설정
     can_not_change_fields: tuple[str] = (
         "user_id",
         "password",
@@ -83,7 +89,6 @@ class UsersDetailViewSet(viewsets.ModelViewSet):
         "lose_count",
         "created_time",
         "updated_time",
-        "status",
         "is_staff",
         "is_active",
         "groups",
@@ -99,23 +104,6 @@ class UsersDetailViewSet(viewsets.ModelViewSet):
             raise ValidationError({"detail": "존재하지 않는 사용자입니다."})
         serializer = UsersDetailSerializer(queryset, many=True)
         return Response(serializer.data)
-
-    def destroy(self, request, *args, **kwargs) -> Response:
-        """
-        DELETE method override
-        """
-        user = Users.objects.get(intra_id=kwargs["intra_id"])
-        if request.user.intra_id != user.intra_id:
-            raise PermissionDenied(
-                {"detail": "다른 사용자의 정보는 삭제할 수 없습니다."}
-            )
-        if user.profile_image:
-            try:
-                os.remove(os.path.join(settings.MEDIA_ROOT, user.profile_image.name))
-            except FileNotFoundError:
-                print("File not found")
-        self.perform_destroy(user)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def partial_update(self, request, *args, **kwargs) -> Response:
         """
@@ -142,7 +130,10 @@ class UsersDetailViewSet(viewsets.ModelViewSet):
         response = super().partial_update(request, *args, **kwargs)
 
         if previous_image and request.data.get("profile_image") is not None:
-            os.remove(os.path.join(settings.MEDIA_ROOT, previous_image.name))
+            try:
+                os.remove(os.path.join(settings.MEDIA_ROOT, previous_image.name))
+            except FileNotFoundError:
+                pass
         return response
 
 
@@ -183,12 +174,19 @@ class CallbackAPIView(APIView):
             headers={"Authorization": f"Bearer {access_token}"},
         )
         user_info = user_info_request.json()
+        coalition_info_request = requests.get(
+            f"https://api.intra.42.fr/v2/users/{user_info['id']}/coalitions",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        coalition_info = coalition_info_request.json()
         login_id = user_info["login"]
         image_address = user_info["image"]["versions"]["large"]
+        house = HOUSE[coalition_info[0]["name"]]
         user_instance, created = Users.objects.get_or_create(
             intra_id=login_id,
             nickname=login_id,
             status=0,
+            house=house,
         )
 
         if created:

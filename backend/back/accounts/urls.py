@@ -11,9 +11,7 @@ urlpatterns = [
     ),
     path(
         "users/<str:intra_id>/",
-        views.UsersDetailViewSet.as_view(
-            {"get": "list", "patch": "partial_update", "delete": "destroy"}
-        ),
+        views.UsersDetailViewSet.as_view({"get": "list", "patch": "partial_update"}),
         name="users_detail",
     ),
     path("login/", views.Login42APIView.as_view()),

@@ -63,8 +63,8 @@ class GeneralGameLogsSerializer(serializers.ModelSerializer):
 
 
 class GeneralGameLogsListSerializer(serializers.ModelSerializer):
-    player1_user: Users = UsersSerializer(source="player1")
-    player2_user: Users = UsersSerializer(source="player2")
+    player1: Users = UsersSerializer()
+    player2: Users = UsersSerializer()
 
     class Meta:
         model: GeneralGameLogs = GeneralGameLogs
@@ -72,8 +72,8 @@ class GeneralGameLogsListSerializer(serializers.ModelSerializer):
             "game_id",
             "start_time",
             "end_time",
-            "player1_user",
-            "player2_user",
+            "player1",
+            "player2",
             "player1_score",
             "player2_score",
         )
@@ -121,16 +121,16 @@ class TournamentGameLogsSerializer(serializers.ModelSerializer):
 
 
 class TournamentGameLogsListSerializer(serializers.ModelSerializer):
-    player1_user: Users = UsersSerializer(source="player1")
-    player2_user: Users = UsersSerializer(source="player2")
+    player1: Users = UsersSerializer()
+    player2: Users = UsersSerializer()
 
     class Meta:
         model: TournamentGameLogsSerializer = TournamentGameLogs
         fields = (
             "tournament_name",
             "round",
-            "player1_user",
-            "player2_user",
+            "player1",
+            "player2",
             "player1_score",
             "player2_score",
             "start_time",
