@@ -14,7 +14,7 @@ function Rank({ initialState }) {
 
     this.fetchUsers = async () => {
         try {
-            const response = await fetch("https://localhost/api/v1/users/", {
+            const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/`, {
                 credentials: 'include'
             });
             const data = await response.json();
