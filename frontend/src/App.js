@@ -5,7 +5,6 @@ import Router from "./router.js";
 import {
     addLoginEventListener,
     addNavBarClickListener,
-    addNavBarLoadListener,
 } from "./utils/eventListener.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -17,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
     footerContainer.innerHTML = renderFooter();
     loginContainer.innerHTML = renderLoginModal();
 
-    // addNavBarLoadListener(navBarContainer);
     addNavBarClickListener(navBarContainer);
     addLoginEventListener(loginContainer);
 });

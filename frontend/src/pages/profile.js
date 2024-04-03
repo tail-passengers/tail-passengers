@@ -45,23 +45,7 @@ function Profile({ initialState }) {
         `;
     };
 
-    this.init = () => {
-        let parent = $("#app");
-        const child = $(".content");
-        if (child) {
-            parent.removeChild(child);
-            parent.appendChild(this.$element);
-        }
-        let body = $("body");
-        const canvas = $("canvas");
-        if (canvas) {
-            body.removeChild(canvas);
-        }
-        this.render();
-
-        /**
-         * Tab Event
-         */
+    const renderTab = () => {
         const triggerTabList = document.querySelectorAll("#profile-tab button");
         const formContainer = $(".tp-pf-form-container");
 
@@ -87,18 +71,35 @@ function Profile({ initialState }) {
             });
         });
 
+
         const firstTab = $('#profile-tab button[data-bs-target="#my"]');
         if (firstTab) {
             firstTab.classList.add("active");
             firstTab.dispatchEvent(new Event("click"));
         }
+    }
+
+    this.init = () => {
+        let parent = $("#app");
+        const child = $(".content");
+        if (parent && child) {
+            parent.removeChild(child);
+            parent.appendChild(this.$element);
+        }
+        let body = $("body");
+        const canvas = $("canvas");
+        if (canvas) {
+            body.removeChild(canvas);
+        }
+        this.render();
+        renderTab();
     };
 
     window.addEventListener(
         "languageChange",
         function () {
-            console.log("HELLO!");
             this.render();
+            renderTab();
         }.bind(this)
     );
 

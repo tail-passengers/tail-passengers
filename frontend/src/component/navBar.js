@@ -5,7 +5,7 @@ import { fetchUser } from "../utils/fetches.js";
 export function renderPage() {
     const navBarContainer = document.querySelector("#nav-bar");
     navBarContainer.innerHTML = renderNavBar();
-    console.log("renderPage()");
+    renderProgressBar();
 }
 
 export default function renderNavBar() {
@@ -74,11 +74,9 @@ export default function renderNavBar() {
   `;
 }
 
-async function renderProgressBar(navBarContainer) {
-    console.log("renderProgressBar()");
+async function renderProgressBar() {
     const renderUser = (user) => {
-        console.log("renderUser()");
-        const progressBar = $(".tp-progress-bar");
+        const progressBar = $(".tp-progress-bar")[0];
         const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
         if (progressBar) {
             progressBar.innerHTML = result + "%";
@@ -87,13 +85,15 @@ async function renderProgressBar(navBarContainer) {
             console.log("addNavBarLoadListener():: Can't find progressBar!");
         }
     };
-
+    
     const setState = (content) => {
         renderUser(content);
     };
 
     let data = await fetchUser();
-    setState(data[0]);
+    if (data) {
+        setState(data[0]);
+    }
 }
 
 document.addEventListener("click", function (event) {
@@ -110,5 +110,4 @@ document.addEventListener("click", function (event) {
 
 document.addEventListener("DOMContentLoaded", function () {
     renderPage();
-    renderProgressBar(navBarContainer);
 });
