@@ -1,7 +1,13 @@
 # Frontend (Seulee2 Jaekkang Yunjcho)
 
 ## Issue
-
+<details>
+	<summary>&emsp;<b>[해결]</b>리버스 프록시 적용 이후 프로필 페이지에서 new bootstrap 부분이 undefined로 에러 발생</summary>
+	<ul>
+		<li>프로필 페이지의 Tab 기능을 인스턴스화하여 사용하고 있는데 빌드 시 크롬 웹 브라우저에 bootstrap undefined 에러가 표시됨</li>
+		<code>index.js의 import 구문을 ES6의 import 구문으로 수정하고 bootstrap 객체를 전역객체로 할당함</code>
+	</ul>
+</details>
 <details>
 	<summary>&emsp;<b>[해결]</b> Login Modal 생성 후, Modal을 닫아도 다른 네비게이션으로 이동할 수 없는 이슈</summary>
 	<ul>
@@ -113,6 +119,7 @@
 -   [Node js & sock.io 를 이용한 멀티게임 간단 구현](https://god-gil.tistory.com/78)
 -   [Node js 웹 소켓으로 실시간 데이터 전송하기](https://corner-ds.tistory.com/211)
 -   [Multi Language 지원방법](https://medium.com/@nohanabil/building-a-multilingual-static-website-a-step-by-step-guide-7af238cc8505)
+-   [Bootstrap 5 ReferenceError: bootstrap is not defined](https://stackoverflow.com/questions/64113404/bootstrap-5-referenceerror-bootstrap-is-not-defined)
 
 ## How To run?
 
