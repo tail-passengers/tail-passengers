@@ -22,9 +22,14 @@ export default function renderMyInfoForm(content, parentElement) {
 							<label class="form-label tp-pf-label tp-pf-label-intraId default-container">INTRA ID</label>
 							<input name="intraId" class="form-control tp-pf-input tp-pf-input-intraId" placeholder="test" value="" disabled>
 						</div>
-						<div class="tp-pf-elembox tp-pf-coalition">
-							<label class="form-label tp-pf-label tp-pf-label-coalition default-container">COALITION</label>
-							<input name="coalitions" class="form-control tp-pf-input tp-pf-input-coalition" placeholder="test" value="" disabled>
+						<div class="tp-pf-elembox tp-pf-house">
+							<label class="form-label tp-pf-label tp-pf-label-house default-container">HOUSE</label>
+							<select name="house" class="form-select tp-pf-input tp-bg-secondary tp-pf-input-house" aria-label="Default select" id="house" disabled>
+								<option class="tp-pf-house-item tp-pf-house-gr" value="GR">Gryffindor</option>
+								<option class="tp-pf-house-item tp-pf-house-hu" value="HU">Hufflepuff</option>
+								<option class="tp-pf-house-item tp-pf-house-ra" value="RA">Ravenclaw</option>
+								<option class="tp-pf-house-item tp-pf-house-sl" value="SL">Slytherin</option>
+							</select>
 						</div>
 				</div>
 			<div class="tp-pf-ht-blank"></div>
@@ -38,21 +43,27 @@ export default function renderMyInfoForm(content, parentElement) {
 		</form>
 	`;
 
+	const handlerHouseValue = function(houseName) {
+    const house = $(".tp-pf-input-house");
+    const options = house.querySelectorAll(".tp-pf-house-item");
+    options.forEach(option => {
+        if (option.value === houseName) {
+            option.selected = true;
+        }
+    });
+	}
+
 	const renderUser = function (content) {
 		const nickname = $(".tp-pf-input-nickname");
 		const intraId = $(".tp-pf-input-intraId");
 		const profileImg = $(".tp-pf-photo-thumnail");
 		const record = $(".tp-pf-input-record");
-		const winCount = $(".tp-pf-input-wincount");
-		const loseCount = $(".tp-pf-input-wincount");
-		const coalitions = $(".tp-pf-input-coalition");
+		const house = $(".tp-pf-input-house");
 		nickname.value = content.nickname;
 		intraId.value = content.intra_id;
-		profileImg.src = "https://localhost" + content.profile_image;
+		profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
 		record.value = content.win_count + " WIN, " + content.lose_count + " LOSE";
-		winCount.value = content.win_count;
-		loseCount.value = content.lose_count;
-		coalitions.value = content.coalitions;
+		handlerHouseValue(content.house);
 	};
 
 	parentElement.innerHTML = contentHTML;
