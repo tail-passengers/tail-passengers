@@ -141,7 +141,7 @@ class Login42APIView(APIView):
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
             return redirect(
-                f"http://127.0.0.1:8000/api/v1/users/{request.user.intra_id}/"
+                f"http://{os.environ.get("BASE_IP")}/api/v1/users/{request.user.intra_id}/"
             )
 
         client_id = os.environ.get("CLIENT_ID")
@@ -159,7 +159,7 @@ class CallbackAPIView(APIView):
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
             return redirect(
-                f"http://127.0.0.1:8000/api/v1/users/{request.user.intra_id}/"
+                f"http://{os.environ.get("BASE_IP")}/api/v1/users/{request.user.intra_id}/"
             )
 
         if request.session.get("state") and not request.GET.get(
@@ -197,7 +197,7 @@ class CallbackAPIView(APIView):
             user_instance.save()
         # login
         login(request, user_instance)
-        return redirect(f"http://127.0.0.1:8000/api/v1/users/{user_instance.intra_id}/")
+        return redirect(f"http://{os.environ.get("BASE_IP")}/api/v1/users/{user_instance.intra_id}/")
 
     def _get_access_token(self, request) -> str:
         grant_type = "authorization_code"
@@ -233,7 +233,7 @@ class TestAccountLogin(APIView):
         """
         if request.user.is_authenticated:
             return redirect(
-                f"http://127.0.0.1:8000/api/v1/users/{request.user.intra_id}/"
+                f"http://{os.environ.get("BASE_IP")}/api/v1/users/{request.user.intra_id}/"
             )
         try:
             user_instance = Users.objects.get(intra_id=kwargs["intra_id"])
