@@ -1,7 +1,11 @@
-# Use an official Node.js runtime as a base image
-FROM node:18
+FROM node:alpine
 
-# Set the working directory inside the container
+RUN apk update \
+	&& apk upgrade \
+	&& apk add --no-cache --upgrade bash \
+	&& apk add npm dumb-init
+
 WORKDIR /app
 
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sh", "-c", "npm install && npm run build && npm run start"]

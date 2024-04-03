@@ -1,12 +1,12 @@
 import { $ } from "../utils/querySelector.js";
 import renderMyInfoForm from "../component/myInfo.js";
 import renderFriendList from "../component/friendList.js";
-import { 
-  fetchUser,
-  fetchMyIntraId,
-  fetchAllFriends,
- } from "../utils/fetches.js";
- import { getCurrentLanguage } from "../utils/languageUtils.js";
+import {
+    fetchUser,
+    fetchMyIntraId,
+    fetchAllFriends,
+} from "../utils/fetches.js";
+import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
 function Profile({ initialState }) {
@@ -16,14 +16,11 @@ function Profile({ initialState }) {
         "content default-container tp-sl-card-content tp-pf-content";
 
     const setState = (content, formContainer, flag) => {
-      if (flag === "my")
-      {
-        renderMyInfoForm(content, formContainer);
-      }
-      else if (flag === "friends")
-      {
-        renderFriendList(content, formContainer);
-      }
+        if (flag === "my") {
+            renderMyInfoForm(content, formContainer);
+        } else if (flag === "friends") {
+            renderFriendList(content, formContainer);
+        }
     };
 
     this.render = () => {
@@ -65,43 +62,45 @@ function Profile({ initialState }) {
         /**
          * Tab Event
          */
-        const triggerTabList = document.querySelectorAll('#profile-tab button');
+        const triggerTabList = document.querySelectorAll("#profile-tab button");
         const formContainer = $(".tp-pf-form-container");
 
-        triggerTabList.forEach(triggerEl => {
-          const tabTrigger = new bootstrap.Tab(triggerEl);
-          tabTrigger.value = triggerEl.value;
-          if (tabTrigger.value === "my") {
-            tabTrigger.renderForm = async function() {
-              let data = await fetchUser();
-              setState(data[0], formContainer, tabTrigger.value);
-            };
-          }
-          else if (tabTrigger.value === "friends") {
-            tabTrigger.renderForm = async function() {
-              let myIntraId = await fetchMyIntraId();
-              let data = await fetchAllFriends(myIntraId);
-              setState(data, formContainer, tabTrigger.value);
-            };
-          }
+        triggerTabList.forEach((triggerEl) => {
+            const tabTrigger = new bootstrap.Tab(triggerEl);
+            tabTrigger.value = triggerEl.value;
+            if (tabTrigger.value === "my") {
+                tabTrigger.renderForm = async function () {
+                    let data = await fetchUser();
+                    setState(data[0], formContainer, tabTrigger.value);
+                };
+            } else if (tabTrigger.value === "friends") {
+                tabTrigger.renderForm = async function () {
+                    let myIntraId = await fetchMyIntraId();
+                    let data = await fetchAllFriends(myIntraId);
+                    setState(data, formContainer, tabTrigger.value);
+                };
+            }
 
-          triggerEl.addEventListener('click', event => {
-            event.preventDefault();
-            tabTrigger.renderForm();
-          })
+            triggerEl.addEventListener("click", (event) => {
+                event.preventDefault();
+                tabTrigger.renderForm();
+            });
         });
 
         const firstTab = $('#profile-tab button[data-bs-target="#my"]');
         if (firstTab) {
             firstTab.classList.add("active");
-            firstTab.dispatchEvent(new Event('click'));
+            firstTab.dispatchEvent(new Event("click"));
         }
     };
 
-    window.addEventListener("languageChange", function() {
-      console.log("HELLO!");
-      this.render();
-    }.bind(this));
+    window.addEventListener(
+        "languageChange",
+        function () {
+            console.log("HELLO!");
+            this.render();
+        }.bind(this)
+    );
 
     this.init();
 }

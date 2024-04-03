@@ -1,15 +1,12 @@
 import { navigate } from "./navigate.js";
 import { BASE_URL } from "./routeInfo.js";
 import { $ } from "./querySelector.js";
-import { 
-    fetchUser,
-    fetchLogoutRequest,
-} from "./fetches.js";
+import { fetchUser, fetchLogoutRequest } from "./fetches.js";
 // import { renderPage } from "../component/navBar.js";
 // import { changeLanguage, getCurrentLanguage, setLanguageCookie } from "./languageUtils.js";
 
 export function addLoginEventListener(loginContainer) {
-    const loginUrl = "https://localhost/api/v1/login";
+    const loginUrl = `https://${process.env.BASE_IP}/api/v1/login`;
     const loginButton = loginContainer.querySelector("#login-btn");
 
     loginButton.addEventListener("click", (e) => {
@@ -61,10 +58,9 @@ export async function addNavBarLoadListener(navBarContainer) {
         const progressBar = $(".tp-progress-bar");
         const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
         if (progressBar) {
-            progressBar.innerHTML = result + '%';
-            progressBar.style.width = result + '%';
-        } 
-        else {
+            progressBar.innerHTML = result + "%";
+            progressBar.style.width = result + "%";
+        } else {
             console.log("addNavBarLoadListener():: Can't find progressBar!");
         }
     };

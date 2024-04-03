@@ -2,7 +2,7 @@ import { $ } from "../utils/querySelector.js";
 import { addProfileModalEventListener } from "../utils/profileEventListener.js";
 
 export default function renderModifyFormModal(myInfo, parentElement) {
-	let contentHTML = `
+    let contentHTML = `
 		<div class="modal tp-sl-card-row tp-modal-div" tabindex="-1">
 			<div class="modal-dialog default-container">
 				<div class="modal-content tp-modal-accept tp-bgc-primary tp-myinfo-modal-content">
@@ -94,31 +94,33 @@ export default function renderModifyFormModal(myInfo, parentElement) {
 		</div>
 	`;
 
-	const renderUser = function (content) {
-		const nickname = $(".tp-pf-modal-nickname");
-		const intraId = $(".tp-pf-modal-intraId");
-		const profileImg = $(".tp-pf-photo-modal-thumnail");
-		const record = $(".tp-pf-modal-record");
-		const winCount = $(".tp-pf-modal-wincount");
-		const loseCount = $(".tp-pf-modal-wincount");
-		const coalitions = $(".tp-pf-modal-coalition");
-		nickname.value = content.nickname;
-		intraId.value = content.intra_id;
-		profileImg.src = "http://127.0.0.1:8000" + content.profile_image;
-		record.value = content.win_count + " WIN, " + content.lose_count + " LOSE";
-		winCount.value = content.win_count;
-		loseCount.value = content.lose_count;
-		coalitions.value = content.coalitions;
-	};
+    const renderUser = function (content) {
+        const nickname = $(".tp-pf-modal-nickname");
+        const intraId = $(".tp-pf-modal-intraId");
+        const profileImg = $(".tp-pf-photo-modal-thumnail");
+        const record = $(".tp-pf-modal-record");
+        const winCount = $(".tp-pf-modal-wincount");
+        const loseCount = $(".tp-pf-modal-wincount");
+        const coalitions = $(".tp-pf-modal-coalition");
+        nickname.value = content.nickname;
+        intraId.value = content.intra_id;
+        profileImg.src = "http://127.0.0.1:443" + content.profile_image;
+        record.value =
+            content.win_count + " WIN, " + content.lose_count + " LOSE";
+        winCount.value = content.win_count;
+        loseCount.value = content.lose_count;
+        coalitions.value = content.coalitions;
+    };
 
-	let modifyModal = document.createRange().createContextualFragment(contentHTML);
-	const prevModal = parentElement.querySelector(".tp-modal-div");
-	if (prevModal)
-	{
-		parentElement.removeChild(prevModal);
-	}
-	parentElement.appendChild(modifyModal);
-	parentElement.style.display = "";
-	addProfileModalEventListener(parentElement);
-	renderUser(myInfo);
+    let modifyModal = document
+        .createRange()
+        .createContextualFragment(contentHTML);
+    const prevModal = parentElement.querySelector(".tp-modal-div");
+    if (prevModal) {
+        parentElement.removeChild(prevModal);
+    }
+    parentElement.appendChild(modifyModal);
+    parentElement.style.display = "";
+    addProfileModalEventListener(parentElement);
+    renderUser(myInfo);
 }

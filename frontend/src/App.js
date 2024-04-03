@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     footerContainer.innerHTML = renderFooter();
     loginContainer.innerHTML = renderLoginModal();
 
-    addNavBarLoadListener(navBarContainer);
+    // addNavBarLoadListener(navBarContainer);
     addNavBarClickListener(navBarContainer);
     addLoginEventListener(loginContainer);
 });
