@@ -1,7 +1,6 @@
 import { navigate } from "./navigate.js";
 import { BASE_URL } from "./routeInfo.js";
-import { $ } from "./querySelector.js";
-import { fetchUser, fetchLogoutRequest } from "./fetches.js";
+import { fetchLogoutRequest } from "./fetches.js";
 // import { renderPage } from "../component/navBar.js";
 // import { changeLanguage, getCurrentLanguage, setLanguageCookie } from "./languageUtils.js";
 
@@ -47,28 +46,11 @@ export function addNavBarClickListener(navBarContainer) {
     });
 
     const logoutBtn = navBarContainer.querySelector("#logoutBtn");
-    logoutBtn.addEventListener("click", (event) => {
-        event.preventDefault();
-        fetchLogoutRequest();
-    });
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            fetchLogoutRequest();
+        });
+    }
 }
 
-export async function addNavBarLoadListener(navBarContainer) {
-    const renderUser = (user) => {
-        const progressBar = $(".tp-progress-bar");
-        const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
-        if (progressBar) {
-            progressBar.innerHTML = result + "%";
-            progressBar.style.width = result + "%";
-        } else {
-            console.log("addNavBarLoadListener():: Can't find progressBar!");
-        }
-    };
-
-    const setState = (content) => {
-        renderUser(content);
-    };
-
-    let data = await fetchUser();
-    setState(data[0]);
-}

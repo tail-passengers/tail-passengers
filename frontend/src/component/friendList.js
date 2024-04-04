@@ -29,6 +29,7 @@ export default function renderFriendList(content, parentElement) {
 			`;
 		} else {
 			const tableRows = users.map((data, index) => {
+				const imagePath = `https://${process.env.BASE_IP}` + data.friend_requests.profile_image;
 				let rowHTML = `
 					<tr>
 							<td class="h3 bold text-center align-middle col-1">
@@ -37,7 +38,7 @@ export default function renderFriendList(content, parentElement) {
 							</td>
 							<td class="text-center align-middle col-1">
 								<div class="tp-fl-profile">
-								<img style="width:80%;" src=${data.profile_image} onerror="this.onerror=null; this.src='../../public/assets/img/sharkcookie.png'"></img>
+								<img style="width:80%;" src=${imagePath} onerror="this.onerror=null; this.src='../../public/assets/img/sharkcookie.png'"></img>
 								</div>
 							</td>
 							<td class="h3 text-left align-middle tp-fl-display-intra-id col-2">
@@ -47,7 +48,7 @@ export default function renderFriendList(content, parentElement) {
 							<td class="h3 bold text-center align-middle col-1 tp-onoff-status">
 								<div class="online-indicator">
 									<span class="blink tp-online-indicator-blink"></span>
-									<input type="hidden" class="tp-online-indicator-value" value=${data.status}></input>
+									<input type="hidden" class="tp-online-indicator-value" value=${data.friend_requests.status}></input>
 								</div>
 							</td>
 							<td class="h3 bold text-center align-middle col-1">

@@ -216,14 +216,14 @@ span.blink {
 	box-shadow: 0 0 5px #fff;
 }
 
-.tp-fl-accept-btn {
+.tp-fl-accept-btn, .tp-fl-accept-modal-btn, .tp-fl-submit-modal-btn {
 	background-color: #2d617b !important;
 	border: 1px solid #2d617b;
 	border-width: 5px;
 	color: #fff;
 }
 
-.tp-fl-refuse-btn {
+.tp-fl-refuse-btn, .tp-fl-refuse-modal-btn {
 	background-color: #842e2e !important;
 	border: 1px solid #842e2e;
 	border-width: 5px;
@@ -247,10 +247,75 @@ span.blink {
 	border: 1px solid #E5CC5E;
 }
 
+.tp-myinfo-modal-content {
+	border: 1px solid #E5CC5E;
+}
+
 .tp-friend-modal-header, .tp-friend-modal-footer {
 	border: none;
 }
 
 .tp-friend-modal-body {
 	font-size: 2rem;
+}
+
+.tp-pf-selectbox-thumnail {
+	width: 24px;
+	height: 24px;
+	margin-right: 10px;
+}
+
+.tp-pf-photo-box {
+	position: relative;
+}
+
+.tp-pf-photo-box img {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.tp-modal-modify {
+	width: 25rem;
+}
+
+.tp-pf-changeImage-thumnail {
+	width: 35px;
+	height: 35px;
+	margin-top: 115px;
+	margin-left: 115px;
+}
+
+.tp-pf-form-myinfo-image-update {
+	width: 100%;
+}
+
+.tp-pf-image-accorion-item {
+	background-color: transparent;
+	border: none;
+}
+
+.tp-pf-accordion-body {
+	width: 100%;
+}
+
+.tp-pf-input-file-grp input[type="file"] {
+	overflow: hidden;
+	margin-left: -2px !important;
+	&::-webkit-file-upload-button {
+		display: none;
+	}
+	&::file-selector-button {
+		display: none;
+	}
+} */
+
+.tp-pf-file-btn {
+	background-color: transparent;
+	border: 1px solid #ffffff83;
+}
+
+.tp-pf-file-btn:focus, .tp-pf-file-btn:hover{
+	background-color: #08151C !important;
+	border: 1px solid #08151C;
 }

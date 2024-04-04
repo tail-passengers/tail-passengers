@@ -1,18 +1,19 @@
-import { $ } from "../utils/querySelector.js";
+import { $ } from "./querySelector.js";
 import { 
 	fetchMyIntraId,
 	fetchModifyMyInfoRequest,
 	fetchAcceptFriendRequest,
   fetchRefuseFriendRequest,
+	fetchImageFileRequest
 } from "./fetches.js";
 import renderRequestModal from "../component/requestModal.js";
 import renderModifyFormModal from "../component/myInfoModifyModal.js";
+import { setImageToInput } from "./imageUpload.js";
 
 /**
  * 내 정보 관련 이벤트 함수
  */
 export function addMyInfoEventListener(myInfo) {
-
 
 	const profileModal = $("#profile-modal");
 	const callModifyFormBtn = $(".tp-pf-modify-btn");
@@ -27,7 +28,6 @@ export function addMyInfoEventListener(myInfo) {
 	if (modifyImageBtn) {
 		modifyImageBtn.addEventListener("click", (event) => {
 			event.preventDefault();
-			
 		});
 	}
 }
@@ -53,7 +53,6 @@ export function addFriendListEventListener() {
 		button.addEventListener("click", async (event) => {
 			event.preventDefault();
 			const requestId = event.target.closest("tr").querySelector(".tp-fl-request-id").value;
-			console.log("tp-fl-accept-btn click event", requestId);
 			renderRequestModal("ACCEPT", profileModal, requestId);
 		});
 	});
@@ -63,7 +62,6 @@ export function addFriendListEventListener() {
 		button.addEventListener("click", async (event) => {
 			event.preventDefault();
 			const requestId = event.target.closest("tr").querySelector(".tp-fl-request-id").value;
-			console.log("tp-fl-refuse-btn click event", requestId);
 			renderRequestModal("REFUSE", profileModal, requestId);
 		});
 	});
@@ -111,7 +109,7 @@ export function addFriendListEventListener() {
 /**
  * 프로필 페이지 모달창 관련 이벤트 함수(내 정보/친구 목록)
  */
-export function addProfileModalEventListener(profileModal) {
+export function addProfileModalEventListener(profileModal, myInfo) {
 	const closeProfileModal = (profileModal) => {
 			profileModal.style.display = "none";
 	};
@@ -142,14 +140,48 @@ export function addProfileModalEventListener(profileModal) {
 		});
 	}
 
-	const imageModifyButton = profileModal.querySelector(".tp-pf-changeImage-button");
-	if (imageModifyButton) {
-		imageModifyButton.addEventListener("click", (event) => {
+
+
+	/**
+	 * 이미지 업로드 관련 (프로필 이미지 수정)
+	 */
+	const imageInput = profileModal.querySelector("#imageInput");
+	if (imageInput) {
+
+		const originImagePath = profileModal.querySelector(".tp-pf-photo-modal-thumnail").getAttribute("src");
+		if (originImagePath !== "../../public/assets/img/sharkcookie.png") {
+			setImageToInput(originImagePath, imageInput);
+		}
+
+		imageInput.addEventListener("change", (event) => {
 			event.preventDefault();
-			console.log("PHOTO!");
+			const maxSize = 1 * 1024 * 1024 * 2;
+			const file = event.target.files[0];
+
+			if (file === undefined) {
+				setImageToInput(originImagePath, imageInput);
+			}
+
+			if (file.size > maxSize) {
+				alert("Please select an image under 2MB");
+				setImageToInput(originImagePath, imageInput);
+			}
+
+			if (!file.type.match("image/.*")) {
+				alert("Only image files can be uploaded");
+				setImageToInput(originImagePath, imageInput);
+			}
+
+			const formData = new FormData();
+			fetchImageFileRequest(formData);
 		});
 	}
 
+
+
+	/**
+	 * 프로필 이미지 외에 유저 정보 수정
+	 */
 	const modifyForm = profileModal.querySelector(".tp-pf-form-myinfo-update");
 	if (modifyForm) {
 		modifyForm.addEventListener("submit", (event) => {

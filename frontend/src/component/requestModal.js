@@ -12,7 +12,7 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 						<p>Do you accept the friend request?</p>
 					</div>
 					<div class="modal-footer tp-friend-modal-footer">
-						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
+						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group-modal">
 						<div class="tp-sl-btn-parent default-container">
 							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-modal-btn card default-container h-100 tp-fl-btn" value="accept" 
 								data-bs-toggle="tooltip" title="Accept"> 
@@ -40,7 +40,7 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 						<p>Do you Refuse the friend request?</p>
 					</div>
 					<div class="modal-footer tp-friend-modal-footer">
-						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
+						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group-modal">
 						<div class="tp-sl-btn-parent default-container">
 							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-refuse-modal-btn card default-container h-100 tp-fl-btn" value="refuse" 
 								data-bs-toggle="tooltip" title="Refuse"> 
@@ -87,6 +87,5 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 	{
 		refuseModalContent.classList.remove("visually-hidden");
 		acceptModalContent.classList.add("visually-hidden");
-	}
-	
+	}	
 }
