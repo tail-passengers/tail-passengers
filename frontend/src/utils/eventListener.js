@@ -1,18 +1,14 @@
 import { navigate } from "./navigate.js";
 import { BASE_URL } from "./routeInfo.js";
-import { fetchLogoutRequest } from "./fetches.js";
+import { fetchUser, fetchLogoutRequest } from "./fetches.js";
 // import { renderPage } from "../component/navBar.js";
 // import { changeLanguage, getCurrentLanguage, setLanguageCookie } from "./languageUtils.js";
 
 export function addLoginEventListener(loginContainer) {
-    const loginUrl = `https://${process.env.BASE_IP}/api/v1/login`;
-    const loginButton = loginContainer.querySelector("#login-btn");
-
-    loginButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        fetch(loginUrl, { credentials: "include" })
-            .then(handleLoginResponse)
-            .catch((error) => console.error("Error:", error));
+    fetchUser().then((myInfo) => {
+        if (myInfo !== false && myInfo.detail === undefined) {
+            closeLoginModal(loginContainer);
+        }
     });
 
     const handleLoginResponse = (response) => {
