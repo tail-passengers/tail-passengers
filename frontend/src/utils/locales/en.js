@@ -23,10 +23,14 @@ const enLocale = {
     mainText: "Top Player",
     subText: "Thank you for playing",
     thRank: "Rank",
+    thUserProfile: "Profile",
+    thUserIntraId: "Intra ID",
     thUserName: "User Name",
     thWins: "Wins",
     thLoses: "Loses",
     thRankPoint: "Rank Point",
+    thFriendRequestBtn: "Friend Request",
+    tootipRequest: "Request"
   },
   records: {
     mainText: "Records",
@@ -34,6 +38,33 @@ const enLocale = {
   profileTab: {
     myInfoTab: "MY",
     friendListTab: "FRIEND",
+  },
+  friendList: {
+    nofriends: "You have no friends",
+    friendsNumber: "NO",
+    friendsProfile: "PROFILE",
+    friendsNickname: "NICKNAME",
+    friendsConnection: "CONNECTION",
+    friendsRequest: "FRIEND REQUEST",
+    tooltipAccept: "Accept",
+    tooltipRefuse: "Refuse"
+  },
+  myInfo: {
+    myNickname: "NICKNAME",
+    myRecord: "RECORD",
+    myIntraId: "INTRA ID",
+    myHouse: "HOUSE",
+    modifyButton: "MODIFY",
+    win: "WIN",
+    lose: "LOSE",
+    modifyMyInfoTitle: "Modify My Infomation",
+    modifyMyInfoImageButton: "UPLOAD"
+  },
+  house: {
+    griffindor: "Gryffindor",
+    hufflepuff: "Hufflepuff",
+    ravenclaw: "Ravenclaw",
+    slytherin: "Slytherin"
   }
 };
 
