@@ -26,27 +26,32 @@
 	font-size: 2rem;
 }
 
+.tp-sl-card-button-text {
+	font-size: 1rem;
+}
+
 .tp-sl-btn-primary {
-  animation: flashText 1.5s ease-out alternate infinite;
+	animation: none
 }
 
 .tp-sl-btn-primary:hover {
 	animation: none;
 }
 
-.tp-sl-card-row:hover .tp-sl-btn-parent:not(:hover) > .btn {
+.tp-sl-card-row:hover .tp-sl-btn-parent:not(:hover)>.btn {
 	animation: none;
 	opacity: 0.5;
 }
 
-@keyframes flash{
-  to {
-    opacity: 1;
-  }
+
+@keyframes flash {
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes flashText {
-  to {
-    opacity: 0.15;
-  }
+	to {
+		opacity: 0.15;
+	}
 }
