@@ -144,6 +144,15 @@
 }
 ```
 
+### 중간에 플레이어 접속 종료 시
+
+```json
+{
+    "message_type": "error",
+    "intra_id": "{접속 종료한 intra_id}"
+}
+```
+
 ### 13. [Back] 클라이언트에게 득점 시 전송
 
 ```json
@@ -165,16 +174,42 @@
 }
 ```
 
-### 15.1 [Front] 진 클라이언트의 경우
+### 15. [Front] 서버에게 받은 것 그대로 응답
 
-- 접속 종료
+```json
+{
+    "message_type": "{stay / end}",
+    "round": "{1 / 2 / 3}",
+    "winner": "{player1 / player2}",
+    "loser": "{player1 / player2}"
+}
+```
 
-### 15.2 [Front] 이긴 클라이언트의 경우
+### 16.1 [Front] 진 클라이언트의 경우
 
-### 15.2.1 [Front] 1,2 라운드인 경우
+- end 보내고 접속 종료
+
+### 16.2 [Front] 이긴 클라이언트의 경우
+
+- stay 보내고 ready 기다리기
+
+### 16.2.1 [Back] 1,2 라운드인 경우
+
+- 1,2 라운드가 모두 끝날 때까지 기다리다가 끝나면 ready 전송
+
+```json
+{
+  "message_type": "ready",
+  "round": "3",
+  "1p": "{intra_id}",
+  "2p": "{intra_id}"
+}
+```
+
+### 16.2.2 [Front] 1,2 라운드인 경우
 
 - 이긴 사람만 변경
-- `ws/tournament_game/{tournament_name}/3/` 웹소켓 연결 요청
+- `ws/tournament_game/{tournament_name}/3/` 웹소켓 연결 후, ready 전송
 - 그 후, 9번 과정부터 시작
 
 ```json
@@ -186,12 +221,7 @@
 }
 ```
 
-### 15.2.2 [Front] 3 라운드인 경우
-
-- 14번 과정하고 끝내기
-- 세 게임 모두 db 저장
-
-### 15.2.3 [Back] DB 생성해서 저장
+### 16.2.3 [Back] DB 생성해서 저장
 
 - DB 저장 성공 시
 - 결승전 인원한테만 전송

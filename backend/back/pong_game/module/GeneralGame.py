@@ -31,20 +31,20 @@ class GeneralGame:
         return False
 
     def _is_past_paddle1(self) -> bool:
-        return self.ball.position_z < self.player1.paddle.position_z - PADDLE_CORRECTION
+        return self.ball.position_z > self.player1.paddle.position_z + PADDLE_CORRECTION
 
     def _is_past_paddle2(self) -> bool:
-        return self.ball.position_z > self.player2.paddle.position_z + PADDLE_CORRECTION
+        return self.ball.position_z < self.player2.paddle.position_z - PADDLE_CORRECTION
 
     def _is_paddle1_collision(self) -> bool:
         return (
-            self.ball.position_z - self.ball.radius <= self.player1.paddle.position_z
+            self.ball.position_z + self.ball.radius >= self.player1.paddle.position_z
             and self._is_ball_aligned_with_paddle(1)
         )
 
     def _is_paddle2_collision(self) -> bool:
         return (
-            self.ball.position_z + self.ball.radius >= self.player2.paddle.position_z
+            self.ball.position_z - self.ball.radius <= self.player2.paddle.position_z
             and self._is_ball_aligned_with_paddle(2)
         )
 
@@ -123,6 +123,15 @@ class GeneralGame:
                 "message_type": MessageType.END.value,
                 "winner": "player1" if self.score1 > self.score2 else "player2",
                 "loser": "player2" if self.score1 > self.score2 else "player1",
+            }
+        )
+
+    def build_error_json(self, intra_id: str) -> json:
+        self.status = PlayerStatus.END
+        return json.dumps(
+            {
+                "message_type": MessageType.ERROR.value,
+                "intra_id": intra_id,
             }
         )
 

@@ -361,13 +361,13 @@ class GeneralGameConsumerTests(TestCase):
         await communicator1.disconnect()
         await communicator2.disconnect()
 
-    @patch("pong_game.module.GameSetValue.BALL_SPEED_Z", -300)
+    @patch("pong_game.module.GameSetValue.BALL_SPEED_Z", 300)
     async def test_move_paddle_logic_1(self):
         """
         패들 움직임을 제대로 작동하는지 테스트
         1. 1p 왼쪽 이동시 패들이 -인지
         2. 2p 오른쪽 이동시 패들의 x방향이 +인지
-        3. 공이 시작시 -로 날라가는지(나중에 변경 될 수도 있음)
+        3. 공이 시작시 +로 날라가는지(나중에 변경 될 수도 있음)
         4. 1p를 왼쪽으로 움직인 상태로 고정 했을때 1p 패들과 공이 충돌하지 않는지
         """
 
@@ -396,15 +396,15 @@ class GeneralGameConsumerTests(TestCase):
                 self.assertTrue(user1_dict["paddle1"] < 0)
                 # 2. 2p 왼쪽 이동시 2p 패들이 + 인지
                 self.assertTrue(user1_dict["paddle2"] > 0)
-                # 3. 볼이 시작시 -로 이동하는지, 4. 1p와 충돌 안 하는지(충돌하면 ball_vz의 음수에서 양수가 됨)
-                self.assertTrue(user1_dict["ball_vz"] < 0)
+                # 3. 볼이 시작시 +로 이동하는지, 4. 1p와 충돌 안 하는지(충돌하면 ball_vz의 음수에서 양수가 됨)
+                self.assertTrue(user1_dict["ball_vz"] > 0)
             if user1_dict["message_type"] == "end":
                 break
 
         await communicator1.disconnect()
         await communicator2.disconnect()
 
-    @patch("pong_game.module.GameSetValue.BALL_SPEED_Z", -300)
+    @patch("pong_game.module.GameSetValue.BALL_SPEED_Z", 300)
     async def test_move_paddle_logic_2(self):
         """
         1. 1p 오른쪽 이동시 패들이 x방향이 +인지

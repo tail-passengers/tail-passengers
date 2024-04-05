@@ -7,7 +7,7 @@ PADDLE_HEIGHT: int = 30
 PADDLE_SPEED: int = 30
 PADDLE_CORRECTION: int = 5
 BALL_SPEED_X: int = 0
-BALL_SPEED_Z: int = -10
+BALL_SPEED_Z: int = 10
 BALL_RADIUS: int = 20
 MAX_SCORE: int = 5
 PADDLE_BOUNDARY: int = FIELD_WIDTH // 2 - PADDLE_WIDTH // 2
@@ -41,6 +41,7 @@ class MessageType(Enum):
     END = "end"
     COMPLETE = "complete"
     ERROR = "error"
+    STAY = "stay"
 
 
 class GameTimeType(Enum):
@@ -76,3 +77,4 @@ class PlayerNumber(Enum):
 class TournamentGroupName(Enum):
     A_TEAM = "a_team"
     B_TEAM = "b_team"
+    FINAL_TEAM = "final_team"

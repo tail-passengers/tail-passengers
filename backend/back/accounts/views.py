@@ -140,9 +140,7 @@ class UsersDetailViewSet(viewsets.ModelViewSet):
 class Login42APIView(APIView):
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
-            return redirect(
-                f"http://{os.environ.get("BASE_IP")}/api/v1/users/{request.user.intra_id}/"
-            )
+            return redirect("https://127.0.0.1/")
 
         client_id = os.environ.get("CLIENT_ID")
         response_type = "code"
@@ -158,9 +156,7 @@ class Login42APIView(APIView):
 class CallbackAPIView(APIView):
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
-            return redirect(
-                f"http://{os.environ.get("BASE_IP")}/api/v1/users/{request.user.intra_id}/"
-            )
+            return redirect("https://127.0.0.1/")
 
         if request.session.get("state") and not request.GET.get(
             "state"
@@ -173,6 +169,10 @@ class CallbackAPIView(APIView):
             "https://api.intra.42.fr/v2/me",
             headers={"Authorization": f"Bearer {access_token}"},
         )
+        # 42 api에 정보 요청 실패
+        if user_info_request.status_code != 200:
+            return redirect("https://127.0.0.1/")
+
         user_info = user_info_request.json()
         coalition_info_request = requests.get(
             f"https://api.intra.42.fr/v2/users/{user_info['id']}/coalitions",
@@ -197,7 +197,7 @@ class CallbackAPIView(APIView):
             user_instance.save()
         # login
         login(request, user_instance)
-        return redirect(f"http://{os.environ.get("BASE_IP")}/api/v1/users/{user_instance.intra_id}/")
+        return redirect("https://127.0.0.1/")
 
     def _get_access_token(self, request) -> str:
         grant_type = "authorization_code"
@@ -221,7 +221,7 @@ class CallbackAPIView(APIView):
 
 def logout_view(request) -> redirect:
     logout(request)
-    return redirect("/")
+    return redirect("https://127.0.0.1/")
 
 
 # TODO test 용도 삭제 해야함
@@ -233,14 +233,15 @@ class TestAccountLogin(APIView):
         """
         if request.user.is_authenticated:
             return redirect(
-                f"http://{os.environ.get("BASE_IP")}/api/v1/users/{request.user.intra_id}/"
+                f"http://127.0.0.1:8000/api/v1/users/{request.user.intra_id}/"
             )
         try:
             user_instance = Users.objects.get(intra_id=kwargs["intra_id"])
             if user_instance.is_test_user:
                 login(request, user_instance)
-                return Response({"message": "로그인 성공."}, status=200)
             else:
-                return Response({"error": "허용되지 않는 유저입니다."}, status=403)
+                print("Error: 허용 되지 않은 유저입니다.")
+            return redirect("https://127.0.0.1/")
         except Users.DoesNotExist:
-            return Response({"error": "사용자를 찾을 수 없습니다."}, status=404)
+            print("Error: 사용자를 찾을 수 없습니다.")
+            return redirect("https://127.0.0.1/")
