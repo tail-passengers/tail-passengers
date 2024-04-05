@@ -35,61 +35,26 @@ function RecordsSearch({ initialState }) {
 
     window.dispatchEvent(new Event("resize"));
 
-    const gameLogs = [
-        {
-            game_id: "1",
-            start_time: "2024-03-04T12:00:00Z",
-            end_time: "2024-03-04T12:30:00Z",
-            winner: "Winner1",
-            loser: "Loser1",
-        },
-        {
-            game_id: "2",
-            start_time: "2024-03-04T13:00:00Z",
-            end_time: "2024-03-04T13:30:00Z",
-            winner: "Winner2",
-            loser: "Loser2",
-        },
-        {
-            game_id: "3",
-            start_time: "2024-03-04T13:00:00Z",
-            end_time: "2024-03-04T13:30:00Z",
-            winner: "Winner3",
-            loser: "Loser3",
-        },
-        {
-            game_id: "4",
-            start_time: "2024-03-04T13:01:00Z",
-            end_time: "2024-03-04T13:30:00Z",
-            winner: "Winner4",
-            loser: "Loser4",
-        },
-        {
-            game_id: "5",
-            start_time: "2024-03-04T13:02:00Z",
-            end_time: "2024-03-04T13:30:00Z",
-            winner: "Winner4",
-            loser: "Loser4",
-        },
-        {
-            game_id: "6",
-            start_time: "2024-03-04T13:03:00Z",
-            end_time: "2024-03-04T13:30:00Z",
-            winner: "Winner4",
-            loser: "Loser4",
-        },
-        {
-            game_id: "7",
-            start_time: "2024-03-04T13:04:00Z",
-            end_time: "2024-03-04T13:30:00Z",
-            winner: "Winner4",
-            loser: "Loser4",
-        },
-    ];
+    const fetchGameLogs = async () => {
+        try {
+            const response = await fetch(`${process.env.BASE_IP}/api/v1/general_game_logs/all`);
+            const data = await response.json();
+            return data;
+        } catch {
+            console.error("no data");
+            return [{
+                winner: "Temporary Winner",
+                loser: "Temporary Loser",
+                start_time: new Date().toISOString()
+            }];
+        }
+    }
 
-    this.render = () => {
+    this.render = async () => {
         const language = getCurrentLanguage();
         const locale = locales[language] || locales.en;
+
+        const gameLogs = await fetchGameLogs();
 
         const gameElements = gameLogs
             .map(
@@ -98,7 +63,7 @@ function RecordsSearch({ initialState }) {
               <div class="record-user-box">
                   <div class="record-user-box-section record-win" data-text="WIN">
                       <div class="h2">${log.winner}</div>
-                      <div class="h3">Start time : </div>
+                      <div>Start time : ${log.start_time}</div>
                   </div>
                   <img src="/public/assets/img/tmpProfile.png" />
               </div>
@@ -147,9 +112,9 @@ function RecordsSearch({ initialState }) {
         this.render();
     };
 
-    window.addEventListener("languageChange", function() {
+    window.addEventListener("languageChange", () => {
         this.render();
-      }.bind(this));
+    });
       
     this.init();
 }

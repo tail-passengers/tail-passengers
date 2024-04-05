@@ -38,6 +38,7 @@ module.exports = {
             jQuery: "jquery",
             "window.jQuery": "jquery",
             Popper: ["popper.js", "default"],
+            Chart: "chart.js/auto", // Chart.js를 포함시키는 ProvidePlugin 추가
         }),
         // 정적 자산 복사
         new CopyPlugin({

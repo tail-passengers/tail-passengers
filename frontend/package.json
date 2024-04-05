@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "chart.js": "^4.4.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "exports-loader": "^5.0.0",

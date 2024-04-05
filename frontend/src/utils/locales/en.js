@@ -1,6 +1,6 @@
 const enLocale = {
   navBar: {
-    brand: "TAIL PASSENGER TEST",
+    brand: "TAIL PASSENGER",
     pongGame: "PONG GAME",
     rank: "RANK",
     records: "RECORDS",
