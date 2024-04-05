@@ -94,6 +94,15 @@
 }
 ```
 
+### 중간에 플레이어 접속 종료 시
+
+```json
+{
+    "message_type": "error",
+    "intra_id": "{접속 종료한 intra_id}"
+}
+```
+
 ### 8. [Back] 클라이언트에게 게임 종료 시 전송
 
 ```json

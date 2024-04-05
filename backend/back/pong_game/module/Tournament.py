@@ -54,8 +54,16 @@ class Tournament:
             }
         )
 
-    def build_tournament_ready_json(self, team_name: TournamentGroupName) -> json:
+    def build_tournament_ready_json(
+        self,
+        team_name: TournamentGroupName,
+        player1_intra_id: str = None,
+        player2_intra_id: str = None,
+    ) -> json:
         if team_name == TournamentGroupName.A_TEAM:
+            self.round_list[0] = Round(
+                self.player_list[0], self.player_list[1], RoundNumber.ROUND_1
+            )
             return json.dumps(
                 {
                     "message_type": MessageType.READY.value,
@@ -64,13 +72,34 @@ class Tournament:
                     "2p": self.player_list[1].get_intra_id(),
                 }
             )
-        else:
+        elif team_name == TournamentGroupName.B_TEAM:
+            self.round_list[1] = Round(
+                self.player_list[2], self.player_list[3], RoundNumber.ROUND_2
+            )
             return json.dumps(
                 {
                     "message_type": MessageType.READY.value,
                     "round": RoundNumber.ROUND_2.value,
                     "1p": self.player_list[2].get_intra_id(),
                     "2p": self.player_list[3].get_intra_id(),
+                }
+            )
+        elif team_name == TournamentGroupName.FINAL_TEAM:
+            player1, player2 = None, None
+            for idx, player in enumerate(self.player_list):
+                if player.get_intra_id() == player1_intra_id:
+                    player1 = player
+                elif player.get_intra_id() == player2_intra_id:
+                    player2 = player
+            player1.set_status(PlayerStatus.READY)
+            player2.set_status(PlayerStatus.READY)
+            self.round_list[2] = Round(player1, player2, RoundNumber.ROUND_3)
+            return json.dumps(
+                {
+                    "message_type": MessageType.READY.value,
+                    "round": RoundNumber.ROUND_3.value,
+                    "1p": player1_intra_id,
+                    "2p": player2_intra_id,
                 }
             )
 
@@ -94,6 +123,19 @@ class Tournament:
 
     def get_player_total_cnt(self) -> int:
         return self.player_total_cnt
+
+    def get_round(self, round_number: int) -> Round:
+        return self.round_list[round_number - 1]
+
+    def get_db_datas(self, round_number: int) -> dict:
+        db_data = self.round_list[round_number - 1].get_db_data()
+        db_data["tournament_name"] = self.tournament_name
+        db_data["round"] = round_number
+        db_data["is_final"] = round_number == 3
+        return db_data
+
+    def set_status(self, status: TournamentStatus) -> None:
+        self.status = status
 
     def try_set_ready(self, player_number: str, intra_id: str) -> bool:
         player_numbers = [player.value for player in PlayerNumber]

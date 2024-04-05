@@ -12,7 +12,7 @@ class Paddle:
     def __init__(self, number: int):
         self.position_x: float = 0
         self.position_y: float = 0
-        self.position_z: float = -FIELD_LENGTH / 2 if number == 1 else FIELD_LENGTH / 2
+        self.position_z: float = FIELD_LENGTH / 2 if number == 1 else -FIELD_LENGTH / 2
 
         self.left: bool = False
         self.right: bool = False

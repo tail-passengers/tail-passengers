@@ -23,17 +23,17 @@ urlpatterns = [
     path("api/v1/", include("accounts.urls")),
     path("api/v1/", include("friendrequests.urls")),
     re_path(
-        r"^swagger(?P<format>\.json|\.yaml)$",
+        r"^api/v1/swagger(?P<format>\.json|\.yaml)$",
         schema_view_v1.without_ui(cache_timeout=0),
         name="schema-json",
     ),
     re_path(
-        r"^swagger/$",
+        r"^api/v1/swagger/$",
         schema_view_v1.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
     re_path(
-        r"^redoc/$",
+        r"^api/v1/redoc/$",
         schema_view_v1.with_ui("redoc", cache_timeout=0),
         name="schema-redoc",
     ),
