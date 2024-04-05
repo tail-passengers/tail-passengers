@@ -1,18 +1,53 @@
 .home-top-container {
 	width:90%;
 	height:30vh;
-	border:1px solid white;
+	display: flex;
 }
 
 .home-bottom-container {
 	display:flex;
+	flex-direction: row;
 	padding: 10px;
 	width:90%;
 	height:20vh;
-	border:1px solid white;
 }
 
 .home-bottom-container div {
 	flex:1;
 	border:1px solid #999999;
+}
+
+#records-box {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	flex: 1;
+}
+
+#records-list {
+	list-style-type: none;
+	width: 100%;
+	padding: 0;
+}
+
+#records-list li {
+	margin-bottom: 5px;
+	background-color: #f0f0f0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	border-radius: 5px;
+	width: 100%;
+	padding: 10px;
+}
+
+#records-list li:hover {
+	background-color: #e0e0e0;
+}
+
+#records-list li span {
+	font-weight: bold;
+	color: blue;
 }
