@@ -1,29 +1,37 @@
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 import { addFriendListEventListener } from "../utils/profileEventListener.js";
 
 export default function renderFriendList(content, parentElement) {
-	let contentHTML = `
-		<form class="tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
-			<table class="table table-dark table-hover">
-				<thead>
-					<tr class="tp-table-tr">
-						<th scope="tp-table-th col">NO</th>
-						<th scope="tp-table-th col">PROFILE</th>
-						<th scope="tp-table-th col">NICKNAME</th>
-						<th scope="tp-table-th col">CONNECTION</th>
-						<th scope="tp-table-th col">FRIEND REQUEST</th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
-		</form>
-	`;
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
+
+	const renderFriendListField = (parentElement) => {
+		let contentHTML = `
+			<form class="tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
+				<table class="table table-dark table-hover">
+					<thead>
+						<tr class="tp-table-tr">
+							<th scope="tp-table-th col">${locale.friendList.friendsNumber}</th>
+							<th scope="tp-table-th col">${locale.friendList.friendsProfile}</th>
+							<th scope="tp-table-th col">${locale.friendList.friendsNickname}</th>
+							<th scope="tp-table-th col">${locale.friendList.friendsConnection}</th>
+							<th scope="tp-table-th col">${locale.friendList.friendsRequest}</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</form>
+		`;
+		parentElement.innerHTML = contentHTML;
+	};
 
 	const renderFriends = (users) => {
 		let tableHTML = "";
 		if (users.length === 0) {
 			tableHTML += `
 				<tr>
-					<td colspan='5'>친구가 없습니다</td>
+					<td colspan='5'>${locale.friendList.nofriends}</td>
 				</tr>
 				<tr style="height:3px;"></tr>
 			`;
@@ -55,7 +63,7 @@ export default function renderFriendList(content, parentElement) {
 								<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
 									<div class="tp-sl-btn-parent default-container">
 										<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-btn card default-container h-100 tp-fl-btn" value="ACCEPT" 
-											data-bs-toggle="tooltip" title="Accept"> 
+											data-bs-toggle="tooltip" title="${locale.friendList.tooltipAccept}"> 
 											<div class="card-body default-container ">
 												<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✔︎</h5>
 											</div>
@@ -63,8 +71,8 @@ export default function renderFriendList(content, parentElement) {
 									</div>
 									<div class="tp-sl-btn-parent default-container">
 										<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-refuse-btn card default-container h-100 tp-fl-btn" value="REFUSE"
-											data-bs-toggle="tooltip" title="Refuse"> 
-											<div class="card-body default-container ">
+											data-bs-toggle="tooltip" title="${locale.friendList.tooltipRefuse}"> 
+											<div class="card-body default-container">
 												<h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✗</h5>
 											</div>
 										</button>
@@ -86,7 +94,11 @@ export default function renderFriendList(content, parentElement) {
 		}
 	}
 	
-	parentElement.innerHTML = contentHTML;
+	renderFriendListField(parentElement);
 	renderFriends(content);
 	addFriendListEventListener();
+	window.addEventListener("languageChange", function() {
+		renderFriendListField(parentElement);
+		renderFriends(content);
+	}.bind(this));
 }

@@ -12,7 +12,7 @@ function Rank({ initialState }) {
     this.$element = document.createElement("div");
     this.$element.className = "content";
 
-    this.fetchUsers = async () => {
+    this.fetchUsers = async (locale) => {
         try {
             const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/`, {
                 credentials: 'include'
@@ -22,13 +22,13 @@ function Rank({ initialState }) {
                 (a, b) =>
                     b.win_count - b.lose_count < a.win_count - a.lose_count
             );
-            this.setState(data);
+            this.setState(data, locale);
         } catch (error) {
             console.error("Error fetching user data:", error);
         }
     };
 
-    this.renderUsers = async (users) => {
+    this.renderUsers = async (users, locale) => {
         const tableRows = users
             .map(
                 (data, index) => `
@@ -58,7 +58,7 @@ function Rank({ initialState }) {
                             <div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
                                 <div class="tp-sl-btn-parent default-container">
                                     <button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-request-btn card default-container h-100 tp-fl-btn" value="REQUEST" 
-                                        data-bs-toggle="tooltip" title="Request"> 
+                                        data-bs-toggle="tooltip" title="${locale.rank.tootipRequest}"> 
                                         <div class="card-body default-container">
                                         <h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✚</h5>
                                         </div>
@@ -105,15 +105,14 @@ function Rank({ initialState }) {
         });
     };
 
-    this.setState = (content) => {
+    this.setState = (content, locale) => {
         this.state = content;
-        this.renderUsers(content);
+        this.renderUsers(content, locale);
     };
 
     this.render = () => {
         const language = getCurrentLanguage();
         const locale = locales[language] || locales.en;
-
         this.$element.innerHTML = `
             <div class="content default-container">
                 <div class="container">
@@ -128,12 +127,13 @@ function Rank({ initialState }) {
                                     <thead>
                                         <tr class="text-center align-middle">
                                             <th class="tp-bgc-secondary">${locale.rank.thRank}</th>
-                                            <th class="tp-bgc-secondary"></th>
-                                            <th class="tp-bgc-secondary">${locale.rank.thUserName}</th>
-                                            <th class="tp-bgc-secondary"></th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thRank}</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thUserProfile}</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thUserIntraId}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thWins}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thLoses}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thRankPoint}</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thFriendRequestBtn}</th>
                                          </tr>
                                     </thead>
                                     <tbody>
@@ -145,7 +145,7 @@ function Rank({ initialState }) {
                 </div>
             </div>
         `;
-        this.fetchUsers();
+        this.fetchUsers(locale);
     };
 
     this.init = () => {

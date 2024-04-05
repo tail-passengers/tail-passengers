@@ -23,17 +23,48 @@ const jaLocale = {
     mainText: "トッププレイヤー",
     subText: "プレイしていただきありがとうございます",
     thRank: "ランク",
+    thUserProfile: "フロフィルイメージ",
+    thUserIntraId: "イントラアイディー",
     thUserName: "ユーザー名",
     thWins: "勝利",
     thLoses: "敗北",
     thRankPoint: "ランクポイント",
+    thFriendRequestBtn: "フレンド申請",
+    tootipRequest: "申請"
   },
   records: {
-    mainText: "記録",
+    mainText: "レコード",
   },
   profileTab: {
     myInfoTab: "マイインフォ",
     friendListTab: "フレンドリスト",
+  },
+  friendList: {
+    nofriends: "フレンドがいません",
+    friendsNumber: "ナンバー",
+    friendsProfile: "フロフィルイメージ",
+    friendsNickname: "ニックネーム",
+    friendsConnection: "コネクション",
+    friendsRequest: "フレンド申請",
+    tooltipAccept: "承認",
+    tooltipRefuse: "拒否"
+  },
+  myInfo: {
+    myNickname: "ニックネーム",
+    myRecord: "レコード",
+    myIntraId: "イントラアイディー",
+    myHouse: "ハウス",
+    modifyButton: "修正",
+    win: "勝",
+    lose: "敗",
+    modifyMyInfoTitle: "ユーザー情報修正",
+    modifyMyInfoImageButton: "アップロード"
+  },
+  house: {
+    griffindor: "グリフィンドール",
+    hufflepuff: "ハッフルパフ",
+    ravenclaw: "レイブンクロー",
+    slytherin: "スリザリン"
   }
 };
 
