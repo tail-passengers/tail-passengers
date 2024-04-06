@@ -98,7 +98,7 @@ function SelectMode({ initialState }) {
 				event.preventDefault();
 				const multiTextElement = document.querySelector(".tp-sl-multi-btn .tp-sl-card-text");
 				multiTextElement.textContent = "Waiting for other players...";
-				initSocket = new WebSocket("ws://127.0.0.1:5500/ws/general_game/wait/");
+				initSocket = new WebSocket("wss://127.0.0.1:443/ws/general_game/wait/");
 				initSocket.addEventListener('message', idSocketConnect);
 			});
 		}
