@@ -43,8 +43,8 @@ function RecordsSearch({ initialState }) {
         } catch {
             console.error("no data");
             return [{
-                winner: "Temporary Winner",
-                loser: "Temporary Loser",
+                winner: "Winner",
+                loser: "Loser",
                 start_time: new Date().toISOString()
             }];
         }
@@ -63,7 +63,6 @@ function RecordsSearch({ initialState }) {
               <div class="record-user-box">
                   <div class="record-user-box-section record-win" data-text="WIN">
                       <div class="h2">${log.winner}</div>
-                      <div>Start time : ${log.start_time}</div>
                   </div>
                   <img src="/public/assets/img/tmpProfile.png" />
               </div>
@@ -77,7 +76,6 @@ function RecordsSearch({ initialState }) {
                 <img src="/public/assets/img/tmpProfile.png" />
                   <div class="record-user-box-section record-lose" data-text="LOSE">
                       <div class="h2">${log.loser}</div>
-                      <div class="fs-6">Test Text</div>
                   </div>
               </div>
           </div>

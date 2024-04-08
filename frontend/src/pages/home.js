@@ -3,11 +3,12 @@ import Chart from 'chart.js/auto';
 function Home($container) {
     this.$container = $container;
     this.$chartCanvas = null;
-    this.gameLogs = []; // 전체 전적 데이터
+    this.gameLogs = [];
+    this.myChart = null;
 
-	this.setState = () => {
-		this.render();
-	};
+    this.setState = () => {
+        this.render();
+    };
 
     this.render = () => {
         this.$container.innerHTML = `
@@ -62,6 +63,10 @@ function Home($container) {
     };
 
     this.renderChart = () => {
+        if (this.myChart) {
+            this.myChart.destroy();
+        }
+    
         const width = this.$chartCanvas.offsetWidth;
         const height = this.$chartCanvas.offsetHeight;
 
@@ -69,7 +74,7 @@ function Home($container) {
         this.$chartCanvas.height = height;
 
         const ctx = this.$chartCanvas.getContext('2d');
-        const myChart = new Chart(ctx, {
+        this.myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ["Africa", "Asia", "Europe", "Latin America"],
