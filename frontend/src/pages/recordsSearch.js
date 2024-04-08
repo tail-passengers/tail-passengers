@@ -67,7 +67,7 @@ function RecordsSearch({ initialState }) {
                   <img src="/public/assets/img/tmpProfile.png" />
               </div>
               <div class="sized-box">
-                  <div class="h2">VS</div>
+                  <div class="h2">${locale.records.vs}</div>
                   <div class="fs-6 tp-color-primary text-border">${formatDateTime(
                       log.start_time
                   )}</div>

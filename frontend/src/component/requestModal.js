@@ -72,7 +72,7 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 	}
 	parentElement.appendChild(requestModal);
 	parentElement.style.display = "";
-	addProfileModalEventListener(parentElement);
+	addProfileModalEventListener(parentElement, "FRIENDS");
 
 
 	const acceptModalContent = parentElement.querySelector(".tp-modal-accept");

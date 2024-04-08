@@ -1,5 +1,16 @@
 import { navigate } from "./navigate.js";
 
+export function getCSRFToken() {
+	const cookies = document.cookie.split(';');
+	for (let cookie of cookies) {
+			const [name, value] = cookie.trim().split('=');
+			if (name === 'csrftoken') {
+					return decodeURIComponent(value);
+			}
+	}
+	return null;
+}
+
 /**
  * 
  * @returns 나의 intraId
@@ -27,9 +38,10 @@ export const fetchUser = async () => {
 			const response = await fetch(`https://${process.env.BASE_IP}/api/v1/me/`, {
 				credentials: 'include'
 			});
-
-			const data = await response.json();
-			return data;
+			if (response.status === 200) {
+				const data = await response.json();
+				return data;
+			}
 	} catch (error) {
 			console.error("Error fetching user data:", error);
 			return false;
@@ -64,10 +76,12 @@ export const fetchUsers = async () => {
  */
 export const fetchModifyMyInfoRequest = async (myData) => {
 	try {
-		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/` + myData.get("intraId") + "/", {
+		const csrfToken = getCSRFToken();
+		const myIntraId = await fetchMyIntraId();
+		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/` + myIntraId + "/", {
 			method: "PATCH",
-			credentials: "include",
 			headers: {
+				"X-CSRFToken": csrfToken,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
@@ -79,7 +93,7 @@ export const fetchModifyMyInfoRequest = async (myData) => {
 		const data = await response.json();
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchModifyMyInfoRequest data:", error);
 	}
 }
 
@@ -91,22 +105,21 @@ export const fetchModifyMyInfoRequest = async (myData) => {
  */
 export const fetchImageFileRequest = async (imageData) => {
 	try {
+		console.log("imageData File", imageData.get("profile_image"));
+		const csrfToken = getCSRFToken();
 		const myIntraId = await fetchMyIntraId();
 		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/` + myIntraId + "/", {
 			method: "PATCH",
-			credentials: "include",
 			headers: {
-				"Content-Type": "multipart/form-data",
+				"X-CSRFToken": csrfToken
 			},
-			body: JSON.stringify({
-				profile_image: imageData.get("profile_image"),
-			}),
+			body: imageData
 		});
 		
 		const data = await response.json();
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchImageFileRequest data:", error);
 	}
 }
 
@@ -117,11 +130,13 @@ export const fetchImageFileRequest = async (imageData) => {
  */
 export const fetchLogoutRequest = async() => {
 	try {
+		const csrfToken = getCSRFToken();
 		const myIntraId = await fetchMyIntraId();
 		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/` + myIntraId + "/", {
 			method: "PATCH",
 			credentials: "include",
 			headers: {
+				"X-CSRFToken": csrfToken,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
@@ -134,7 +149,7 @@ export const fetchLogoutRequest = async() => {
 		navigate("/");
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchLogoutRequest data:", error);
 	}
 }
 
@@ -159,7 +174,7 @@ export const fetchAllFriends = async(intraId) => {
 		});
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchAllFriends data:", error);
 	}
 };
 
@@ -185,7 +200,7 @@ export const fetchAcceptedFriends = async(intraId) => {
 		});
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchAcceptedFriends data:", error);
 	}
 };
 
@@ -214,7 +229,7 @@ export const fetchRequestFriend = async(requestUserId, responseUserId) => {
 		console.log("fetchRefuseFriendRequest()", data);
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchRequestFriend data:", error);
 	}
 }
 
@@ -239,7 +254,7 @@ export const fetchAcceptFriendRequest = async(requestPK, responseUserId) => {
 		});
 		const data = await response.json();
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchAcceptFriendRequest data:", error);
 	}
 }
 
@@ -257,6 +272,6 @@ export const fetchRefuseFriendRequest = async(requestPK) => {
 		const data = await response.json();
 		return data;
 	} catch (error) {
-			console.error("Error fetching friends data:", error);
+			console.error("Error fetchRefuseFriendRequest data:", error);
 	}
 }

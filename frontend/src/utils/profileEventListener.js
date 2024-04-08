@@ -4,11 +4,13 @@ import {
 	fetchModifyMyInfoRequest,
 	fetchAcceptFriendRequest,
   fetchRefuseFriendRequest,
-	fetchImageFileRequest
+	fetchImageFileRequest,
+	fetchUser
 } from "./fetches.js";
 import renderRequestModal from "../component/requestModal.js";
 import renderModifyFormModal from "../component/myInfoModifyModal.js";
 import { setImageToInput } from "./imageUpload.js";
+import renderMyInfoForm from "../component/myInfo.js";
 
 /**
  * 내 정보 관련 이벤트 함수
@@ -44,7 +46,6 @@ export function addFriendListEventListener() {
 	tooltips.forEach(tooltip => {
 		new bootstrap.Tooltip(tooltip);
 	});
-
 
 	// ACCEPT/REFUSE Confirm Modal
 	const profileModal = document.querySelector("#profile-modal");
@@ -109,9 +110,17 @@ export function addFriendListEventListener() {
 /**
  * 프로필 페이지 모달창 관련 이벤트 함수(내 정보/친구 목록)
  */
-export function addProfileModalEventListener(profileModal, myInfo) {
-	const closeProfileModal = (profileModal) => {
+export function addProfileModalEventListener(profileModal, flag) {
+	const closeProfileModal = async (profileModal) => {
 			profileModal.style.display = "none";
+			const formContainer = $(".tp-pf-form-container");
+			const myInfo = await fetchUser();
+			if (flag === "MY") {
+				renderMyInfoForm(myInfo[0], formContainer);
+			} else if (flag === "FRIENDS") {
+				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
+				renderFriendList(friendsList, formContainer);
+			}
 	};
 
 	const closeButtons = profileModal.querySelectorAll("#close-btn");
@@ -153,7 +162,7 @@ export function addProfileModalEventListener(profileModal, myInfo) {
 			setImageToInput(originImagePath, imageInput);
 		}
 
-		imageInput.addEventListener("change", (event) => {
+		imageInput.addEventListener("change", async (event) => {
 			event.preventDefault();
 			const maxSize = 1 * 1024 * 1024 * 2;
 			const file = event.target.files[0];
@@ -173,7 +182,9 @@ export function addProfileModalEventListener(profileModal, myInfo) {
 			}
 
 			const formData = new FormData();
-			fetchImageFileRequest(formData);
+			formData.append("profile_image", file);
+			const result = await fetchImageFileRequest(formData);
+			renderModifyFormModal(result, profileModal);
 		});
 	}
 
@@ -184,13 +195,10 @@ export function addProfileModalEventListener(profileModal, myInfo) {
 	 */
 	const modifyForm = profileModal.querySelector(".tp-pf-form-myinfo-update");
 	if (modifyForm) {
-		modifyForm.addEventListener("submit", (event) => {
+		modifyForm.addEventListener("submit", async(event) => {
 			event.preventDefault();
 			const myData = new FormData(modifyForm);
-			for (let pair of myData.entries()) {
-				console.log(pair[0] + ': ' + pair[1]);
-			}
-			fetchModifyMyInfoRequest(myData);
+			const updataMyInfo = await fetchModifyMyInfoRequest(myData);
 			closeProfileModal(profileModal);
 		});
 	}

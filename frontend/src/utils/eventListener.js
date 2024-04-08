@@ -37,7 +37,6 @@ export function addNavBarClickListener(navBarContainer) {
 
 		e.preventDefault();
 		const targetURL = target.href.replace(`https://${process.env.BASE_IP}`, "");
-		// console.log("\n\n\n\n targetUrl : " + targetURL);
 		navigate(targetURL);
 	});
 

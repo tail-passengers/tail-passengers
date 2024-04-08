@@ -61,23 +61,25 @@ export default function renderMyInfoForm(content, parentElement) {
 	}
 
 	const renderUser = function (content) {
-		const nickname = $(".tp-pf-input-nickname");
-		const intraId = $(".tp-pf-input-intraId");
-		const profileImg = $(".tp-pf-photo-thumnail");
-		const record = $(".tp-pf-input-record");
-		const house = $(".tp-pf-input-house");
-		nickname.value = content.nickname;
-		intraId.value = content.intra_id;
-		profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
-		record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
-		handlerHouseValue(content.house);
+		if (content) {
+			const nickname = $(".tp-pf-input-nickname");
+			const intraId = $(".tp-pf-input-intraId");
+			const profileImg = $(".tp-pf-photo-thumnail");
+			const record = $(".tp-pf-input-record");
+			const house = $(".tp-pf-input-house");
+			nickname.value = content.nickname;
+			intraId.value = content.intra_id;
+			profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
+			record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
+			handlerHouseValue(content.house);
+		}
 	};
 
 	renderMyInfoField(parentElement);
 	addMyInfoEventListener(content);
 	renderUser(content);
+
 	window.addEventListener("languageChange", function() {
 		renderMyInfoField(parentElement);
-		renderUser(content);
 	}.bind(this));
 }

@@ -119,15 +119,7 @@ export default function renderModifyFormModal(myInfo, parentElement) {
 		handlerHouseValue(content.house);
 	};
 
-	// let modifyModal = document.createRange().createContextualFragment(contentHTML);
-	// const prevModal = parentElement.querySelector(".tp-modal-div");
-	// if (prevModal)
-	// {
-	// 	parentElement.removeChild(prevModal);
-	// }
-	// parentElement.appendChild(modifyModal);
-	// parentElement.style.display = "";
 	renderModalForm(parentElement);
 	renderUser(myInfo);
-	addProfileModalEventListener(parentElement, myInfo);
+	addProfileModalEventListener(parentElement, "MY");
 }
