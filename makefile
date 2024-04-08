@@ -7,13 +7,12 @@ debug:
 down:
 	docker-compose -f ./docker-compose.yml down
 
-re: down
-	docker-compose -f ./docker-compose.yml up --build --detach
-
+re: fclean all
+	
 clean: down
 	docker system prune -a
 
-fclean:
+fclean: clean
 	docker-compose -f ./docker-compose.yml down -v
 	docker system prune --all --force --volumes
 

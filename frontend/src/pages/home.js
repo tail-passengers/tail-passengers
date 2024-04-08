@@ -13,6 +13,7 @@ function Home($container) {
         this.$container.innerHTML = `
             <div class="content default-container">
                 <div class="sized-box"></div>
+                <div class="sized-box"></div>
                 <div class="home-top-container">
                     <canvas id="bar-chart" style="flex:1;"></canvas>
                     <div id="records-box">
