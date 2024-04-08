@@ -98,12 +98,12 @@ function RecordsSearch({ initialState }) {
               <div class="record-user-box">
                   <div class="record-user-box-section record-win" data-text="WIN">
                       <div class="h2">${log.winner}</div>
-                      <div class="h3">Start time : </div>
+                      <div class="h5">${locale.records.startTime} : </div>
                   </div>
                   <img src="/public/assets/img/tmpProfile.png" />
               </div>
               <div class="sized-box">
-                  <div class="h2">VS</div>
+                  <div class="h2">${locale.records.vs}</div>
                   <div class="fs-6 tp-color-primary text-border">${formatDateTime(
                       log.start_time
                   )}</div>

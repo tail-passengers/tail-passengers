@@ -12,6 +12,9 @@ const koLocale = {
 		korean: "한국어",
 		japanese: "일본어"
 	},
+	footer: {
+		brand: "테일 패신저",
+	},
 	selectMode: {
 		mainText: "게임 모드를 선택하세요",
 		singleMode: "싱글 모드",
@@ -43,6 +46,8 @@ const koLocale = {
 	},
 	records: {
 		mainText: "기록",
+		startTime: "게임 시작 시간",
+		vs: "대"
 	},
 	profileTab: {
 		myInfoTab: "내 정보",
