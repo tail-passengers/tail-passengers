@@ -26,6 +26,7 @@ class KeyboardInput(Enum):
 class PlayerStatus(Enum):
     WAIT = "wait"
     READY = "ready"
+    ROUND_READY = "round_ready"
     PLAYING = "playing"
     SCORE = "score"
     END = "end"

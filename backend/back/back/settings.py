@@ -32,6 +32,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# frontend 요구 사항
+CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get("BASE_IP")}"]
+
 
 # Application definition
 
@@ -189,6 +192,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/api/v1/media/"
+# MEDIA_URL = f"https://{os.environ.get("BASE_IP")}/api/v1/media/"
 
 AUTH_USER_MODEL = "accounts.Users"
 

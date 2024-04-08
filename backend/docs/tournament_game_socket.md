@@ -79,6 +79,19 @@
 }
 ```
 
+### 7.1 [Back] 만약 wait 중에 플레이어 접속 종료 시
+
+- 접속 종료한 유저 정보 전달
+
+```json
+{
+    "message_type": "wait",
+    "intra_id": "{접속 종료한 intra_id}",
+    "total": "{join_player_num}",
+    "number": "{player1 / player2 / player3 / player4}"
+}
+```
+
 ### 8. [Back] 인원이 모두 모이면 프론트한테 보내기
 
 ```json

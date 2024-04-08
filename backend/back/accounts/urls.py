@@ -19,4 +19,5 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     # TODO test용 삭제
     path("login/<str:intra_id>/", views.TestAccountLogin.as_view()),
+    path("house/", views.HouseViewSet.as_view({"get": "list"}), name="house"),
 ]

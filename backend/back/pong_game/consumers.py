@@ -353,7 +353,21 @@ class TournamentGameConsumer(AsyncWebsocketConsumer):
         if self.tournament.get_status() == TournamentStatus.READY:
             return
 
-        self.tournament.disconnect_tournament(self.user.intra_id)
+        # 나간 인원과 줄어든 현재 인원을 전송
+        await self.channel_layer.group_send(
+            self.group_name_a,
+            {
+                "type": "send.message",
+                "message": self.tournament.disconnect_tournament(self.user.intra_id),
+            },
+        )
+        await self.channel_layer.group_send(
+            self.group_name_b,
+            {
+                "type": "send.message",
+                "message": self.tournament.disconnect_tournament(self.user.intra_id),
+            },
+        )
         if self.tournament.get_player_total_cnt() == 0:
             ACTIVE_TOURNAMENTS.pop(self.tournament_name)
 
@@ -429,9 +443,19 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
             self.round = self.tournament.get_round(self.round_number)
             self.game_group_name = self.tournament_name + "_" + str(self.round_number)
             self.tournament_broadcast = self.tournament_name + "_broadcast"
+            # TODO if 문 간소화 by myko
             if (
                 self.tournament is not None
-                and self.tournament.get_status() == TournamentStatus.READY
+                and (
+                    (
+                        self.tournament.get_status() == TournamentStatus.READY
+                        and self.round_number < 3
+                    )
+                    or (
+                        self.tournament.get_status() == TournamentStatus.PLAYING
+                        and self.round_number == 3
+                    )
+                )
                 and self.round is not None
                 and self.round.get_player(self.user.intra_id) is not None
             ):
@@ -467,11 +491,12 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
                 and self.tournament_name in ACTIVE_TOURNAMENTS.keys()
             ):
                 ACTIVE_TOURNAMENTS.pop(self.tournament_name)
-            self.game_loop_task.cancel()
-            try:  # cancel() 동작이 끝날 때까지 대기
-                await self.game_loop_task
-            except asyncio.CancelledError:
-                pass  # task가 이미 취소된 경우
+            if self.game_loop_task is not None:
+                self.game_loop_task.cancel()
+                try:  # cancel() 동작이 끝날 때까지 대기
+                    await self.game_loop_task
+                except asyncio.CancelledError:
+                    pass  # task가 이미 취소된 경우
         await self.channel_layer.group_discard(
             self.tournament_broadcast, self.channel_name
         )
@@ -483,11 +508,17 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         data = json.loads(text_data)
         message_type = data.get("message_type")
+        # TODO if문 간소화 하기
         if (
             message_type == MessageType.READY.value
             and self.tournament.get_status() == TournamentStatus.READY
+            and self.round_number < 3
+        ) or (
+            message_type == MessageType.READY.value
+            and self.tournament.get_status() == TournamentStatus.PLAYING
+            and self.round_number == 3
         ):
-            self.round.set_ready(self.user.intra_id)
+            self.round.set_round_ready(self.user.intra_id)
             if self.round.is_all_ready():
                 await self.channel_layer.group_send(
                     self.game_group_name,
@@ -545,33 +576,39 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
         if self.round_number == 3:
             self.tournament.set_status(TournamentStatus.END)
             try:
-                self.save_game_data_to_db()
+                await self.save_game_data_to_db()
                 await self.channel_layer.group_send(
                     self.tournament_broadcast,
-                    json.dumps(
+                    (
                         {
-                            "message_type": MessageType.COMPLETE.value,
+                            "type": "game.message",
+                            "message": json.dumps(
+                                {"message_type": MessageType.COMPLETE.value}
+                            ),
                         }
                     ),
                 )
             except ValidationError:
                 await self.channel_layer.group_send(
                     self.tournament_broadcast,
-                    json.dumps(
+                    (
                         {
-                            "message_type": MessageType.ERROR.value,
+                            "type": "game.message",
+                            "message": json.dumps(
+                                {"message_type": MessageType.ERROR.value}
+                            ),
                         }
                     ),
                 )
         else:
             round1, round2 = self.tournament.get_round(1), self.tournament.get_round(2)
             self.winner_group = self.tournament_name + "_winner"
-            self.channel_layer.group_add(self.winner_group, self.channel_name)
+            await self.channel_layer.group_add(self.winner_group, self.channel_name)
             if (
                 round1.get_status() == PlayerStatus.END
                 and round2.get_status() == PlayerStatus.END
             ):
-                self.channel_layer.group_send(
+                await self.channel_layer.group_send(
                     self.winner_group,
                     {
                         "type": "game.message",
@@ -586,7 +623,7 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_game_data_to_db(self) -> None:
         for i in range(1, 4):
-            round_i = self.tournament.get_round(i)
-            serializer = TournamentGameLogsSerializer(data=round_i.get_db_data())
+            data = self.tournament.get_db_datas(i)
+            serializer = TournamentGameLogsSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
