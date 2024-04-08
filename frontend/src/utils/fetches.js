@@ -48,7 +48,6 @@ export const fetchUser = async () => {
 	}
 };
 
-
 /**
  * 
  * @returns 모든 유저들의 랭킹 정보
@@ -67,7 +66,6 @@ export const fetchUsers = async () => {
 			console.error("Error fetching user data:", error);
 	}
 };
-
 
 /**
  * 
@@ -97,7 +95,6 @@ export const fetchModifyMyInfoRequest = async (myData) => {
 	}
 }
 
-
 /**
  * 
  * @param {*} imageData 이미지 파일명과 실제 이미지 리소스가 담긴 FormData 객체
@@ -123,35 +120,30 @@ export const fetchImageFileRequest = async (imageData) => {
 	}
 }
 
-
 /**
  * 
  * @returns DB에 저장된 내 회원 정보
  */
 export const fetchLogoutRequest = async() => {
-	try {
-		const csrfToken = getCSRFToken();
-		const myIntraId = await fetchMyIntraId();
-		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/` + myIntraId + "/", {
-			method: "PATCH",
-			credentials: "include",
-			headers: {
-				"X-CSRFToken": csrfToken,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-					status: 0,
-			}),
-		});
+    try {
+        const response = await fetch(`https://${process.env.BASE_IP}/api/v1/logout/`, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-		const data = await response.json();
-		console.log("fetchLogoutRequest() data", data);
-		navigate("/");
-		return data;
-	} catch (error) {
-			console.error("Error fetchLogoutRequest data:", error);
-	}
+		if (response.status === 200) {
+            console.log("Logout request successful");
+            navigate("/");
+			window.location.reload();
+        }
+    } catch (error) {
+        console.error("Error fetchLogoutRequest:", error);
+    }
 }
+
 
 /**
  * 
