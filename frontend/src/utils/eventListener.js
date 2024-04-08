@@ -23,11 +23,6 @@ export function addLoginEventListener(loginContainer) {
 	const closeLoginModal = (loginContainer) => {
 		loginContainer.style.display = "none";
 	};
-
-	const closeButton = loginContainer.querySelector("#close-btn");
-	closeButton.addEventListener("click", () =>
-		closeLoginModal(loginContainer)
-	);
 }
 
 export function addNavBarClickListener(navBarContainer) {
@@ -48,4 +43,35 @@ export function addNavBarClickListener(navBarContainer) {
 		});
 	}
 }
+window.addEventListener("beforeunload", async (event) => {
+    // 새로고침 여부 확인
+    if (!window.refreshing) {
+        try {
+            const response = await fetch(`https://${process.env.BASE_IP}/api/v1/logout/`, {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
+            if (response.status === 200) {
+                console.log("Logout request successful");
+            } else {
+                console.error("Logout request failed with status:", response.status);
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
+    }
+});
+
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'F5') {
+        window.refreshing = true;
+    }
+
+	if (event.key === 'r' && event.metaKey) {
+        window.refreshing = true;
+    }
+});
