@@ -53,13 +53,8 @@ h3:before {
   position: absolute;
 }
 
-body * {
-  font-family: Lato !important;
-}
-
 .menu a {
   color: rgba(54, 39, 5, 0.8);
-  font-family: Lato;
   font-size: 17pt;
   font-weight: 400;
   padding: 15px 25px;
