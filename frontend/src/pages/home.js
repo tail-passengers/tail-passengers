@@ -5,9 +5,9 @@ function Home($container) {
     this.$chartCanvas = null;
     this.gameLogs = []; // 전체 전적 데이터
 
-    this.setState = () => {
-        this.render();
-    };
+	this.setState = () => {
+		this.render();
+	};
 
     this.render = () => {
         this.$container.innerHTML = `
