@@ -1,16 +1,18 @@
 const enLocale = {
 	navBar: {
-		brand: "TAIL PASSENGER TEST",
+		brand: "TAIL PASSENGER",
 		pongGame: "PONG GAME",
 		rank: "RANK",
 		records: "RECORDS",
-		profile: "PROFILE",
-		settings: "Settings",
+		profile: "Profile",
 		logout: "Logout",
 		language: "Language",
 		english: "English",
 		korean: "한국어",
 		japanese: "日本語"
+	},
+	footer: {
+		brand: "Tail Passenger",
 	},
 	selectMode: {
 		mainText: "Select game mode",
@@ -43,6 +45,8 @@ const enLocale = {
 	},
 	records: {
 		mainText: "Records",
+		startTime: "Start time",
+		vs: "VS"
 	},
 	profileTab: {
 		myInfoTab: "MY",

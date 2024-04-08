@@ -76,13 +76,15 @@ export default function renderNavBar() {
 
 async function renderProgressBar() {
     const renderUser = (user) => {
-        const progressBar = $(".tp-progress-bar")[0];
-        const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
-        if (progressBar) {
-            progressBar.innerHTML = result + "%";
-            progressBar.style.width = result + "%";
-        } else {
-            console.log("addNavBarLoadListener():: Can't find progressBar!");
+        if (user) {
+            const progressBar = $(".tp-progress-bar")[0];
+            const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
+            if (progressBar) {
+                progressBar.innerHTML = result + "%";
+                progressBar.style.width = result + "%";
+            } else {
+                console.log("addNavBarLoadListener():: Can't find progressBar!");
+            }
         }
     };
     

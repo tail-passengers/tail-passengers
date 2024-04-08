@@ -12,6 +12,9 @@ const jaLocale = {
 		korean: "韓国語",
 		japanese: "日本語"
 	},
+	footer: {
+		brand: "テイル パッセンジャー",
+	},
 	selectMode: {
 		mainText: "ゲームモードを選択",
 		singleMode: "シングルモード",
@@ -43,6 +46,8 @@ const jaLocale = {
 	},
 	records: {
 		mainText: "レコード",
+		startTime: "スタートタイム",
+		vs: "対"
 	},
 	profileTab: {
 		myInfoTab: "マイインフォ",
