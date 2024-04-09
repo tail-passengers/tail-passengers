@@ -6,13 +6,18 @@ from rest_framework.views import APIView
 from django.shortcuts import redirect
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.db.models import Q
 from .serializers import UsersSerializer, UsersDetailSerializer
 from .models import Users, HouseEnum
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.contrib.auth import logout
-
+from games.models import GeneralGameLogs, TournamentGameLogs
+from games.serializers import (
+    GeneralGameLogsListSerializer,
+    TournamentGameLogsListSerializer,
+)
 
 HOUSE = {
     "Gam": HouseEnum.RAVENCLAW,
@@ -20,6 +25,8 @@ HOUSE = {
     "Lee": HouseEnum.GRYFFINDOR,
     "Gon": HouseEnum.SLYTHERIN,
 }
+
+BASE_FULL_IP = f"https://{os.environ.get('BASE_IP')}/"
 
 
 # https://squirmm.tistory.com/entry/Django-DRF-Method-Override-%EB%B0%A9%EB%B2%95
@@ -140,7 +147,7 @@ class UsersDetailViewSet(viewsets.ModelViewSet):
 class Login42APIView(APIView):
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
-            return redirect("https://127.0.0.1/")
+            return redirect(BASE_FULL_IP)
 
         client_id = os.environ.get("CLIENT_ID")
         response_type = "code"
@@ -156,7 +163,7 @@ class Login42APIView(APIView):
 class CallbackAPIView(APIView):
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
-            return redirect("https://127.0.0.1/")
+            return redirect(BASE_FULL_IP)
 
         if request.session.get("state") and not request.GET.get(
             "state"
@@ -171,7 +178,7 @@ class CallbackAPIView(APIView):
         )
         # 42 api에 정보 요청 실패
         if user_info_request.status_code != 200:
-            return redirect("https://127.0.0.1/")
+            return redirect(BASE_FULL_IP)
 
         user_info = user_info_request.json()
         coalition_info_request = requests.get(
@@ -197,7 +204,9 @@ class CallbackAPIView(APIView):
             user_instance.save()
         # login
         login(request, user_instance)
-        return redirect("https://127.0.0.1/")
+        user_instance.is_active = True
+        user_instance.save()
+        return redirect(BASE_FULL_IP)
 
     def _get_access_token(self, request) -> str:
         grant_type = "authorization_code"
@@ -220,21 +229,77 @@ class CallbackAPIView(APIView):
 
 
 def logout_view(request) -> redirect:
+    if request.user.is_authenticated:
+        user_instance = request.user
+        user_instance.is_active = False
+        user_instance.save()
+
     logout(request)
-    return redirect("https://127.0.0.1/")
+    return redirect(BASE_FULL_IP)
 
 
-class HouseViewSet(viewsets.ModelViewSet):
+class ChartViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Users.objects.all()
     serializer_class: UsersSerializer = UsersSerializer
     http_method_names = ["get"]
+
+    @staticmethod
+    def _add_data(
+        request: requests, data: dict, win_logs: dict, lose_logs: dict
+    ) -> None:
+        for logs in data:
+            if logs["player1"]["intra_id"] == request.user.intra_id:
+                if logs["player1_score"] > logs["player2_score"]:
+                    win_logs[logs["player2"]["house"]] += 1
+                else:
+                    lose_logs[logs["player2"]["house"]] += 1
+            else:
+                if logs["player2_score"] > logs["player1_score"]:
+                    win_logs[logs["player1"]["house"]] += 1
+                else:
+                    lose_logs[logs["player1"]["house"]] += 1
 
     def list(self, request, *args, **kwargs) -> Response:
         """
         GET method override
         """
         data = {}
+
+        # 사용자의 각 기숙사 별 대결 승률
+        win_logs = {"RA": 0, "GR": 0, "HU": 0, "SL": 0}
+        lose_logs = {"RA": 0, "GR": 0, "HU": 0, "SL": 0}
+        general_game = GeneralGameLogs.objects.all()
+        general_game_queryset = general_game.filter(
+            Q(player1=request.user.user_id) | Q(player2=request.user.user_id)
+        )
+        general_game_serializer = GeneralGameLogsListSerializer(
+            general_game_queryset, many=True
+        )
+        self._add_data(request, general_game_serializer.data, win_logs, lose_logs)
+
+        tournament = TournamentGameLogs.objects.all()
+        tournament_queryset = tournament.filter(
+            Q(player1=request.user.user_id) | Q(player2=request.user.user_id)
+        )
+        tournament_serializer = TournamentGameLogsListSerializer(
+            tournament_queryset, many=True
+        )
+        self._add_data(request, tournament_serializer.data, win_logs, lose_logs)
+
+        data["win_count"] = sum(win_logs.values())
+        data["lose_count"] = sum(lose_logs.values())
+        data["total_count"] = data["win_count"] + data["lose_count"]
+        data["rate"] = {
+            "total": data["win_count"] / (data["total_count"] + 1e-18),
+            "RA": win_logs["RA"] / (win_logs["RA"] + lose_logs["RA"] + 1e-18),
+            "GR": win_logs["GR"] / (win_logs["GR"] + lose_logs["GR"] + 1e-18),
+            "HU": win_logs["HU"] / (win_logs["HU"] + lose_logs["HU"] + 1e-18),
+            "SL": win_logs["SL"] / (win_logs["SL"] + lose_logs["SL"] + 1e-18),
+        }
+
+        # 각 기숙사 별 승률
+        data["house"] = {}
         for house in ("RA", "GR", "HU", "SL"):
             queryset = UsersViewSet.queryset.filter(house=house)
             serializer = UsersSerializer(queryset, many=True)
@@ -247,7 +312,8 @@ class HouseViewSet(viewsets.ModelViewSet):
                 if total_win_count + total_lose_count
                 else 0
             )
-            data[house] = rate
+            data["house"][house] = rate
+
         return Response(data)
 
 
@@ -259,16 +325,16 @@ class TestAccountLogin(APIView):
         GET method override
         """
         if request.user.is_authenticated:
-            return redirect(
-                f"http://127.0.0.1:8000/api/v1/users/{request.user.intra_id}/"
-            )
+            return redirect(BASE_FULL_IP)
         try:
             user_instance = Users.objects.get(intra_id=kwargs["intra_id"])
             if user_instance.is_test_user:
+                user_instance.is_active = True
+                user_instance.save()
                 login(request, user_instance)
             else:
                 print("Error: 허용 되지 않은 유저입니다.")
-            return redirect("https://127.0.0.1/")
+            return redirect(BASE_FULL_IP)
         except Users.DoesNotExist:
             print("Error: 사용자를 찾을 수 없습니다.")
-            return redirect("https://127.0.0.1/")
+            return redirect(BASE_FULL_IP)

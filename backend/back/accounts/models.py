@@ -58,7 +58,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     is_staff: bool = models.BooleanField(
         default=False
     )  # 추가: 관리자 사이트에 로그인하기 위해 필요
-    is_active: bool = models.BooleanField(default=True)  # 추가: 사용자가 활성 상태인지
+    is_active: bool = models.BooleanField(default=False)  # 추가: 사용자가 활성 상태인지
 
     objects: UserManager = UserManager()
 

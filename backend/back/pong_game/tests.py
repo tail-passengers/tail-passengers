@@ -128,6 +128,11 @@ class GeneralGameConsumerTests(TestCase):
         user.delete()
 
     @database_sync_to_async
+    def get_user(self, intra_id: str):
+        # 데이터베이스에서 사용자 조회
+        return Users.objects.get(intra_id=intra_id)
+
+    @database_sync_to_async
     def get_general_game_data(self, player_num: int, player):
         try:
             if player_num == 1:
@@ -329,7 +334,6 @@ class GeneralGameConsumerTests(TestCase):
         while True:
             user1_response = await communicator1.receive_from()
             user1_dict = json.loads(user1_response)
-            print(user1_dict)
             if user1_dict["message_type"] == "end":
                 break
 
@@ -358,6 +362,14 @@ class GeneralGameConsumerTests(TestCase):
         self.assertEqual(game_data_from_db.player2_id, self.user2.user_id)
         self.assertEqual(game_data_from_db.player1_score, 0)
         self.assertEqual(game_data_from_db.player2_score, 5)
+
+        # 유저 데이터 확인
+        test1 = await self.get_user(intra_id="test1")
+        test2 = await self.get_user(intra_id="test2")
+        self.assertEqual(test1.win_count, 0)
+        self.assertEqual(test2.win_count, 1)
+        self.assertEqual(test1.lose_count, 1)
+        self.assertEqual(test2.lose_count, 0)
 
         await communicator1.disconnect()
         await communicator2.disconnect()
@@ -1472,7 +1484,25 @@ class TournamentGameRoundConsumerTests(TestCase):
             )
         )
 
+        # tournament db에 잘 저장 됐는지 확인하는 테스트
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=1)
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=2)
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=3)
         await self.discard_all_message(self.test_tournament1_communicators)
+
+        # user db에 잘 저장 됐는지 확인하는 테스트
+        room_1_owner = await self.get_user(self.room_1_owner_id)
+        room_1_user1 = await self.get_user(self.room_1_user1_id)
+        room_1_user2 = await self.get_user(self.room_1_user2_id)
+        room_1_user3 = await self.get_user(self.room_1_user3_id)
+        self.assertEqual(room_1_owner.win_count, 0)
+        self.assertEqual(room_1_owner.lose_count, 1)
+
+        self.assertEqual(room_1_user1.win_count, 1)
+        self.assertEqual(room_1_user1.lose_count, 1)
+
+        self.assertEqual(room_1_user2.win_count, 0)
+        self.assertEqual(room_1_user2.lose_count, 1)
+
+        self.assertEqual(room_1_user3.win_count, 2)
+        self.assertEqual(room_1_user3.lose_count, 0)

@@ -18,6 +18,10 @@ urlpatterns = [
     path("login/42/callback/", views.CallbackAPIView.as_view()),
     path("logout/", logout_view, name="logout"),
     # TODO test용 삭제
-    path("login/<str:intra_id>/", views.TestAccountLogin.as_view()),
-    path("house/", views.HouseViewSet.as_view({"get": "list"}), name="house"),
+    path(
+        "login/<str:intra_id>/",
+        views.TestAccountLogin.as_view(),
+        name="test_user_login",
+    ),
+    path("chart/", views.ChartViewSet.as_view({"get": "list"}), name="chart"),
 ]
