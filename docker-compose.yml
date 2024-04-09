@@ -43,7 +43,8 @@ services:
     restart: always
     volumes:
       - dist:/app/dist
-      - ./frontend:/app
+    depends_on:
+      - web
 
   channels:
     image: redis

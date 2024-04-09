@@ -32,7 +32,7 @@ class Ball:
         )
 
     def hit_ball_back(self, paddle_x: float) -> None:
-        self.speed_x = (self.position_x - paddle_x) / 9
+        self.speed_x = (self.position_x - paddle_x) / 5
         self.speed_z *= -1
 
     def protego_maxima(self) -> None:

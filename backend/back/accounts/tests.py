@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from .models import Users
 
 
 class UsersViewSetTest(APITestCase):
@@ -123,3 +122,33 @@ class UsersDetailViewSetTest(APITestCase):
         data = {"nickname": self.other_user.nickname}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class HouseViewSetTest(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            intra_id="1", house="RA", win_count=7, lose_count=3
+        )
+        self.user = get_user_model().objects.create_user(
+            intra_id="2", house="GR", win_count=6, lose_count=4
+        )
+        self.user = get_user_model().objects.create_user(
+            intra_id="3", house="HU", win_count=5, lose_count=5
+        )
+        self.user = get_user_model().objects.create_user(
+            intra_id="4", house="SL", win_count=4, lose_count=6
+        )
+
+    def test_get_house_with_authenticate(self):
+        """
+        기숙사 정보를 가져오는 테스트
+        """
+        self.client.force_authenticate(user=self.user)
+        url = reverse("house")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rate = (0.7, 0.6, 0.5, 0.4)
+        house = ("RA", "GR", "HU", "SL")
+        for idx, (key, value) in enumerate(response.data.items()):
+            self.assertEqual(key, house[idx])
+            self.assertEqual(value, rate[idx])

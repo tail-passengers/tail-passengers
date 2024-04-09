@@ -144,26 +144,31 @@ function Tornament({ $app, initialState }) {
 			await this.connectWebSocket(tournamentName); // 기존의 메세지 리스너 같이 사라짐
 			this.waitSocket.addEventListener('message', (event) => {
 				const data = JSON.parse(event.data);
-				if (intraId == false || intraId == data.intra_id) {
-					intraId = data.intra_id;
-					playerNum = data.number;
-				}
+				if (data.message_type == "wait") {
+					if (intraId == false || intraId == data.intra_id) {
+						intraId = data.intra_id;
+						playerNum = data.number;
+					}
 
-				console.log("I am : " + playerNum + " " + intraId);
-				this.waitSocket.send(event.data);
+					console.log("I am : " + playerNum + " " + intraId);
+					this.waitSocket.send(event.data);
 
 
-				console.log("Received 대기중 data:", data);
-				this.$element.innerHTML = `
+					console.log("Received 대기중 data:", data);
+					this.$element.innerHTML = `
         <div class='text-center h1 text-left tp-color-secondary'>Waiting other players...</div>
         <div class='text-center h1 text-left tp-color-secondary'>${data.total} / 4</div>
         <div class="text-center">
             <button id="goBackToListBtn" class="btn tp-btn-primary">Go back to list</button>
         </div>
     `;
-				// "Go back to list" 버튼 클릭 이벤트 핸들러 등록
-				const goBackToListBtn = this.$element.querySelector("#goBackToListBtn");
-				goBackToListBtn.addEventListener("click", this.goBackToList);
+					// "Go back to list" 버튼 클릭 이벤트 핸들러 등록
+					const goBackToListBtn = this.$element.querySelector("#goBackToListBtn");
+					goBackToListBtn.addEventListener("click", this.goBackToList);
+				}
+				else if (data.message_type == "ready") {
+
+				}
 			});
 		} catch (error) {
 			console.error("뭔가;; 잘못됨:", error);
@@ -183,8 +188,7 @@ function Tornament({ $app, initialState }) {
 	//소켓 연결시 사용
 	this.connectWebSocket = async (url) => {
 		return new Promise((resolve, reject) => {
-			console.log("소켓연결: wss://127.0.0.1:443/ws/tournament_game/" + url);
-			this.waitSocket = new WebSocket(`wss://127.0.0.1/ws/tournament_game/${url}/`);
+			this.waitSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/tournament_game/${url}/`);
 
 			this.waitSocket.onopen = () => {
 				console.log('WebSocket connected');

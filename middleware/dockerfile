@@ -2,7 +2,7 @@ FROM debian:bullseye-slim
 
 RUN apt-get update && \
   apt-get install -y nginx openssl dumb-init \
-  && apt-get install npm -y 
+  && apt-get install npm -y
 
 COPY ./conf/default.conf /etc/nginx/conf.d/default.conf
 COPY tools/docker-entrypoint.sh /docker-entrypoint.sh

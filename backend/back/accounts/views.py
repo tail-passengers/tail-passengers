@@ -224,6 +224,33 @@ def logout_view(request) -> redirect:
     return redirect("https://127.0.0.1/")
 
 
+class HouseViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Users.objects.all()
+    serializer_class: UsersSerializer = UsersSerializer
+    http_method_names = ["get"]
+
+    def list(self, request, *args, **kwargs) -> Response:
+        """
+        GET method override
+        """
+        data = {}
+        for house in ("RA", "GR", "HU", "SL"):
+            queryset = UsersViewSet.queryset.filter(house=house)
+            serializer = UsersSerializer(queryset, many=True)
+            total_win_count, total_lose_count = 0, 0
+            for user in serializer.data:
+                total_win_count += user["win_count"]
+                total_lose_count += user["lose_count"]
+            rate = (
+                total_win_count / (total_win_count + total_lose_count)
+                if total_win_count + total_lose_count
+                else 0
+            )
+            data[house] = rate
+        return Response(data)
+
+
 # TODO test 용도 삭제 해야함
 class TestAccountLogin(APIView):
 

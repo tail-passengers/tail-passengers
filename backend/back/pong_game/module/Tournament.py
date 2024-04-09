@@ -35,7 +35,9 @@ class Tournament:
     def _join_tournament_with_intra_id(self, intra_id: str) -> PlayerNumber:
         for idx, player in enumerate(self.player_list):
             if player is None:
-                self.player_list[idx] = Player(number=idx + 1, intra_id=intra_id)
+                self.player_list[idx] = Player(
+                    number=2 if idx % 2 else 1, intra_id=intra_id
+                )
                 self.player_total_cnt += 1
                 if self.player_total_cnt == TOURNAMENT_PLAYER_MAX_CNT:
                     self.status = TournamentStatus.READY
@@ -93,6 +95,8 @@ class Tournament:
                     player2 = player
             player1.set_status(PlayerStatus.READY)
             player2.set_status(PlayerStatus.READY)
+            player1.set_number(1)
+            player2.set_number(2)
             self.round_list[2] = Round(player1, player2, RoundNumber.ROUND_3)
             return json.dumps(
                 {
@@ -103,11 +107,16 @@ class Tournament:
                 }
             )
 
-    def disconnect_tournament(self, intra_id: str) -> None:
+    def disconnect_tournament(self, intra_id: str) -> json:
+        data = {"message_type": MessageType.WAIT.value}
         for idx, player in enumerate(self.player_list):
             if player is not None and player.get_intra_id() == intra_id:
                 self.player_list[idx] = None
                 self.player_total_cnt -= 1
+                data["intra_id"] = intra_id
+                data["total"] = self.player_total_cnt
+                data["number"] = list(PlayerNumber)[idx].value
+        return json.dumps(data)
 
     def is_all_ready(self) -> bool:
         for player in self.player_list:

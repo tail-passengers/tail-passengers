@@ -138,6 +138,121 @@
     }
   },
   {
+    "model": "accounts.users",
+    "pk": "4274deeb-19b5-48ff-898f-ac5a74a043a1",
+    "fields": {
+      "password": "",
+      "last_login": "2024-02-28T11:47:19.657Z",
+      "is_superuser": false,
+      "intra_id": "Newt",
+      "nickname": "Newt",
+      "profile_image": "test_images//Newt.png",
+      "win_count": 10,
+      "lose_count": 3,
+      "created_time": "2024-02-28T11:47:18.681Z",
+      "updated_time": "2024-02-28T11:47:19.649Z",
+      "status": "0",
+      "is_staff": false,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": [],
+      "is_test_user": true,
+      "house": "HU"
+    }
+  },
+  {
+    "model": "accounts.users",
+    "pk": "0e35bd1d-dd2f-4b60-93bc-7e1bf01e410b",
+    "fields": {
+      "password": "",
+      "last_login": "2024-02-28T11:47:19.657Z",
+      "is_superuser": false,
+      "intra_id": "Cedric",
+      "nickname": "Cedric",
+      "profile_image": "test_images//Cedric.png",
+      "win_count": 34,
+      "lose_count": 6,
+      "created_time": "2024-02-28T11:47:18.681Z",
+      "updated_time": "2024-02-28T11:47:19.649Z",
+      "status": "0",
+      "is_staff": false,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": [],
+      "is_test_user": true,
+      "house": "HU"
+    }
+  },
+  {
+    "model": "accounts.users",
+    "pk": "e671b657-6a85-4d99-a45e-a39e4ae8ddf9",
+    "fields": {
+      "password": "",
+      "last_login": "2024-02-28T11:47:19.657Z",
+      "is_superuser": false,
+      "intra_id": "Gregory",
+      "nickname": "Gregory",
+      "profile_image": "test_images//Gregory.png",
+      "win_count": 1,
+      "lose_count": 17,
+      "created_time": "2024-02-28T11:47:18.681Z",
+      "updated_time": "2024-02-28T11:47:19.649Z",
+      "status": "0",
+      "is_staff": false,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": [],
+      "is_test_user": true,
+      "house": "SL"
+    }
+  },
+  {
+    "model": "accounts.users",
+    "pk": "2e7ee312-7c40-4eb6-8334-61a3a12f3cf5",
+    "fields": {
+      "password": "",
+      "last_login": "2024-02-28T11:47:19.657Z",
+      "is_superuser": false,
+      "intra_id": "Crabbe",
+      "nickname": "Crabbe",
+      "profile_image": "test_images//Crabbe.png",
+      "win_count": 1,
+      "lose_count": 16,
+      "created_time": "2024-02-28T11:47:18.681Z",
+      "updated_time": "2024-02-28T11:47:19.649Z",
+      "status": "0",
+      "is_staff": false,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": [],
+      "is_test_user": true,
+      "house": "SL"
+    }
+  },
+  {
+    "model": "accounts.users",
+    "pk": "ef7a4218-3c82-46e7-86cc-9616cbbfadb3",
+    "fields": {
+      "password": "",
+      "last_login": "2024-02-28T11:47:19.657Z",
+      "is_superuser": false,
+      "intra_id": "Draco",
+      "nickname": "Draco",
+      "profile_image": "test_images//Draco.png",
+      "win_count": 18,
+      "lose_count": 11,
+      "created_time": "2024-02-28T11:47:18.681Z",
+      "updated_time": "2024-02-28T11:47:19.649Z",
+      "status": "0",
+      "is_staff": false,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": [],
+      "is_test_user": true,
+      "house": "SL"
+    }
+  },
+  {
     "model": "friendrequests.friendrequests",
     "pk": "aa48b158-dd4e-4715-a1c3-74cdd22f11b2",
     "fields": {

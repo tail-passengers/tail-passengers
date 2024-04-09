@@ -329,6 +329,7 @@ class GeneralGameConsumerTests(TestCase):
         while True:
             user1_response = await communicator1.receive_from()
             user1_dict = json.loads(user1_response)
+            print(user1_dict)
             if user1_dict["message_type"] == "end":
                 break
 
@@ -1048,3 +1049,430 @@ class TournamentGameConsumerTests(TestCase):
         self.assertEqual(tournament.status, TournamentStatus.READY)
         # 거부 하는지 확인
         self.assertFalse(connected)
+
+
+class TournamentGameRoundConsumerTests(TestCase):
+    expected_tournaments_data: list[dict[str, str]]
+    TEST_TOURNAMENTS_INFO = [
+        {
+            "tournament_name": "test_tournament1",
+            "create_user_intra_id": "room_1_owner",
+            "wait_num": "1",
+        },
+        {
+            "tournament_name": "test_tournament2",
+            "create_user_intra_id": "room_2_owner",
+            "wait_num": "1",
+        },
+    ]
+
+    def __init__(self, methodName: str = ...):
+        super().__init__(methodName)
+        self.room_1_name = "test_tournament1"
+        self.room_2_name = "test_tournament2"
+        self.room_1_owner_id = "room_1_owner"
+        self.room_1_user1_id = "room_1_user1"
+        self.room_1_user2_id = "room_1_user2"
+        self.room_1_user3_id = "room_1_user3"
+        self.room_2_owner_id = "room_2_owner"
+        self.room_2_user1_id = "room_2_user1"
+        self.room_2_user2_id = "room_2_user2"
+        self.room_2_user3_id = "room_2_user3"
+
+    @database_sync_to_async
+    def create_test_user(self, intra_id):
+        # 테스트 사용자 생성
+        return get_user_model().objects.create_user(intra_id=intra_id)
+
+    @database_sync_to_async
+    def delete_test_user(self, user):
+        # 테스트 사용자 삭제
+        user.delete()
+
+    @database_sync_to_async
+    def get_user(self, intra_id: str):
+        # 데이터베이스에서 사용자 조회
+        return Users.objects.get(intra_id=intra_id)
+
+    @database_sync_to_async
+    def get_tournament_data(self, tournamnet_name: str, round: int):
+        try:
+            return TournamentGameLogs.objects.get(
+                tournament_name=tournamnet_name, round=round
+            )
+        except GeneralGameLogs.DoesNotExist:
+            return None
+
+    async def wait_for_tournament_data(
+        self, tournamnet_name: str, round: int, timeout=1
+    ):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                game_data = await self.get_tournament_data(
+                    tournamnet_name=tournamnet_name, round=round
+                )
+                if game_data:
+                    return game_data
+            except TournamentGameLogs.DoesNotExist:
+                await asyncio.sleep(0.2)
+        return None
+
+    def setUp(self):
+        """
+        가짜 토너먼트 데이터 준비
+        """
+        self.fake_tournaments = {
+            tournament_info["tournament_name"]: Tournament(
+                tournament_name=tournament_info["tournament_name"],
+                create_user_intra_id=tournament_info["create_user_intra_id"],
+            )
+            for tournament_info in self.TEST_TOURNAMENTS_INFO
+        }
+        # 가짜 데이터를 ACTIVE_TOURNAMENTS에 주입
+        ACTIVE_TOURNAMENTS.update(self.fake_tournaments)
+
+        self.expected_tournaments_data = [
+            {
+                "tournament_name": tournament_info["tournament_name"],
+                "wait_num": tournament_info["wait_num"],
+            }
+            for tournament_info in self.TEST_TOURNAMENTS_INFO
+        ]
+
+    async def connect_and_echo_data(self, tournament_name: str, user: Users) -> tuple:
+        """
+        연결하고 받은 메시지를 그대로 다시 보내는 함수
+        """
+        communicator = WebsocketCommunicator(
+            application, f"/ws/tournament_game/{tournament_name}/"
+        )
+        communicator.scope["user"] = user
+        connected, _ = await communicator.connect()
+        self.assertTrue(connected)
+        response = await communicator.receive_from()
+        await communicator.send_to(response)
+        response_dict = json.loads(response)
+        return communicator, response_dict
+
+    async def connect_and_send_ready_data(
+        self, tournament_name: str, user: Users, round: int, ready_data: dict
+    ) -> WebsocketCommunicator:
+        """
+        연결하고 ready_data를 send_to함
+        """
+        communicator = WebsocketCommunicator(
+            application, f"/ws/tournament_game/{tournament_name}/{round}/"
+        )
+        communicator.scope["user"] = user
+        connected, _ = await communicator.connect()
+        self.assertTrue(connected)
+        await communicator.send_to(json.dumps(ready_data))
+        return communicator
+
+    async def discard_all_message(self, communicators: list):
+        for idx, communicator in enumerate(communicators):
+            while await communicator.receive_nothing() is False:
+                message = await communicator.receive_from()
+
+    async def perform_test_sequence(
+        self, tournament_name: str, users_info: list[dict]
+    ) -> list:
+        """
+        특정 토너먼트에 대해 사용자 생성, 연결 및 대기 메시지 확인을 수행하는 메서드.
+        communicators를 반환
+        """
+        communicators = []
+        total_num = 1
+        for user_info in users_info:
+            user = await self.create_test_user(intra_id=user_info["intra_id"])
+            communicator, response_dict = await self.connect_and_echo_data(
+                tournament_name=tournament_name, user=user
+            )
+
+            self.assertEqual(response_dict["message_type"], MessageType.WAIT.value)
+            self.assertEqual(response_dict["intra_id"], user.intra_id)
+            self.assertEqual(response_dict["total"], total_num)
+            self.assertEqual(
+                response_dict["number"], user_info["expected_player_number"].value
+            )
+
+            communicators.append(communicator)
+            total_num += 1
+        return communicators
+
+    async def check_recieved_ready_messgae_valid(
+        self, users_ready_info: list[dict], communicators: list
+    ) -> None:
+        """
+        ready_message가 있는지, 그 값이 올바른지 확인
+        """
+        info_index: int = 0
+        has_ready_message: bool = False
+        for communicator in communicators:
+            while await communicator.receive_nothing() is False:
+                message = await communicator.receive_from()
+                message_dict = json.loads(message)
+                if message_dict["message_type"] == MessageType.READY.value:
+                    self.assertEqual(
+                        message_dict["round"], users_ready_info[info_index]["round"]
+                    )
+                    self.assertEqual(
+                        message_dict["1p"], users_ready_info[info_index]["1p"]
+                    )
+                    self.assertEqual(
+                        message_dict["2p"], users_ready_info[info_index]["2p"]
+                    )
+                    info_index += 1
+                    has_ready_message = True
+            if has_ready_message is False:
+                self.assertTrue(False)
+
+    @patch("pong_game.module.GameSetValue.BALL_SPEED_Z", 300)
+    async def test_round_logic_test(self):
+        """
+        정상적인 로직으로 진행했을때 결승전까지 잘 마무리 되는지 테스트
+        """
+        users_info_test_tournament1 = [
+            {
+                "intra_id": self.room_1_owner_id,
+                "expected_player_number": PlayerNumber.PLAYER_1,
+            },
+            {
+                "intra_id": self.room_1_user1_id,
+                "expected_player_number": PlayerNumber.PLAYER_2,
+            },
+            {
+                "intra_id": self.room_1_user2_id,
+                "expected_player_number": PlayerNumber.PLAYER_3,
+            },
+            {
+                "intra_id": self.room_1_user3_id,
+                "expected_player_number": PlayerNumber.PLAYER_4,
+            },
+        ]
+
+        self.test_tournament1_communicators = await self.perform_test_sequence(
+            self.room_1_name, users_info_test_tournament1
+        )
+
+        users_ready_info_test_tournament1 = [
+            {
+                "message_type": MessageType.READY.value,
+                "round": "1",
+                "1p": self.room_1_owner_id,
+                "2p": self.room_1_user1_id,
+            },
+            {
+                "message_type": MessageType.READY.value,
+                "round": "1",
+                "1p": self.room_1_owner_id,
+                "2p": self.room_1_user1_id,
+            },
+            {
+                "message_type": MessageType.READY.value,
+                "round": "2",
+                "1p": self.room_1_user2_id,
+                "2p": self.room_1_user3_id,
+            },
+            {
+                "message_type": MessageType.READY.value,
+                "round": "2",
+                "1p": self.room_1_user2_id,
+                "2p": self.room_1_user3_id,
+            },
+        ]
+        await self.check_recieved_ready_messgae_valid(
+            users_ready_info=users_ready_info_test_tournament1,
+            communicators=self.test_tournament1_communicators,
+        )
+
+        await self.discard_all_message(
+            communicators=self.test_tournament1_communicators
+        )
+
+        # 접속 다 끊기
+        for communicator in self.test_tournament1_communicators:
+            await communicator.disconnect()
+
+        self.test_tournament1_communicators = []
+        for idx, (ready_info, user_info) in enumerate(
+            zip(users_ready_info_test_tournament1, users_info_test_tournament1), start=0
+        ):
+            user = await self.get_user(intra_id=user_info["intra_id"])
+            communicator = await self.connect_and_send_ready_data(
+                tournament_name=self.room_1_name,
+                user=user,
+                round=idx // 2 + 1,
+                ready_data=ready_info,
+            )
+            self.test_tournament1_communicators.append(communicator)
+
+        # start 메시지 잘 받는지 확인
+        start_reponse = await self.test_tournament1_communicators[0].receive_from()
+        start_reponse_dict = json.loads(start_reponse)
+        self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
+        self.assertEqual(start_reponse_dict["round"], "1")
+        start_reponse = await self.test_tournament1_communicators[1].receive_from()
+        start_reponse_dict = json.loads(start_reponse)
+        self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
+        self.assertEqual(start_reponse_dict["round"], "1")
+        start_reponse = await self.test_tournament1_communicators[2].receive_from()
+        start_reponse_dict = json.loads(start_reponse)
+        self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
+        self.assertEqual(start_reponse_dict["round"], "2")
+        start_reponse = await self.test_tournament1_communicators[3].receive_from()
+        start_reponse_dict = json.loads(start_reponse)
+        self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
+        self.assertEqual(start_reponse_dict["round"], "2")
+
+        await self.test_tournament1_communicators[0].send_to(
+            text_data=json.dumps(
+                {"message_type": "playing", "number": "player1", "input": "left_press"}
+            )
+        )
+
+        await self.test_tournament1_communicators[2].send_to(
+            text_data=json.dumps(
+                {"message_type": "playing", "number": "player1", "input": "left_press"}
+            )
+        )
+
+        while True:
+            user1_response = await self.test_tournament1_communicators[0].receive_from()
+            user1_dict = json.loads(user1_response)
+            if (
+                user1_dict["message_type"] == "end"
+                or user1_dict["message_type"] == "stay"
+            ):
+                break
+
+        while True:
+            user2_response = await self.test_tournament1_communicators[1].receive_from()
+            user2_dict = json.loads(user2_response)
+            if (
+                user2_dict["message_type"] == "end"
+                or user2_dict["message_type"] == "stay"
+            ):
+                break
+
+        while True:
+            user3_response = await self.test_tournament1_communicators[2].receive_from()
+            user3_dict = json.loads(user3_response)
+            if (
+                user3_dict["message_type"] == "end"
+                or user3_dict["message_type"] == "stay"
+            ):
+                break
+
+        while True:
+            user4_response = await self.test_tournament1_communicators[3].receive_from()
+            user4_dict = json.loads(user4_response)
+            if (
+                user4_dict["message_type"] == "end"
+                or user4_dict["message_type"] == "stay"
+            ):
+                break
+
+        await self.discard_all_message(self.test_tournament1_communicators)
+
+        await self.test_tournament1_communicators[1].send_to(
+            json.dumps(
+                {
+                    "message_type": "stay",
+                    "round": "1",
+                    "winner": "room_1_user1",
+                    "loser": "room_1_owner",
+                }
+            )
+        )
+
+        await self.test_tournament1_communicators[3].send_to(
+            json.dumps(
+                {
+                    "message_type": "stay",
+                    "round": "2",
+                    "winner": "room_1_user3",
+                    "loser": "room_1_user2",
+                }
+            )
+        )
+
+        await self.discard_all_message(self.test_tournament1_communicators)
+
+        # 연결 끊기
+        for communicator in self.test_tournament1_communicators:
+            await communicator.disconnect()
+
+        self.test_tournament1_communicators = []
+        self.test_tournament1_communicators.append(
+            await self.connect_and_send_ready_data(
+                tournament_name=self.room_1_name,
+                user=await self.get_user(intra_id=self.room_1_user1_id),
+                round=3,
+                ready_data={
+                    "message_type": MessageType.READY.value,
+                    "round": "3",
+                    "1p": self.room_1_user1_id,
+                    "2p": self.room_1_user3_id,
+                },
+            )
+        )
+
+        self.test_tournament1_communicators.append(
+            await self.connect_and_send_ready_data(
+                tournament_name=self.room_1_name,
+                user=await self.get_user(intra_id=self.room_1_user3_id),
+                round=3,
+                ready_data={
+                    "message_type": MessageType.READY.value,
+                    "round": "3",
+                    "1p": self.room_1_user1_id,
+                    "2p": self.room_1_user3_id,
+                },
+            )
+        )
+
+        await self.test_tournament1_communicators[0].receive_from()
+        await self.test_tournament1_communicators[1].receive_from()
+
+        await self.test_tournament1_communicators[0].send_to(
+            text_data=json.dumps(
+                {"message_type": "playing", "number": "player1", "input": "left_press"}
+            )
+        )
+
+        while True:
+            user2_response = await self.test_tournament1_communicators[0].receive_from()
+            user2_dict = json.loads(user2_response)
+            if (
+                user2_dict["message_type"] == "end"
+                or user2_dict["message_type"] == "stay"
+            ):
+                break
+
+        while True:
+            user4_response = await self.test_tournament1_communicators[1].receive_from()
+            user4_dict = json.loads(user4_response)
+            if (
+                user4_dict["message_type"] == "end"
+                or user4_dict["message_type"] == "stay"
+            ):
+                break
+
+        await self.discard_all_message(self.test_tournament1_communicators)
+        await self.test_tournament1_communicators[0].send_to(
+            json.dumps(
+                {
+                    "message_type": "stay",
+                    "round": "3",
+                    "winner": "room_1_user3",
+                    "loser": "room_1_user1",
+                }
+            )
+        )
+
+        await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=1)
+        await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=2)
+        await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=3)
+        await self.discard_all_message(self.test_tournament1_communicators)

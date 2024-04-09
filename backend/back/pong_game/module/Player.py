@@ -24,5 +24,9 @@ class Player:
     def set_status(self, status: PlayerStatus) -> None:
         self.status = status
 
+    def set_number(self, number: int) -> None:
+        self.number = number
+        self.paddle.reset_position(number)
+
     def paddle_handler(self, key_input: str) -> None:
         self.paddle.input_handler(key_input)
