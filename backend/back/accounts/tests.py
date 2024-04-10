@@ -4,6 +4,7 @@ from datetime import datetime
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
+from .models import UserStatusEnum
 
 
 class UsersViewSetTest(APITestCase):
@@ -227,91 +228,91 @@ class LoginLogoutUserStatusTest(APITestCase):
         logout시 status가 offline인지 확인
         """
         # active 초기값 False 확인
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
         # login
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, True)
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
 
         # logout
         response = self.client.get(self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
     def test_double_login(self):
         """
         login double로 해도 올바른 상태값 반환하는지
         """
         # active 초기값 False 확인
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
         # login
         response = self.client.get(self.login_url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, True)
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
 
         # double login
         response = self.client.get(self.login_url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, True)
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
 
     def test_double_logout(self):
         """
         logout double로 해도 올바른 상태값 반환하는지
         """
         # active 초기값 False 확인
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
         # login
         response = self.client.get(self.login_url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, True)
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
 
         # logout
         url = reverse("logout")
         response = self.client.get(self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
         # double logout
         response = self.client.get(self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
     def test_login_logout_login(self):
         """
         login_logout_login 할때
         """
         # active 초기값 False 확인
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
         # login
         response = self.client.get(self.login_url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, True)
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
 
         # logout
         response = self.client.get(self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, False)
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
 
         # login
         response = self.client.get(self.login_url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.is_active, True)
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)

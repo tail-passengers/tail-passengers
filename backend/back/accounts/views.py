@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 from .serializers import UsersSerializer, UsersDetailSerializer
-from .models import Users, HouseEnum
+from .models import Users, HouseEnum, UserStatusEnum
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login
 from rest_framework.exceptions import ValidationError, PermissionDenied
@@ -204,7 +204,7 @@ class CallbackAPIView(APIView):
             user_instance.save()
         # login
         login(request, user_instance)
-        user_instance.is_active = True
+        user_instance.status = UserStatusEnum.ONLINE
         user_instance.save()
         return redirect(BASE_FULL_IP)
 
@@ -231,7 +231,7 @@ class CallbackAPIView(APIView):
 def logout_view(request) -> redirect:
     if request.user.is_authenticated:
         user_instance = request.user
-        user_instance.is_active = False
+        user_instance.status = UserStatusEnum.OFFLINE
         user_instance.save()
 
     logout(request)
@@ -329,7 +329,7 @@ class TestAccountLogin(APIView):
         try:
             user_instance = Users.objects.get(intra_id=kwargs["intra_id"])
             if user_instance.is_test_user:
-                user_instance.is_active = True
+                user_instance.status = UserStatusEnum.ONLINE
                 user_instance.save()
                 login(request, user_instance)
             else:
