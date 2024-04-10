@@ -2,6 +2,7 @@ import asyncio
 import json
 import uuid
 from typing import Deque
+from django.db.models import F
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from accounts.models import Users, UserStatusEnum
@@ -183,7 +184,10 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
             and game.get_status() == PlayerStatus.END
         ):
             try:
-                await self.save_game_data_to_db(game.get_db_data())
+                winner_id, loser_id = game.get_winner_loser_intra_id()
+                await self.save_game_user_data_to_db(
+                    game.get_db_data(), winner_id, loser_id
+                )
                 await self.send(
                     json.dumps(
                         {
@@ -225,11 +229,24 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
                 game.set_status(PlayerStatus.PLAYING)
 
     @database_sync_to_async
-    def save_game_data_to_db(self, game_data: dict) -> None:
+    def save_game_user_data_to_db(
+        self, game_data: dict, winner_id: str, loser_id: str
+    ) -> None:
         serializer = GeneralGameLogsSerializer(data=game_data)
         # raise_exception=True 에러 발생시 예외처리 해야함
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+
+        if winner_id and loser_id:
+            # winner = Users.objects.get(intra_id=winner_intra_id)
+            # winner.win_count += 1
+            # winner.save()
+            Users.objects.filter(intra_id=winner_id).update(
+                win_count=F("win_count") + 1
+            )
+            Users.objects.filter(intra_id=loser_id).update(
+                lose_count=F("lose_count") + 1
+            )
 
 
 class TournamentGameWaitConsumer(AsyncWebsocketConsumer):
@@ -576,7 +593,7 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
         if self.round_number == 3:
             self.tournament.set_status(TournamentStatus.END)
             try:
-                await self.save_game_data_to_db()
+                await self.save_tournament_game_user_data_to_db()
                 await self.channel_layer.group_send(
                     self.tournament_broadcast,
                     (
@@ -621,9 +638,17 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
                 )
 
     @database_sync_to_async
-    def save_game_data_to_db(self) -> None:
+    def save_tournament_game_user_data_to_db(self) -> None:
         for i in range(1, 4):
             data = self.tournament.get_db_datas(i)
             serializer = TournamentGameLogsSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
+            winner_id, loser_id = self.tournament.get_winner_loser_intra_ids(i)
+            if winner_id and loser_id:
+                Users.objects.filter(intra_id=winner_id).update(
+                    win_count=F("win_count") + 1
+                )
+                Users.objects.filter(intra_id=loser_id).update(
+                    lose_count=F("lose_count") + 1
+                )

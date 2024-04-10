@@ -52,7 +52,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
     lose_count: int = models.IntegerField(default=0)
     created_time: datetime = models.DateTimeField(auto_now_add=True, editable=False)
     updated_time: datetime = models.DateTimeField(auto_now=True)
-    status: str = models.CharField(max_length=2, choices=UserStatusEnum.choices)
+    status: str = models.CharField(
+        max_length=2, choices=UserStatusEnum.choices, default=UserStatusEnum.OFFLINE
+    )
     is_test_user: bool = models.BooleanField(default=False)
 
     is_staff: bool = models.BooleanField(
