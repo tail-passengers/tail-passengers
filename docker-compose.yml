@@ -40,7 +40,6 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend
-    restart: always
     volumes:
       - dist:/app/dist
     depends_on:
