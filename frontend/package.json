@@ -4,7 +4,6 @@
   "description": "## Use Technical Stack",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config webpack.tp.config.js",
     "build": "webpack --config webpack.tp.config.js"
   },
   "keywords": [],

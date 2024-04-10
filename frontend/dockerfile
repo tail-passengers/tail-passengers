@@ -14,4 +14,3 @@ COPY . .
 RUN npm run build
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["npm", "run", "start"]
