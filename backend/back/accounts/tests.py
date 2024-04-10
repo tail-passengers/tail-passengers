@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.utils.timezone import make_aware
+from datetime import datetime
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
+from .models import UserStatusEnum
 
 
 class UsersViewSetTest(APITestCase):
@@ -124,31 +127,192 @@ class UsersDetailViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class HouseViewSetTest(APITestCase):
+class ChartViewSetTest(APITestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.user1 = get_user_model().objects.create_user(
             intra_id="1", house="RA", win_count=7, lose_count=3
         )
-        self.user = get_user_model().objects.create_user(
+        self.user2 = get_user_model().objects.create_user(
             intra_id="2", house="GR", win_count=6, lose_count=4
         )
-        self.user = get_user_model().objects.create_user(
+        self.user3 = get_user_model().objects.create_user(
             intra_id="3", house="HU", win_count=5, lose_count=5
         )
-        self.user = get_user_model().objects.create_user(
+        self.user4 = get_user_model().objects.create_user(
             intra_id="4", house="SL", win_count=4, lose_count=6
         )
+        self.create_url = reverse("general_game_logs")
+        self.start_time = make_aware(datetime(2021, 1, 1, 0, 0, 0))
+        self.end_time = make_aware(datetime(2021, 1, 2, 1, 0, 0))
 
     def test_get_house_with_authenticate(self):
         """
         기숙사 정보를 가져오는 테스트
         """
-        self.client.force_authenticate(user=self.user)
-        url = reverse("house")
+        self.client.force_authenticate(user=self.user1)
+
+        data = {
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "player1_intra_id": self.user1.intra_id,
+            "player2_intra_id": self.user2.intra_id,
+            "player1_score": 5,
+            "player2_score": 3,
+        }
+        self.client.post(self.create_url, data)
+        data = {
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "player1_intra_id": self.user1.intra_id,
+            "player2_intra_id": self.user3.intra_id,
+            "player1_score": 5,
+            "player2_score": 3,
+        }
+        self.client.post(self.create_url, data)
+        data = {
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "player1_intra_id": self.user4.intra_id,
+            "player2_intra_id": self.user1.intra_id,
+            "player1_score": 5,
+            "player2_score": 3,
+        }
+        self.client.post(self.create_url, data)
+        data = {
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "player1_intra_id": self.user1.intra_id,
+            "player2_intra_id": self.user4.intra_id,
+            "player1_score": 5,
+            "player2_score": 3,
+        }
+        self.client.post(self.create_url, data)
+
+        url = reverse("chart")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rate = (0.7, 0.6, 0.5, 0.4)
-        house = ("RA", "GR", "HU", "SL")
-        for idx, (key, value) in enumerate(response.data.items()):
+
+        self.assertEqual(response.data["win_count"], 3)
+        self.assertEqual(response.data["lose_count"], 1)
+        self.assertEqual(response.data["total_count"], 4)
+
+        rate = (0.75, 0.0, 1.0, 1.0, 0.5)
+        house = ("total", "RA", "GR", "HU", "SL")
+        for idx, (key, value) in enumerate(response.data["rate"].items()):
             self.assertEqual(key, house[idx])
             self.assertEqual(value, rate[idx])
+
+        rate = (0.7, 0.6, 0.5, 0.4)
+        house = ("RA", "GR", "HU", "SL")
+        for idx, (key, value) in enumerate(response.data["house"].items()):
+            self.assertEqual(key, house[idx])
+            self.assertEqual(value, rate[idx])
+
+
+class LoginLogoutUserStatusTest(APITestCase):
+    def setUp(self):
+        """
+        test 유저 생성
+        """
+        self.user = get_user_model().objects.create_user(
+            intra_id="1", is_test_user=True
+        )
+        self.login_url = reverse(
+            "test_user_login", kwargs={"intra_id": self.user.intra_id}
+        )
+        self.logout_url = reverse("logout")
+
+    def test_login_logout_user_status(self):
+        """
+        login시 status가 online인지 확인
+        logout시 status가 offline인지 확인
+        """
+        # active 초기값 False 확인
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+        # login
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
+
+        # logout
+        response = self.client.get(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+    def test_double_login(self):
+        """
+        login double로 해도 올바른 상태값 반환하는지
+        """
+        # active 초기값 False 확인
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+        # login
+        response = self.client.get(self.login_url)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
+
+        # double login
+        response = self.client.get(self.login_url)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
+
+    def test_double_logout(self):
+        """
+        logout double로 해도 올바른 상태값 반환하는지
+        """
+        # active 초기값 False 확인
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+        # login
+        response = self.client.get(self.login_url)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
+
+        # logout
+        url = reverse("logout")
+        response = self.client.get(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+        # double logout
+        response = self.client.get(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+    def test_login_logout_login(self):
+        """
+        login_logout_login 할때
+        """
+        # active 초기값 False 확인
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+        # login
+        response = self.client.get(self.login_url)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
+
+        # logout
+        response = self.client.get(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.OFFLINE)
+
+        # login
+        response = self.client.get(self.login_url)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.status, UserStatusEnum.ONLINE)

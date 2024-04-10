@@ -9,6 +9,7 @@ from .GameSetValue import (
     PADDLE_WIDTH,
     MessageType,
     GameTimeType,
+    MAX_SCORE,
 )
 
 
@@ -196,6 +197,14 @@ class GeneralGame:
             "player1_score": self.score1,
             "player2_score": self.score2,
         }
+
+    def get_winner_loser_intra_id(self) -> tuple:
+        if self.score1 == MAX_SCORE:
+            return self.player1.get_intra_id(), self.player2.get_intra_id()
+        elif self.score2 == MAX_SCORE:
+            return self.player2.get_intra_id(), self.player1.get_intra_id()
+        else:
+            return None, None
 
     def set_player(self, player_intra_id: str) -> None:
         if self.player1 is None:

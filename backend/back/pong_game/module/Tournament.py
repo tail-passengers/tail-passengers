@@ -143,6 +143,9 @@ class Tournament:
         db_data["is_final"] = round_number == 3
         return db_data
 
+    def get_winner_loser_intra_ids(self, round_number: int) -> tuple:
+        return self.round_list[round_number - 1].get_winner_loser_intra_id()
+
     def set_status(self, status: TournamentStatus) -> None:
         self.status = status
 
