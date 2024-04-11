@@ -40,7 +40,7 @@ export default function renderFriendList(content, parentElement) {
 				const imagePath = `https://${process.env.BASE_IP}` + data.friend_requests.profile_image;
 				let rowHTML = `
 					<tr>
-							<td class="h3 bold text-center align-middle col-1">
+							<td class="text-center align-middle col-1">
 								${index + 1}
 								<input type="hidden" class="tp-fl-request-id" value=${data.request_id}></input>
 							</td>
@@ -49,17 +49,17 @@ export default function renderFriendList(content, parentElement) {
 								<img style="width:80%;" src=${imagePath} onerror="this.onerror=null; this.src='../../public/assets/img/sharkcookie.png'"></img>
 								</div>
 							</td>
-							<td class="h3 text-left align-middle tp-fl-display-intra-id col-2">
+							<td class="text-left align-middle tp-fl-display-intra-id col-2">
 									<input type="hidden" class="tp-fl-request-intra-id" value=${data.request_intra_id}></input>
 									<input type="hidden" class="tp-fl-response-intra-id" value=${data.response_intra_id}></input>
 							</td>
-							<td class="h3 bold text-center align-middle col-1 tp-onoff-status">
+							<td class="text-center align-middle col-1 tp-onoff-status">
 								<div class="online-indicator">
 									<span class="blink tp-online-indicator-blink"></span>
 									<input type="hidden" class="tp-online-indicator-value" value=${data.friend_requests.status}></input>
 								</div>
 							</td>
-							<td class="h3 bold text-center align-middle col-1">
+							<td class="text-center align-middle col-1">
 								<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
 									<div class="tp-sl-btn-parent default-container">
 										<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-btn card default-container h-100 tp-fl-btn" value="ACCEPT" 

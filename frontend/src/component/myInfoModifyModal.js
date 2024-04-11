@@ -2,6 +2,7 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
 import { addProfileModalEventListener } from "../utils/profileEventListener.js";
+import { replaceHttpWithHttps } from "../utils/imageUpload.js";
 
 export default function renderModifyFormModal(myInfo, parentElement) {
 	const language = getCurrentLanguage();
@@ -27,8 +28,8 @@ export default function renderModifyFormModal(myInfo, parentElement) {
 										<div id="collapseImageForm" class="accordion-collapse collapse default-container" data-bs-parent="#accordionImageInput">
 											<div class="accordion-body tp-pf-accordion-body">
 												<div class="input-group tp-pf-input-file-grp">
-													<input type="file" name="profileImage" id="imageInput" accept="image/*" class="form-control tp-pf-input tp-pf-input-file" aria-label="Upload">
 													<button type="button" class="btn btn-outline-secondary tp-sl-btn-primary tp-pf-file-btn">${locale.myInfo.modifyMyInfoImageButton}</button>
+													<input type="file" name="profileImage" id="imageInput" accept="image/*" class="form-control tp-pf-input tp-pf-input-file" aria-label="Upload">
 												</div>
 											</div>
 										</div>
@@ -108,15 +109,18 @@ export default function renderModifyFormModal(myInfo, parentElement) {
 	}
 
 	const renderUser = function (content) {
-		const nickname = $(".tp-pf-modal-nickname");
-		const intraId = $(".tp-pf-modal-intraId");
-		const profileImg = $(".tp-pf-photo-modal-thumnail");
-		const record = $(".tp-pf-modal-record");
-		nickname.value = content.nickname;
-		intraId.value = content.intra_id;
-		profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
-		record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
-		handlerHouseValue(content.house);
+		if (content) {
+			const nickname = $(".tp-pf-modal-nickname");
+			const intraId = $(".tp-pf-modal-intraId");
+			const profileImg = $(".tp-pf-photo-modal-thumnail");
+			const record = $(".tp-pf-modal-record");
+			nickname.value = content.nickname;
+			intraId.value = content.intra_id;
+			content.profile_image = replaceHttpWithHttps(content.profile_image);
+			profileImg.src = content.profile_image;
+			record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
+			handlerHouseValue(content.house);
+		}
 	};
 
 	renderModalForm(parentElement);

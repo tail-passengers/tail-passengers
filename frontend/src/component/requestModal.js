@@ -12,6 +12,7 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 						<p>Do you accept the friend request?</p>
 					</div>
 					<div class="modal-footer tp-friend-modal-footer">
+						<input type="hidden" class="tp-fl-requestPK" value="${requestId}"></input>
 						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group-modal">
 						<div class="tp-sl-btn-parent default-container">
 							<button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-accept-modal-btn card default-container h-100 tp-fl-btn" value="accept" 

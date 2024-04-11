@@ -31,3 +31,10 @@ export function setImageToInput(imageUrl, inputElement) {
 		inputElement.files = fileList.files;
 	}
 }
+
+export function replaceHttpWithHttps(url) {
+	// HTTP를 HTTPS로 변경하는 정규 표현식
+	const regex = /^http:\/\//i;
+	// 주어진 URL에서 HTTP를 HTTPS로 변경하여 반환
+	return url.replace(regex, 'https://');
+}

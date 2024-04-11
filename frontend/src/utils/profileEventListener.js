@@ -5,12 +5,14 @@ import {
 	fetchAcceptFriendRequest,
   fetchRefuseFriendRequest,
 	fetchImageFileRequest,
-	fetchUser
+	fetchUser,
+	fetchAllFriends
 } from "./fetches.js";
 import renderRequestModal from "../component/requestModal.js";
 import renderModifyFormModal from "../component/myInfoModifyModal.js";
 import { setImageToInput } from "./imageUpload.js";
 import renderMyInfoForm from "../component/myInfo.js";
+import renderFriendList from "../component/friendList.js";
 
 /**
  * 내 정보 관련 이벤트 함수
@@ -135,7 +137,8 @@ export function addProfileModalEventListener(profileModal, flag) {
 
 	const acceptModalButton = profileModal.querySelector(".tp-fl-accept-modal-btn");
 	if (acceptModalButton) {
-		acceptModalButton.addEventListener("click", () => {
+		acceptModalButton.addEventListener("click", (evnet) => {
+			const requestId = $(".tp-fl-requestPK").value;
 			fetchAcceptFriendRequest(requestId);
 			closeProfileModal(profileModal);
 		});
@@ -144,6 +147,7 @@ export function addProfileModalEventListener(profileModal, flag) {
 	const refuseModalButton = profileModal.querySelector(".tp-fl-refuse-modal-btn");
 	if (refuseModalButton) {
 		refuseModalButton.addEventListener("click", () => {
+			const requestId = $(".tp-fl-requestPK").value;
 			fetchRefuseFriendRequest(requestId);
 			closeProfileModal(profileModal);
 		});
