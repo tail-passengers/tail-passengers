@@ -7,6 +7,7 @@ import Profile from "../pages/profile.js";
 import SocketTest from "../pages/example_websocket.js";
 import RecordsSearch from "../pages/recordsSearch.js";
 import Tornament from "../pages/tornament.js";
+import GameResult from "../pages/result.js";
 
 export const routes = [
 	{ path: /^\/$/, element: Home },
@@ -17,5 +18,6 @@ export const routes = [
 	{ path: /^\/profile$/, element: Profile },
 	{ path: /^\/general_game\/(.+)$/, element: SocketTest },
 	{ path: /^\/tornament$/, element: Tornament },
+	{ path: /^\/result$/, element: GameResult },
 	{ path: /.*/, element: NotFound },
 ];

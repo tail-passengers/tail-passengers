@@ -31,6 +31,9 @@ const koLocale = {
 		createBtn: "새 토너먼트 만들기",
 		refresh: "새로고침"
 	},
+	result: {
+		mainText: "결과"
+	},
 	rank: {
 		mainText: "최고 플레이어",
 		subText: "플레이해 주셔서 감사합니다",
@@ -42,7 +45,7 @@ const koLocale = {
 		thLoses: "패배",
 		thRankPoint: "랭크 포인트",
 		thFriendRequestBtn: "친구 신청",
-		tootipRequest: "신청"
+		tooltipRequest: "신청"
 	},
 	records: {
 		mainText: "기록",

@@ -1,0 +1,33 @@
+.tp-rs-title {
+	font-size: 4rem;
+}
+
+.tp-rs-card-container, .tp-rs-card-body, .tp-rs-card {
+	width: 100%;
+	font-size: 2rem;
+}
+
+.tp-rs-card-title {
+	margin: none;
+}
+
+.tp-rs-record-win::before {
+	font-size: 6rem;
+}
+
+.tp-rs-winner {
+	box-shadow: 0 0 15px #fff;
+	text-shadow: 0 0 3px #fff;
+}
+
+.tp-rs-photo-thumnail {
+	height: 80px;
+	width: 80px;
+}
+
+.tp-rs-btn-primary {
+	background-color: #1F2C43 !important;
+	border: 1px double #E5CC5E;
+	border-width: 5px;
+	color: #E5CC5E;
+}
