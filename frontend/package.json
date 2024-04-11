@@ -2,6 +2,7 @@
   "name": "tsen",
   "version": "1.0.0",
   "description": "## Use Technical Stack",
+  "homepage": ".",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.tp.config.js"
@@ -37,7 +38,6 @@
     "jquery": "^3.7.1",
     "popper.js": "^1.16.1",
     "three": "^0.161.0",
-    "url-loader": "^4.1.1",
-    "webpack-dev-server": "^5.0.4"
+    "url-loader": "^4.1.1"
   }
 }

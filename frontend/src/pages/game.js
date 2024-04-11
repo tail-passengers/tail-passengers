@@ -1,7 +1,4 @@
 import { $ } from "../utils/querySelector.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
-import * as THREE from "three";
 
 /*
  * TODO

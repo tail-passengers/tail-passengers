@@ -8,9 +8,9 @@ import {
 } from "./utils/eventListener.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+    const loginContainer = document.getElementById("loginModal");
     const navBarContainer = document.getElementById("nav-bar");
     const footerContainer = document.getElementById("footer");
-    const loginContainer = document.getElementById("loginModal");
 
     navBarContainer.innerHTML = renderNavBar();
     footerContainer.innerHTML = renderFooter();

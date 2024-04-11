@@ -1,7 +1,5 @@
 import { navigate } from "./navigate.js";
 import { fetchUser, fetchLogoutRequest } from "./fetches.js";
-// import { renderPage } from "../component/navBar.js";
-// import { changeLanguage, getCurrentLanguage, setLanguageCookie } from "./languageUtils.js";
 
 export function addLoginEventListener(loginContainer) {
 	fetchUser().then((myInfo) => {
@@ -9,16 +7,6 @@ export function addLoginEventListener(loginContainer) {
 			closeLoginModal(loginContainer);
 		}
 	});
-
-	const handleLoginResponse = (response) => {
-		if (response.ok) {
-			document.cookie = response.headers.get("Set-Cookie");
-			console.log("response:", response);
-			closeLoginModal(loginContainer);
-		} else {
-			console.error("Login failed");
-		}
-	};
 
 	const closeLoginModal = (loginContainer) => {
 		loginContainer.style.display = "none";
