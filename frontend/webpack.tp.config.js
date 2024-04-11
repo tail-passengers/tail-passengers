@@ -7,7 +7,6 @@ const CopyPlugin = require("copy-webpack-plugin");
 const dotenv = require("dotenv");
 
 const envPath = path.join(__dirname, "./.env");
-console.log("envPath", envPath);
 const env = dotenv.config({ path: envPath }).parsed;
 const envKeys = Object.keys(env).reduce((prev, next) => {
     prev[`process.env.${next}`] = JSON.stringify(env[next]);
@@ -40,9 +39,6 @@ module.exports = {
                 {
                     from: path.resolve(__dirname, "public/assets"),
                     to: path.resolve(__dirname, "dist/public/assets"),
-                    globOptions: {
-                        ignore: ["**/index.html"],
-                    },
                 },
             ],
         }),

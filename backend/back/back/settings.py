@@ -33,7 +33,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # frontend 요구 사항
-CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('BASE_IP')}/"]
+CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('BASE_IP')}"]
 
 # Application definition
 
