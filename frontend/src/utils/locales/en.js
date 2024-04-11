@@ -41,7 +41,10 @@ const enLocale = {
 		thLoses: "Loses",
 		thRankPoint: "Rank Point",
 		thFriendRequestBtn: "Friend Request",
-		tootipRequest: "Request"
+		tooltipRequest: "Request"
+	},
+	result: {
+		mainText: "RESULT"
 	},
 	records: {
 		mainText: "Records",

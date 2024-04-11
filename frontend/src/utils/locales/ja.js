@@ -31,6 +31,9 @@ const jaLocale = {
 		createBtn: "新しいトーナメントを作る",
 		refresh: "リフレッシュ"
 	},
+	result: {
+		mainText: "結果"
+	},
 	rank: {
 		mainText: "トッププレイヤー",
 		subText: "プレイしていただきありがとうございます",
@@ -42,7 +45,7 @@ const jaLocale = {
 		thLoses: "敗北",
 		thRankPoint: "ランクポイント",
 		thFriendRequestBtn: "フレンド申請",
-		tootipRequest: "申請"
+		tooltipRequest: "申請"
 	},
 	records: {
 		mainText: "レコード",

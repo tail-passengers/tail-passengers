@@ -62,6 +62,7 @@ export const fetchUsers = async () => {
 					(a, b) =>
 							b.win_count - b.lose_count < a.win_count - a.lose_count
 			);
+			return data;
 	} catch (error) {
 			console.error("Error fetching user data:", error);
 	}
@@ -86,6 +87,7 @@ export const fetchModifyMyInfoRequest = async (myData) => {
 				nickname: myData.get("nickname"),
 				house: myData.get("house"),
 			}),
+			referrerPolicy: "origin"
 		});
 		
 		const data = await response.json();
@@ -102,15 +104,15 @@ export const fetchModifyMyInfoRequest = async (myData) => {
  */
 export const fetchImageFileRequest = async (imageData) => {
 	try {
-		console.log("imageData File", imageData.get("profile_image"));
 		const csrfToken = getCSRFToken();
 		const myIntraId = await fetchMyIntraId();
 		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/` + myIntraId + "/", {
 			method: "PATCH",
 			headers: {
-				"X-CSRFToken": csrfToken
+				"X-CSRFToken": csrfToken,
 			},
-			body: imageData
+			body: imageData,
+			referrerPolicy: "origin"
 		});
 		
 		const data = await response.json();
@@ -134,11 +136,11 @@ export const fetchLogoutRequest = async() => {
             },
         });
 
-		if (response.status === 200) {
-            console.log("Logout request successful");
-            navigate("/");
-			window.location.reload();
-        }
+			if (response.status === 200) {
+					console.log("Logout request successful");
+					navigate("/");
+					window.location.reload();
+			}
     } catch (error) {
         console.error("Error fetchLogoutRequest:", error);
     }
@@ -205,15 +207,16 @@ export const fetchAcceptedFriends = async(intraId) => {
  */
 export const fetchRequestFriend = async(requestUserId, responseUserId) => {
 	try {
+		const csrfToken = getCSRFToken();
 		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/friend_requests/`, {
 				method: "POST",
-				credentials: "include",
 				headers: {
+					"X-CSRFToken": csrfToken,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					"request_user_id": requestUserId,
-					"reponse_user_id": responseUserId,
+					"request_user_id": requestUserId.trim(),
+					"response_user_id": responseUserId.trim(),
 				}),
 		});
 
@@ -233,10 +236,11 @@ export const fetchRequestFriend = async(requestUserId, responseUserId) => {
  */
 export const fetchAcceptFriendRequest = async(requestPK, responseUserId) => {
 	try {
+		const csrfToken = getCSRFToken();
 		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/friend_requests/` + requestPK + "/", {
 				method: "PATCH",
-				credentials: "include",
 				headers: {
+					"X-CSRFToken": csrfToken,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
@@ -257,13 +261,24 @@ export const fetchAcceptFriendRequest = async(requestPK, responseUserId) => {
  */
 export const fetchRefuseFriendRequest = async(requestPK) => {
 	try {
+		const csrfToken = getCSRFToken();
 		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/friend_requests/` + requestPK + "/", {
 				method: "DELETE",
-				credentials: "include",
+				headers: {
+					"X-CSRFToken": csrfToken,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					request_id: requestPK
+				}),
 		});
-		const data = await response.json();
+		// const data = await response.json();
+
+		console.log("fetchRefuseFriendRequest", response);
+
 		return data;
 	} catch (error) {
-			console.error("Error fetchRefuseFriendRequest data:", error);
+			console.log("Error fetchRefuseFriendRequest data:", error);
+			// alert("[Error] ", error);
 	}
 }
