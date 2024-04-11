@@ -34,11 +34,6 @@ export default function renderNavBar() {
                           locale.navBar.rank
                       }</a>
                   </li>
-                  <li class="nav-item tp-nav-item">
-                      <a class="nav-link active" href="/records">${
-                          locale.navBar.records
-                      }</a>
-                  </li>
               </ul>
               <div class="btn-group" role="group" aria-label="Language">
                   <button id="languageEN" type="button" class="btn btn-secondary ${
