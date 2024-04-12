@@ -1,59 +1,102 @@
 import { $ } from "../utils/querySelector.js";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-function SocketTest({ $app, initialState }) {
-	let playerNum = 0, status = "ready", data;
+
+function General({ $app, initialState }) {
+	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, animationFrameId, gameIdValue, gameMode;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
+	$("#nav-bar").hidden = true;
 
-	// 세션스토리지에 저장된 UUID로 소켓 연결하기
-	const gameIdValue = sessionStorage.getItem('gameIdValue');
-	const gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/${gameIdValue}/`);
 
-	// 값이 변경될 때 지정된 함수를 실행하는 프록시 객체
-	const handleReady = (newValue) => {
-		console.log('status가 변경되었습니다:', newValue);
-		this.$element.innerHTML = watingMsg();
-		setTimeout(() => {
-			this.$element.innerHTML = '';
-
-			initThreeJs(this.$element);
-			animate();
-			initEventListeners();
-
-		}, 3000);
-	};
-
-	const handlePlaying = (newValue) => { }
-	const handleScore = (newValue) => { }
-	const handleEnd = () => {
-		console.log("end!");
-		scene = null;
-		camera = null;
-		renderer = null;
-		document.removeEventListener('keydown', handleKeyPress);
-		document.removeEventListener('keyup', handleKeyRelease);
-		renderer.domElement.removeEventListener('mousemove', containerMouseMove);
-		cancelAnimationFrame(animationFrameId);
-		gameSocket.close();
+	// TODO 소켓끊는 함수 다른 소켓연결에 모두 적용하기, 토너먼트에서 페이지 이동할 때 제너럴로 이동하기.
+	// 토너먼트 주소랑 라운드를 스토리지에 저장해서 활용하기, 끝날 때 게임유형 판단하고 결과페이지, 대기 결정하기
+	//소켓 끊는 함수
+	function closeSocket() {
+		if (gameSocket && gameSocket.readyState <= 1) {
+			gameSocket.close();
+			removeScoreElement();
+			cancelAnimationFrame(animationFrameId);
+			$("#nav-bar").hidden = false;
+			document.removeEventListener('keydown', handleKeyPress);
+			document.removeEventListener('keyup', handleKeyRelease);
+			window.removeEventListener("popstate", closeSocket);
+			gameSocket = null;
+			scene = null;
+			camera = null;
+			renderer = null;
+		}
 	}
 
-	const playerStatusProxy = new Proxy({ value: status }, {
-		set: function (target, key, value) {
-			if (value == "ready") {
-				handleReady(value);
+	this.connectWebSocket = async () => {
+		return new Promise((resolve, reject) => {
+			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
+
+			gameSocket.onopen = () => {
+				console.log('WebSocket connected');
+				resolve(gameSocket);
+			};
+
+			gameSocket.onerror = (error) => {
+				reject(error);
+			};
+		});
+	};
+	this.makeGame = async () => {
+		try {
+			// 세션스토리지에 저장된 UUID로 소켓 연결하기
+			gameMode = sessionStorage.getItem('gameMode');
+			if (gameMode == "general_game") {
+				gameIdValue = sessionStorage.getItem('generalIdValue');
 			}
-			else if (value == "playing") {
-				handlePlaying(value);
+			else if (gameMode == "tournament_game") {
+				gameIdValue = sessionStorage.getItem('tournamentIdValue');
+				data = sessionStorage.getItem('Data');
 			}
-			else if (value == "score") {
-				handleScore(value);
-			}
-			else if (value == "end") {
-				handleEnd(value);
-			}
-			return true;
+			console.log(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
+			await this.connectWebSocket();
+			window.addEventListener("popstate", closeSocket);
+			gameSocket.onmessage = (event) => {
+				data = JSON.parse(event.data);
+				console.log("Received data:", data);
+				if (data.message_type == "ready") {
+					console.log("Ready!");
+					// 플레이어 정보 초기화
+					intraId = data.intra_id;
+					playerNum = data.number;
+					gameSocket.send(event.data);
+				}
+				else if (data.message_type == "start") {
+					// console.log("Start!");
+					if (data["1p"] != intraId) {
+						versusId = data["1p"];
+					}
+					else {
+						versusId = data["2p"]
+					}
+					this.$element.innerHTML = watingMsg();
+					setTimeout(() => {
+						this.$element.innerHTML = '';
+						this.initThreeJs(this.$element);
+						this.initEventListeners();
+						this.startRender();
+					}, 3000);
+				}
+				else if (data.message_type == "score") {
+					score.player1 = data.player1_score;
+					score.player2 = data.player2_score;
+				}
+				else if (data.message_type == "end" || data.message_type == "error") {
+					closeSocket();
+					this.$element.innerHTML = endMsg();
+				}
+			};
 		}
-	});
+		catch (error) {
+			console.error("Error socket connet:", error);
+		}
+	};
 
 	// Get ready 메세지 출력
 	const watingMsg = () => {
@@ -67,32 +110,17 @@ function SocketTest({ $app, initialState }) {
         </div>
     `;
 	};
-
-	//TODO	 값 받아오기, 갱신하기, 키입력 전달하기
-	const onPlaying = (event) => {
-		// console.log("받습니당" + event.data);
-		data = JSON.parse(event.data);
-		if (playerStatusProxy.value != data.message_type) {
-			playerStatusProxy.value = data.message_type;
-		}
-	}
-
-	// 초기 메세지 수신 이벤트 리스너 핸들. 
-	const getReady = (event) => {
-		console.log(event.data);
-		let data = JSON.parse(event.data); // JSON 문자열을 JavaScript 객체로 변환
-		playerNum = data.number; // 플레이어 부여받음 !!
-
-		console.log("I am : " + playerNum);
-		gameSocket.send(event.data);
-
-		playerStatusProxy.value = status; // 프록시 객체 값 변경, 핸들함수 실행
-		gameSocket.removeEventListener('message', getReady);//기존 메세지 리스너 제거
-		gameSocket.addEventListener('message', onPlaying);// 새로운 메세지리스너 등록
-		playerStatusProxy.value = "playing"; // 프록시 객체 값 변경, 핸들함수 실행
-	}
-
-	gameSocket.addEventListener('message', getReady); // 호이스팅 안되게 주의해서 위칭 볼 것
+	const endMsg = () => {
+		return `
+        <div class="tp-sl-card-content-child">
+            <div>
+                <div class="loadingMsg default-container text-center tp-color-secondary">
+                    <div class="h2">End game!</div>
+                </div>
+            </div>
+        </div>
+    `;
+	};
 
 
 	let WIDTH = window.innerWidth,                                 //canvas.css에서 반응형으로 처리
@@ -108,13 +136,12 @@ function SocketTest({ $app, initialState }) {
 		PADDLE_HEIGHT = 30,
 
 		mainLight, subLight,
-		ball, ballRendered = false, direction = -1, paddle1, paddle2, field, running,
+		ball, direction = -1, paddle1, paddle2, field, running = false,
 		randomOffset = 0,
 		rotationSpeed = 0.01,
-		scoreTextMesh, font,
 		score = {
-			player1: 0,
-			player2: 0
+			player1: "0",
+			player2: "0"
 		};
 
 	let scene, camera, camera2, renderer;
@@ -130,8 +157,6 @@ function SocketTest({ $app, initialState }) {
 
 	// Initialize the Three.js scene, camera, and renderer
 	function resizeRenderer(renderer) {
-		let navBarHeight = $(".navigation-bar").clientHeight;
-		let footerHeight = $(".tp-footer-container").clientHeight;
 		const canvas = renderer.domElement;
 		const width = window.innerWidth;
 		const height = window.innerHeight - (navBarHeight + footerHeight);
@@ -146,16 +171,20 @@ function SocketTest({ $app, initialState }) {
 
 
 
-	function render() {
-		if (resizeRenderer(renderer)) {
-			const canvas = renderer.domElement;
-			camera.aspect = canvas.clientWidth / canvas.clientHeight;
-			camera.updateProjectionMatrix();
-			renderer.render(scene, camera);
-		}
+	this.render = () => {
+		// if (resizeRenderer(renderer)) {
+		// 	const canvas = renderer.domElement;
+		// 	camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		// 	camera.updateProjectionMatrix();
+		// 	renderer.render(scene, camera);
+		// }
 		if (running) {
-			requestAnimationFrame(render);
-			// processBallMovement();
+			animationFrameId = requestAnimationFrame(() => {
+				this.render();
+			});
+			ball.rotation.y += 0.03;
+			ball.rotation.x += rotationSpeed;
+
 			paddle1.position.x = data.paddle1;
 			paddle2.position.x = data.paddle2;
 			if (playerNum == "player1") {
@@ -164,6 +193,7 @@ function SocketTest({ $app, initialState }) {
 			else if (playerNum == "player2") {
 				camera.position.x = paddle2.position.x;
 			}
+			updateScore();
 			// camera2.position.x = paddle2.position.x;
 			ball.position.x = data.ball_x;
 			ball.position.y = data.ball_y;
@@ -171,7 +201,7 @@ function SocketTest({ $app, initialState }) {
 			ball.$velocity.x = data.ball_vx;
 			ball.$velocity.z = data.ball_vz;
 
-			updateScoreBoard(score.player1, score.player2);
+
 			//camera1
 			renderer.setViewport(0, 0, WIDTH, HEIGHT);
 			renderer.setScissor(0, 0, WIDTH, HEIGHT);
@@ -202,16 +232,15 @@ function SocketTest({ $app, initialState }) {
 		scene.add(paddle);
 		return paddle;
 	}
-	// scene에 완드 추가
-	function loadWanders(wandLoader) {
-		return new Promise((resolve, reject) => {
-			addWand(wandLoader1).then(() => addWand(wandLoader2)).then(() => resolve());
-		});
+
+
+	async function loadAssets() {
+		await loadWanders(wandLoader1);
+		await loadWanders(wandLoader2);
 	}
-	function addWand(wandLoader) {
+	async function loadWanders(wandLoader) {
 		return new Promise((resolve, reject) => {
-			let wand;
-			let wandDir;
+			let wandDir, wand;
 			if (wandLoader === wandLoader1) {
 				wandDir = '../../public/assets/gltf/wand/harry_potters_wand.glb'
 			} else {
@@ -223,14 +252,9 @@ function SocketTest({ $app, initialState }) {
 					wand = gltf.scene;
 					wand.scale.set(10, 10, 10);
 					wand.name = 'wand';
-
-					// scene.add(wand);
-
-					// wand1, wand2에 대한 변수 설정 및 resolve 호출
 					if (wandLoader === wandLoader1) {
 						wand1 = wand;
 						paddle1.add(wand1);
-						// wand1.rotation.y = 0;
 						wand1.rotation.x = Math.PI / 9;
 						wand1.position.z += 130;
 					} else if (wandLoader === wandLoader2) {
@@ -252,8 +276,7 @@ function SocketTest({ $app, initialState }) {
 		});
 	}
 
-	function initThreeJs(contentDiv) {
-
+	this.initThreeJs = async (contentDiv) => {
 		scene = new THREE.Scene();
 		if (playerNum == "player1") {
 			camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
@@ -370,58 +393,46 @@ function SocketTest({ $app, initialState }) {
 		paddle2.position.y = 0;
 
 		// wand
-		loadWanders(wandLoader1).then(() => loadWanders(wandLoader2)).then(() => {
-			startRender();
-		});
+		await loadAssets();
 
 		// scoreborad
-		const loader = new FontLoader();
-		let textGeometry;
-		loader.load('../../public/assets/font/Playfair.json', (loadedFont) => {
-			font = loadedFont;
-			textGeometry = new TextGeometry('ready', {
-				font: font,
-				size: 1,
-				height: 0.1
-			});
-		});
-		const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-		scoreTextMesh = new THREE.Mesh(textGeometry, textMaterial);
-		if (playerNum == "player1") {
-			scoreTextMesh.position.set(-200, 450, 700);
-			scene.add(camera);
-		}
-		else if (playerNum == "player2") {
-			scoreTextMesh.position.set(200, 450, -700);
-			scoreTextMesh.rotateY(Math.PI);
-		}
-		scene.add(scoreTextMesh);
-
-
-
 
 		renderer.domElement.style.cursor = 'none';
+
+		renderer.domElement.style.zIndex = '0';
+		scoreElement = document.createElement('div');
+		scoreElement.textContent = 'Score: 0';
+		scoreElement.style.position = 'absolute';
+		scoreElement.style.top = '10px';
+		scoreElement.style.left = '10px';
+		scoreElement.style.color = '#ffffff';
+		scoreElement.style.zIndex = '1';
+		const canvasRect = renderer.domElement.getBoundingClientRect();
+		scoreElement.style.top = `${canvasRect.top + 10}px`;
+		scoreElement.style.left = `${canvasRect.left + 10}px`;
+		document.body.appendChild(scoreElement);
+
 	}
+	// 스코어 업데이트 함수
+	function updateScore() {
+		if (playerNum == "player1") {
+			scoreElement.textContent = `${intraId} ${score.player1}:${score.player2} ${versusId}`;
+		}
+		else if (playerNum == "player2") {
+			scoreElement.textContent = `${intraId} ${score.player2}:${score.player1} ${versusId}`;
+		}
+	}
+	function removeScoreElement() {
+		if (scoreElement.parentNode) {
+			scoreElement.parentNode.removeChild(scoreElement);
+		}
+	}
+
 
 	// 완드 회전 애니메이션
 	function animateWands() {
 		wand1.rotation.y += wandRotationSpeed;
 		wand2.rotation.y += wandRotationSpeed;
-	}
-
-	// Animation function
-	function animate() {
-		requestAnimationFrame(animate);
-
-		// if (ballRendered) {
-		// 	animateWands();
-		// }
-		if (ball) {
-			ball.rotation.y += 0.03;
-			ball.rotation.x += rotationSpeed;
-
-			renderer.render(scene, camera);
-		}
 	}
 
 	this.setState = (content) => {
@@ -447,27 +458,6 @@ function SocketTest({ $app, initialState }) {
 		paddle2.position.x += randomOffset;
 	}
 
-	// 스코어 카운트 후 위치 리셋 함수
-	function updateScoreBoard(score1, score2) {
-		if (scoreTextMesh && font) {
-			const newScoreText = `Player 1: ${score1} | Player 2: ${score2}`;
-
-			// 이전 스코어와 현재 스코어를 비교하여 변동이 있을 때에만 업데이트
-			if (scoreTextMesh.userData.previousScore !== newScoreText) {
-				console.log("active!");
-				scoreTextMesh.geometry.dispose(); // 기존의 점수판 지우기
-				const newTextGeometry = new TextGeometry(newScoreText, {
-					font: font,
-					size: 30,
-					height: 0.1
-				});
-				scoreTextMesh.geometry = newTextGeometry; // 새로운 점수판 생성
-
-				// 현재 스코어를 이전 스코어로 업데이트
-				scoreTextMesh.userData.previousScore = newScoreText;
-			}
-		}
-	}
 	function reset() {
 		ball.position.set(0, 0, 0);
 
@@ -481,12 +471,10 @@ function SocketTest({ $app, initialState }) {
 	function stopBall() {
 		ball.$stopped = true;
 	}
-	function startRender() {
+	this.startRender = () => {
 		running = true;
-		render();
-	}
-	function stopRender() {
-		running = false;
+		this.render();
+
 	}
 
 	// 마우스 이동 동작
@@ -530,13 +518,17 @@ function SocketTest({ $app, initialState }) {
 		}
 		gameSocket.send(JSON.stringify(keyPressSend));
 	}
+
+
+
+
 	// 맥시마 키액션
 	function keyAction(code) {
 		const currentTime = new Date().getTime();
 		if (currentTime - lastKeyPressTime < 1000 && isKeyPressed) {
 			return;
 		}
-		if (code === 'KeyW' || code === 'ArrowUp') {
+		if (code === 'ArrowUp') {
 			if (shouldPerformAction(code) && !isKeyPressed && !isPastPaddle1() && !isPastPaddle2()) {
 				console.log("Critical!");
 				blinkEffect();
@@ -547,11 +539,10 @@ function SocketTest({ $app, initialState }) {
 						ball.$velocity.z += 4;
 					}
 				}
-				updateBallSize();
 				isKeyPressed = true;
 
 				// 현재 시간을 lastSpaceBarPressTime에 저장
-				lastSpaceBarPressTime = currentTime;
+				lastKeyPressTime = currentTime;
 
 				// 지연 시간 후에 isKeyPressed를 false로 설정하여 다시 스페이스바 입력을 받을 수 있도록 함
 				setTimeout(() => {
@@ -561,16 +552,11 @@ function SocketTest({ $app, initialState }) {
 		}
 	}
 
-	function updateBallSize() {
-		// 회전 속도증가
-		rotationSpeed += 0.008;
-		// 크기 증가
-		if (BALL_RADIUS < 50) {
-			BALL_RADIUS += 5;
-		}
-		const newGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
-		ball.geometry.dispose();
-		ball.geometry = newGeometry;
+	function isPastPaddle1() {
+		return ball.position.z > paddle1.position.z + 100;
+	}
+	function isPastPaddle2() {
+		return ball.position.z < paddle2.position.z - 100;
 	}
 
 	function blinkEffect() {
@@ -601,15 +587,16 @@ function SocketTest({ $app, initialState }) {
 			// 반짝임이 완료되면 애니메이션 종료
 			if (elapsed < blinkDuration) {
 				ball.material.emissive.setHex(newEmissive);
-				requestAnimationFrame(blink);
+				//TODO 활성화
+				// requestAnimationFrame(blink);
 			} else {
 				// 반짝임이 완료되면 초기값으로 재설정
 				ball.material.emissive.setHex(initialEmissive);
 			}
 		}
-
+		//TODO 활성화
 		// 애니메이션 시작
-		requestAnimationFrame(blink);
+		// requestAnimationFrame(blink);
 	}
 
 	function shouldPerformAction(code) {
@@ -658,18 +645,21 @@ function SocketTest({ $app, initialState }) {
 	};
 
 	// 키입력 이벤트 리스너 등록
-	function initEventListeners() {
+	this.initEventListeners = () => {
 		document.addEventListener('keydown', handleKeyPress);
 		document.addEventListener('keyup', handleKeyRelease);
-		renderer.domElement.addEventListener('mousemove', containerMouseMove);
+		window.addEventListener('beforeunload', removeScoreElement)
+		// renderer.domElement.addEventListener('mousemove', containerMouseMove);
 		// renderer.domElement.addEventListener('click', onMouseClick);
 	}
+
 
 
 	// 페이지에 들어갈 state를 설정해 각각 페이지를 띄우는 함수
 	this.state = initialState;
 	this.$element = document.createElement("div");
 	this.$element.className = "content default-container";
+
 	// 기본적인 SPA 페이지 로드동작
 	this.init = () => {
 		let parent = $("#app");
@@ -683,9 +673,10 @@ function SocketTest({ $app, initialState }) {
 		if (canvas) {
 			body.removeChild(canvas);
 		}
+		this.makeGame();
 	};
 
 	this.init();
 }
 
-export default SocketTest;
+export default General;
