@@ -1,15 +1,6 @@
+import { deleteCSRFToken, getCSRFToken } from "./cookie.js";
 import { navigate } from "./navigate.js";
 
-export function getCSRFToken() {
-    const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
-        const [name, value] = cookie.trim().split("=");
-        if (name === "csrftoken") {
-            return decodeURIComponent(value);
-        }
-    }
-    return null;
-}
 
 /**
  *
@@ -44,15 +35,16 @@ export const fetchUser = async () => {
             }
         );
 
-        console.log("fetchUser response", response);
-        if (response.status === 200) {
-            const data = await response.json();
-            return data;
-        }
-    } catch (error) {
-        console.error("Error fetching user data:", error);
-        return false;
-    }
+			if (response.status === 200) {
+				const data = await response.json();
+				return data;
+			} else {
+				return false;
+			}
+	} catch (error) {
+			console.error("Error fetching user data:", error);
+			return false;
+	}
 };
 
 /**
@@ -155,8 +147,8 @@ export const fetchLogoutRequest = async () => {
         );
 
         if (response.status === 200) {
-            console.log("Logout request successful");
             navigate("/");
+            deleteCSRFToken();
             window.location.reload();
         }
     } catch (error) {
@@ -230,31 +222,27 @@ export const fetchAcceptedFriends = async (intraId) => {
  * @param {*} responseUserId 친구 요청 수신자
  * @returns 친구 요청 테이블에 생성된 튜플의 PK
  */
-export const fetchRequestFriend = async (requestUserId, responseUserId) => {
-    try {
-        const csrfToken = getCSRFToken();
-        const response = await fetch(
-            `https://${process.env.BASE_IP}/api/v1/friend_requests/`,
-            {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": csrfToken,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    request_user_id: requestUserId.trim(),
-                    response_user_id: responseUserId.trim(),
-                }),
-            }
-        );
+export const fetchRequestFriend = async(requestUserId, responseUserId) => {
+	try {
+		const csrfToken = getCSRFToken();
+		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/friend_requests/`, {
+				method: "POST",
+				headers: {
+					"X-CSRFToken": csrfToken,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					"request_user_id": requestUserId.trim(),
+					"response_user_id": responseUserId.trim(),
+				}),
+		});
 
-        const data = await response.json();
-        console.log("fetchRefuseFriendRequest()", data);
-        return data;
-    } catch (error) {
-        console.error("Error fetchRequestFriend data:", error);
-    }
-};
+		const data = await response.json();
+		return data;
+	} catch (error) {
+			console.error("Error fetchRequestFriend data:", error);
+	}
+}
 
 /**
  *
@@ -308,8 +296,6 @@ export const fetchRefuseFriendRequest = async (requestPK) => {
                 }),
             }
         );
-
-        console.log("fetchRefuseFriendRequest", response);
         return data;
     } catch (error) {
         console.log("Error fetchRefuseFriendRequest data:", error);

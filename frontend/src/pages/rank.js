@@ -81,16 +81,6 @@ function Rank({ initialState }) {
         const tableBody = this.$element.querySelector("tbody");
         tableBody.innerHTML = tableRows;
 
-        // const tooltips = this.$element.querySelectorAll('[data-bs-toggle="tooltip"]');
-        // tooltips.forEach(tooltip => {
-            
-        //     console.log("tooltip", tooltip);
-
-        //     if (!tooltip.classList.contains("visually-hidden")) {
-        //         new bootstrap.Tooltip(tooltip);
-        //     }
-        // });
-
         const requestButtons = this.$element.querySelectorAll('.tp-fl-request-btn');
         const requestUserId = await fetchMyIntraId();
         const friendList = await fetchAllFriends(requestUserId);
@@ -102,20 +92,12 @@ function Rank({ initialState }) {
             friendList.forEach(friend => {
                 if (friend.request_intra_id === responseUserId || friend.response_intra_id === responseUserId) {
                     button.classList.add("visually-hidden");
-                    // const tooltip = bootstrap.Tooltip.getInstance(button);
-                    // if (tooltip) {
-                    //     tooltip.dispose();
-                    // }
                 }
             });
 
             /** 나에 대한 친구 신청 버튼 비활성화 */
             if (requestUserId === responseUserId) {
                 button.classList.add("visually-hidden");
-                // const tooltip = bootstrap.Tooltip.getInstance(button);
-                // if (tooltip) {
-                //     tooltip.dispose();
-                // }
             }
 
             button.addEventListener("click", (event) => {

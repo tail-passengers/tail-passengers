@@ -2,6 +2,7 @@ import Chart from "chart.js/auto";
 import { fetchChartData } from "../utils/fetches";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
+import { getCSRFToken } from "../utils/cookie.js";
 
 function Home($container) {
     this.$container = $container;
@@ -37,12 +38,15 @@ function Home($container) {
 
         this.$chartCanvas = document.getElementById("bar-chart");
 
-        const apiResponse = await fetchChartData();
-        const houseRates = apiResponse.house;
-        const userRates = apiResponse.rate;
+        const csrfToken = getCSRFToken();
+        if (csrfToken !== null) {
+            const apiResponse = await fetchChartData();
+            const houseRates = apiResponse.house;
+            const userRates = apiResponse.rate;
 
-        this.renderChart(houseRates, userRates, locale);
-        this.renderRecords();
+            this.renderChart(houseRates, userRates, locale);
+            this.renderRecords();
+        }
     };
 
     this.renderRecords = () => {
