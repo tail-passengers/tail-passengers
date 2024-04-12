@@ -1,5 +1,6 @@
 import { routes } from "./utils/routeInfo.js";
 import NotFound from "./pages/notFound.js";
+import Profile from "./pages/profile.js";
 
 function Router($container) {
     this.$container = $container;
@@ -12,6 +13,12 @@ function Router($container) {
         currentPage = null;
         const TargetPage = findMatchedRoute()?.element || NotFound;
         currentPage = new TargetPage(this.$container);
+
+        if (!(currentPage instanceof Profile)) {
+            for (let i = 0; i < intervalIdArray.length; i++) {
+                clearInterval(intervalIdArray[i]);
+            }
+        }
     };
 
     const init = () => {
