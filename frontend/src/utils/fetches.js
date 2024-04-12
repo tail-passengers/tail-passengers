@@ -38,6 +38,8 @@ export const fetchUser = async () => {
 			const response = await fetch(`https://${process.env.BASE_IP}/api/v1/me/`, {
 				credentials: 'include'
 			});
+
+			console.log("fetchUser response", response);
 			if (response.status === 200) {
 				const data = await response.json();
 				return data;
@@ -272,13 +274,11 @@ export const fetchRefuseFriendRequest = async(requestPK) => {
 					request_id: requestPK
 				}),
 		});
+
 		// const data = await response.json();
-
 		console.log("fetchRefuseFriendRequest", response);
-
 		return data;
 	} catch (error) {
 			console.log("Error fetchRefuseFriendRequest data:", error);
-			// alert("[Error] ", error);
 	}
 }
