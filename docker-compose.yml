@@ -16,11 +16,15 @@ services:
         - frontend
     volumes:
         - dist:/var/www/html/
+    networks:
+        - ts-network
 
   db:
     image: postgres
     env_file:
       - ./.env
+    networks:
+        - ts-network
 
   web:
     build:
@@ -36,6 +40,8 @@ services:
       - ./.env
     depends_on:
       - db
+    networks:
+      - ts-network
   
   frontend:
     build: ./frontend
@@ -44,11 +50,15 @@ services:
       - dist:/app/dist
     depends_on:
       - web
+    networks:
+        - ts-network
 
   channels:
     image: redis
     ports:
       - "6379:6379"
+    networks:
+        - ts-network
 
 networks:
     ts-network:
