@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 
 function General({ $app, initialState }) {
-	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, animationFrameId, gameIdValue, gameMode;
+	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, noticeElement, animationFrameId, gameIdValue, gameMode;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	$("#nav-bar").hidden = true;
@@ -75,13 +75,12 @@ function General({ $app, initialState }) {
 					else {
 						versusId = data["2p"]
 					}
-					this.$element.innerHTML = watingMsg();
+					this.$element.innerHTML = '';
+					this.initThreeJs(this.$element);
+					this.initEventListeners();
 					setTimeout(() => {
-						this.$element.innerHTML = '';
-						this.initThreeJs(this.$element);
-						this.initEventListeners();
 						this.startRender();
-					}, 3000);
+					}, 2000);
 				}
 				else if (data.message_type == "score") {
 					score.player1 = data.player1_score;
@@ -98,18 +97,7 @@ function General({ $app, initialState }) {
 		}
 	};
 
-	// Get ready 메세지 출력
-	const watingMsg = () => {
-		return `
-        <div class="tp-sl-card-content-child">
-            <div>
-                <div class="loadingMsg default-container text-center tp-color-secondary">
-                    <div class="h2">Get ready to Protego spell!</div>
-                </div>
-            </div>
-        </div>
-    `;
-	};
+
 	const endMsg = () => {
 		return `
         <div class="tp-sl-card-content-child">
@@ -396,12 +384,12 @@ function General({ $app, initialState }) {
 		await loadAssets();
 
 		// scoreborad
-
 		renderer.domElement.style.cursor = 'none';
-
 		renderer.domElement.style.zIndex = '0';
+
 		scoreElement = document.createElement('div');
-		scoreElement.textContent = 'Score: 0';
+		scoreElement.textContent = '';
+		scoreElement.style.fontSize = '120%';
 		scoreElement.style.position = 'absolute';
 		scoreElement.style.top = '10px';
 		scoreElement.style.left = '10px';
@@ -412,9 +400,40 @@ function General({ $app, initialState }) {
 		scoreElement.style.left = `${canvasRect.left + 10}px`;
 		document.body.appendChild(scoreElement);
 
+
+		noticeElement = document.createElement('div');
+		noticeElement.textContent = 'Get ready to Protego spell!';
+		noticeElement.style.fontSize = '200%';
+		noticeElement.style.position = 'absolute';
+		noticeElement.style.top = '50%';
+		noticeElement.style.left = '50%';
+		noticeElement.style.transform = 'translate(-50%, -50%)';
+		noticeElement.style.color = '#ffffff';
+		noticeElement.style.zIndex = '1';
+		const canvasWidth = renderer.domElement.width;
+		const canvasHeight = renderer.domElement.height;
+
+		// noticeElement의 너비와 높이를 가져옴
+		const elementWidth = noticeElement.offsetWidth;
+		const elementHeight = noticeElement.offsetHeight;
+		// 캔버스의 중앙 좌표 계산
+		const centerX = canvasWidth / 2;
+		const centerY = canvasHeight / 2;
+		// 요소의 위치 계산
+		const leftPosition = (centerX - (elementWidth / 2)) / canvasWidth * 100;
+		const topPosition = (centerY - (elementHeight / 2)) / canvasHeight * 100;
+		// 스타일 설정
+		noticeElement.style.position = 'absolute';
+		noticeElement.style.top = `${topPosition}%`;
+		noticeElement.style.left = `${leftPosition}%`;
+		document.body.appendChild(noticeElement);
+
 	}
 	// 스코어 업데이트 함수
 	function updateScore() {
+		if (noticeElement.parentNode) {
+			noticeElement.parentNode.removeChild(noticeElement);
+		}
 		if (playerNum == "player1") {
 			scoreElement.textContent = `${intraId} ${score.player1}:${score.player2} ${versusId}`;
 		}
