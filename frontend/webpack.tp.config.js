@@ -17,10 +17,11 @@ module.exports = {
     mode: "development",
     entry: "./src/index.js",
     output: {
-        publicPath: '/',
+        publicPath: "/",
         path: path.resolve(__dirname, "dist"),
         filename: "bundle.js",
     },
+    devtool: "source-map",
     plugins: [
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "./index.html"),
@@ -73,11 +74,8 @@ module.exports = {
         ],
     },
     resolve: {
-        modules: [
-            "node_modules",
-            "./src", // 사용자 정의 모듈 경로 추가
-        ],
-        extensions: [".js", ".jsx", ".json"], // 확장자 추가
+        modules: ["node_modules", "./src"],
+        extensions: [".js", ".jsx", ".json"],
         mainFields: ["browser", "module", "main"],
     },
 };

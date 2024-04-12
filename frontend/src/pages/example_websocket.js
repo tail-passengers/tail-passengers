@@ -1,8 +1,4 @@
 import { $ } from "../utils/querySelector.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import * as THREE from "three";
 
 function SocketTest({ $app, initialState }) {
 	let playerNum = 0, status = "ready", data;

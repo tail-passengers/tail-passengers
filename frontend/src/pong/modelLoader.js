@@ -1,5 +1,3 @@
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export default function loadModel(scene) {
     const loader = new GLTFLoader();
