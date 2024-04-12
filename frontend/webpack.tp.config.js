@@ -17,10 +17,11 @@ module.exports = {
     mode: "development",
     entry: "./src/index.js",
     output: {
-        publicPath: '/',
+        publicPath: "/",
         path: path.resolve(__dirname, "dist"),
         filename: "bundle.js",
     },
+    devtool: "source-map",
     plugins: [
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "./index.html"),
@@ -73,10 +74,7 @@ module.exports = {
         ],
     },
     resolve: {
-        modules: [
-            "node_modules",
-            "./src",
-        ],
+        modules: ["node_modules", "./src"],
         extensions: [".js", ".jsx", ".json"],
         mainFields: ["browser", "module", "main"],
     },
