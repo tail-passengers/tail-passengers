@@ -145,10 +145,6 @@ function Home($container) {
         }
     };
 
-    window.addEventListener("resize", async () => {
-        await this.renderChart();
-    });
-
     this.render();
 }
 

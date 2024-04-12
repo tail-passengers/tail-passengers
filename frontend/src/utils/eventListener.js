@@ -35,7 +35,6 @@ export function addNavBarClickListener(navBarContainer) {
     }
 }
 window.addEventListener("beforeunload", async (event) => {
-    // 새로고침 여부 확인
     if (!window.refreshing) {
         try {
             await fetch(`https://${process.env.BASE_IP}/api/v1/logout/`, {
