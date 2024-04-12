@@ -1,6 +1,7 @@
 import { getCurrentLanguage, changeLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { fetchUser } from "../utils/fetches.js";
+import { getCSRFToken } from "../utils/cookie.js";
 
 export function renderPage() {
     const navBarContainer = document.querySelector("#nav-bar");
@@ -87,9 +88,12 @@ async function renderProgressBar() {
         renderUser(content);
     };
 
-    let data = await fetchUser();
-    if (data) {
-        setState(data[0]);
+    const csrfToken = getCSRFToken();
+    if (csrfToken) {
+        let data = await fetchUser();
+        if (data) {
+            setState(data[0]);
+        }
     }
 }
 

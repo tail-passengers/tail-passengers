@@ -11,5 +11,4 @@ export const pollingFetches = (func, interval, maxAttempts = -1) => {
 			func();
 	}, interval);
 	intervalIdArray.push(intervalId);
-	console.log(intervalId);
 };

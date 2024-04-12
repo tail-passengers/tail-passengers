@@ -1,12 +1,19 @@
 import { navigate } from "./navigate.js";
 import { fetchUser, fetchLogoutRequest } from "./fetches.js";
+import { deleteCSRFToken, getCSRFToken } from "./cookie.js";
 
 export function addLoginEventListener(loginContainer) {
-    fetchUser().then((myInfo) => {
-        if (myInfo !== false && myInfo.detail === undefined) {
-            closeLoginModal(loginContainer);
-        }
-    });
+    const csrfToken = getCSRFToken();
+    if (csrfToken !== null) {
+        fetchUser()
+            .then((response) => {
+                if (response !== false) {
+                    closeLoginModal(loginContainer);
+                }
+            }).catch((error) => {
+                console.log("[Error] addLoginEventListener() : ", error);
+            });
+    }
 
     const closeLoginModal = (loginContainer) => {
         loginContainer.style.display = "none";
@@ -37,6 +44,7 @@ export function addNavBarClickListener(navBarContainer) {
 window.addEventListener("beforeunload", async (event) => {
     if (!window.refreshing) {
         try {
+            
             await fetch(`https://${process.env.BASE_IP}/api/v1/logout/`, {
                 method: "GET",
                 credentials: "include",
@@ -44,6 +52,8 @@ window.addEventListener("beforeunload", async (event) => {
                     "Content-Type": "application/json",
                 },
             });
+
+            deleteCSRFToken();
         } catch (error) {
             console.error("Error during logout:", error);
         }
