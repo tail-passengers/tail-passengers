@@ -6,6 +6,15 @@ import {
     addLoginEventListener,
     addNavBarClickListener,
 } from "./utils/eventListener.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import { FontLoader } from "three/addons/loaders/FontLoader.js";
+import * as THREE from "three";
+
+window.THREE = THREE;
+window.GLTFLoader = GLTFLoader;
+window.TextGeometry = TextGeometry;
+window.FontLoader = FontLoader;
 
 document.addEventListener("DOMContentLoaded", function () {
     const loginContainer = document.getElementById("loginModal");
