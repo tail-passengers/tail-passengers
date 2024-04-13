@@ -21,10 +21,10 @@ const koLocale = {
 		singleModeDesc: "컴퓨터와 대결하는 싱글 모드",
 		multiMode: "멀티 모드",
 		multiModeDesc: "다른 유저와 대결하는 멀티 모드",
-		tornamentMode: "토너먼트 모드",
-		tornamentModeDesc: "4명과 대결하는 토너먼트 모드"
+		tournamentMode: "토너먼트 모드",
+		tournamentModeDesc: "4명과 대결하는 토너먼트 모드"
 	},
-	tornament: {
+	tournament: {
 		mainText: "토너먼트 목록",
 		mainTextDesc: "새 토너먼트를 생성하거나 참가할 수 있습니다.",
 		list: "토너먼트 이름",
