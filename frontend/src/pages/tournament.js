@@ -67,7 +67,7 @@ function Tournament({ $app, initialState }) {
 		// Refresh 버튼 클릭 이벤트 핸들러 등록
 		const refreshBtn = this.$element.querySelector("#refreshBtn");
 		refreshBtn.addEventListener("click", () => {
-			this.render();
+			this.pageRender();
 		});
 
 		this.getTournamentList();
