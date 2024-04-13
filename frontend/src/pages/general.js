@@ -1,10 +1,12 @@
 import { $ } from "../utils/querySelector.js";
+import { navigate } from "../utils/navigate.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 
 function General({ $app, initialState }) {
-	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, noticeElement, animationFrameId, gameIdValue, gameMode;
+	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, state = "playing",
+		noticeElement, animationFrameId, gameIdValue, gameMode;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	$("#nav-bar").hidden = true;
@@ -13,20 +15,22 @@ function General({ $app, initialState }) {
 	// TODO 소켓끊는 함수 다른 소켓연결에 모두 적용하기, 토너먼트에서 페이지 이동할 때 제너럴로 이동하기.
 	// 토너먼트 주소랑 라운드를 스토리지에 저장해서 활용하기, 끝날 때 게임유형 판단하고 결과페이지, 대기 결정하기
 	//소켓 끊는 함수
-	function closeSocket() {
-		if (gameSocket && gameSocket.readyState <= 1) {
+
+	function clearThreeJs() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		if (state == "playing") {
 			gameSocket.close();
-			removeScoreElement();
-			cancelAnimationFrame(animationFrameId);
-			$("#nav-bar").hidden = false;
-			document.removeEventListener('keydown', handleKeyPress);
-			document.removeEventListener('keyup', handleKeyRelease);
-			window.removeEventListener("popstate", closeSocket);
 			gameSocket = null;
-			scene = null;
-			camera = null;
-			renderer = null;
+			$("#nav-bar").hidden = false;
 		}
+		removeScoreElement();
+		cancelAnimationFrame(animationFrameId);
+		document.removeEventListener('keydown', handleKeyPress);
+		document.removeEventListener('keyup', handleKeyRelease);
+		window.removeEventListener("popstate", clearThreeJs);
+		scene = null;
+		camera = null;
+		renderer = null;
 	}
 
 	this.connectWebSocket = async () => {
@@ -43,6 +47,8 @@ function General({ $app, initialState }) {
 			};
 		});
 	};
+
+
 	this.makeGame = async () => {
 		try {
 			// 세션스토리지에 저장된 UUID로 소켓 연결하기
@@ -51,7 +57,7 @@ function General({ $app, initialState }) {
 			if (gameMode == "general_game") {
 				gameIdValue = sessionStorage.getItem('generalIdValue');
 				await this.connectWebSocket();
-				window.addEventListener("popstate", closeSocket);
+				window.addEventListener("popstate", clearThreeJs);
 			}
 			else if (gameMode == "tournament_game") {
 				gameIdValue = sessionStorage.getItem('tournamentIdValue');
@@ -61,7 +67,7 @@ function General({ $app, initialState }) {
 				playerNum = sessionStorage.getItem('playerNum');
 				intraId = sessionStorage.getItem('intraId');
 				await this.connectWebSocket();
-				window.addEventListener("popstate", closeSocket);
+				window.addEventListener("popstate", clearThreeJs);
 				gameSocket.send(data);
 				console.log("전송함: ", data);
 			}
@@ -97,15 +103,41 @@ function General({ $app, initialState }) {
 					score.player1 = data.player1_score;
 					score.player2 = data.player2_score;
 				}
-				else if (data.message_type == "end") {
-					//결과 페이지 띄우기, 모드에 따라 다르게 작동하기
-					closeSocket();
-					this.$element.innerHTML = endMsg();
+				else if (data.message_type == "end" || data.message_type == "stay") {
+					//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
+					state = "end";
+					clearThreeJs();
+					if (data.round == "3") {
+						sessionStorage.setItem('winner', data.winner);
+						sessionStorage.setItem('loser', data.loser);
+					}
+					this.$element.innerHTML = '';
+					console.log(gameSocket);
+					gameSocket.send(event.data);
+					//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
+					if (gameMode == "tournament_game") {
+						if (data.message_type == stay)
+							// 이겼으면 새 소켓 연결 후 대기,
+							state = "win";
+						else {
+							// 졌으면 소켓 끊고 종료
+							state = "lose";
+						}
+
+
+					}
 				}
 				else if (data.message_type == "error") {
-					closeSocket();
+					clearThreeJs();
 					this.$element.innerHTML = errorMsg();
 				}
+				else if (data.message_type == "complete") {
+					gameSocket.close();
+					let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
+					navigate(targetURL);
+					// $("#nav-bar").hidden = false;
+				}
+
 
 			};
 		}

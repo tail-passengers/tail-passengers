@@ -18,6 +18,6 @@ export const routes = [
 	{ path: /^\/general_game\/(.+)$/, element: General },
 	{ path: /^\/tournament_game\/(.+)$/, element: General },
 	{ path: /^\/tournament$/, element: Tournament },
-	{ path: /^\/result$/, element: GameResult },
+	{ path: /^\/result\/(.+)$/, element: GameResult },
 	{ path: /.*/, element: NotFound },
 ];
