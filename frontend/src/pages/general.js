@@ -34,7 +34,7 @@ function General({ $app, initialState }) {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 
 			gameSocket.onopen = () => {
-				console.log('WebSocket connected');
+				console.log('WebSocket connected:', `wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 				resolve(gameSocket);
 			};
 
@@ -47,16 +47,26 @@ function General({ $app, initialState }) {
 		try {
 			// 세션스토리지에 저장된 UUID로 소켓 연결하기
 			gameMode = sessionStorage.getItem('gameMode');
+
 			if (gameMode == "general_game") {
 				gameIdValue = sessionStorage.getItem('generalIdValue');
+				await this.connectWebSocket();
+				window.addEventListener("popstate", closeSocket);
 			}
 			else if (gameMode == "tournament_game") {
 				gameIdValue = sessionStorage.getItem('tournamentIdValue');
 				data = sessionStorage.getItem('Data');
+				console.log("가져온 data: ", data);
+				//TODO 플레이어아이디, 상대아이디, 플레이어넘 받아서 초기화해야함
+				playerNum = sessionStorage.getItem('playerNum');
+				intraId = sessionStorage.getItem('intraId');
+				await this.connectWebSocket();
+				window.addEventListener("popstate", closeSocket);
+				gameSocket.send(data);
+				console.log("전송함: ", data);
 			}
 			console.log(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
-			await this.connectWebSocket();
-			window.addEventListener("popstate", closeSocket);
+
 			gameSocket.onmessage = (event) => {
 				data = JSON.parse(event.data);
 				console.log("Received data:", data);
@@ -75,6 +85,7 @@ function General({ $app, initialState }) {
 					else {
 						versusId = data["2p"]
 					}
+					console.log("player info: " + intraId + " " + playerNum + ", " + versusId);
 					this.$element.innerHTML = '';
 					this.initThreeJs(this.$element);
 					this.initEventListeners();
@@ -86,10 +97,16 @@ function General({ $app, initialState }) {
 					score.player1 = data.player1_score;
 					score.player2 = data.player2_score;
 				}
-				else if (data.message_type == "end" || data.message_type == "error") {
+				else if (data.message_type == "end") {
+					//결과 페이지 띄우기, 모드에 따라 다르게 작동하기
 					closeSocket();
 					this.$element.innerHTML = endMsg();
 				}
+				else if (data.message_type == "error") {
+					closeSocket();
+					this.$element.innerHTML = errorMsg();
+				}
+
 			};
 		}
 		catch (error) {
@@ -104,6 +121,18 @@ function General({ $app, initialState }) {
             <div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
                     <div class="h2">End game!</div>
+                </div>
+            </div>
+        </div>
+    `;
+	};
+
+	const errorMsg = () => {
+		return `
+        <div class="tp-sl-card-content-child">
+            <div>
+                <div class="loadingMsg default-container text-center tp-color-secondary">
+                    <div class="h2">Error game!</div>
                 </div>
             </div>
         </div>
@@ -548,8 +577,9 @@ function General({ $app, initialState }) {
 			return;
 		}
 		if (code === 'ArrowUp') {
-			if (shouldPerformAction(code) && !isKeyPressed && !isPastPaddle1() && !isPastPaddle2()) {
+			if (shouldPerformAction(code) && !isKeyPressed) {
 				console.log("Critical!");
+				// 맥시마 받았을 때도 발동하기
 				blinkEffect();
 				if (ball && ball.$velocity) {
 					if (ball.$velocity.z < 0) {
@@ -569,13 +599,6 @@ function General({ $app, initialState }) {
 				}, 500); // 적절한 지연 시간 설정 (예: 1초)
 			}
 		}
-	}
-
-	function isPastPaddle1() {
-		return ball.position.z > paddle1.position.z + 100;
-	}
-	function isPastPaddle2() {
-		return ball.position.z < paddle2.position.z - 100;
 	}
 
 	function blinkEffect() {
@@ -607,7 +630,7 @@ function General({ $app, initialState }) {
 			if (elapsed < blinkDuration) {
 				ball.material.emissive.setHex(newEmissive);
 				//TODO 활성화
-				// requestAnimationFrame(blink);
+				requestAnimationFrame(blink);
 			} else {
 				// 반짝임이 완료되면 초기값으로 재설정
 				ball.material.emissive.setHex(initialEmissive);
@@ -615,45 +638,26 @@ function General({ $app, initialState }) {
 		}
 		//TODO 활성화
 		// 애니메이션 시작
-		// requestAnimationFrame(blink);
+		requestAnimationFrame(blink);
 	}
 
 	function shouldPerformAction(code) {
 		// 특정 조건을 만족하면 true를 반환하여 동작을 수행하도록 함
 		// 예를 들어, 공이 패들에 닿기 직전, 닿았을 때, 또는 패들에 맞고 튕겨 나간 직후에 해당하는 조건을 확인하여 반환
-		return isBallNearPaddle(code) || isBallJustBouncedOffPaddle(); // ||isBallTouchingPaddle(code)
+		return isBallNearPaddle(code)
 	}
 
 	function isBallNearPaddle(code) {
 		// 공이 패들에 닿기 직전의 조건을 판단
 		// 예를 들어, 특정 거리 이내에 있을 때 true를 반환
-		if (code == 'KeyW') {
+		if (playerNum == 'player1') {
 			return Math.abs(ball.position.z - paddle1.position.z) < 50;
 		}
-		else if (code == 'ArrowUp') {
+		else if (playerNum == 'player2') {
 			return Math.abs(ball.position.z - paddle2.position.z) < 50;
 		}
 	}
 
-	function isBallTouchingPaddle(code) {
-		// 공이 패들에 닿았을 때의 조건을 판단
-		// 예를 들어, 패들과 공의 충돌 여부를 확인하여 true를 반환
-		if (code == 'KeyA') {
-			return isPaddle1Collision();
-		}
-		else if (code == 'ArrowUp') {
-			return isPaddle2Collision();
-		}
-	}
-
-	function isBallJustBouncedOffPaddle() {
-		// 공이 패들에 맞고서 튕겨 나간 직후의 조건을 판단
-		// 예를 들어, 패들과의 충돌 여부와 이전에 패들에 맞았는지 여부를 확인하여 true를 반환
-		const hasBouncedOffPaddle = isBallTouchingPaddle();
-		const wasTouchingPaddle = ball.wasTouchingPaddle || false;
-
-		return hasBouncedOffPaddle && !wasTouchingPaddle;
-	}
 
 	// 키 상태 저장 객체
 	const keyState = {

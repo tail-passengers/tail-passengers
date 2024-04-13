@@ -10,7 +10,7 @@ function Tournament({ $app, initialState }) {
 	let footerHeight = $(".tp-footer-container").clientHeight;
 
 	//초기 토너먼트 테이블 렌더
-	this.pageRender = () => {
+	this.render = () => {
 		const language = getCurrentLanguage();
 		const locale = locales[language] || locales.en;
 		this.$element.innerHTML = `
@@ -67,7 +67,7 @@ function Tournament({ $app, initialState }) {
 		// Refresh 버튼 클릭 이벤트 핸들러 등록
 		const refreshBtn = this.$element.querySelector("#refreshBtn");
 		refreshBtn.addEventListener("click", () => {
-			this.pageRender();
+			this.render();
 		});
 
 		this.getTournamentList();
@@ -89,8 +89,7 @@ function Tournament({ $app, initialState }) {
 						this.renderWaiting();
 					} else if (data.result === "fail") {
 						// 방 생성 실패 시 처리
-						console.error("Failed to create tournament: duplicated");
-						alert("Same name tournament already exist.");
+						alert("You cannot create existing titles or titles longer than 20 characters.");
 						this.render();
 					}
 				}
@@ -146,6 +145,7 @@ function Tournament({ $app, initialState }) {
 					if (intraId == "" || intraId == data.intra_id) {
 						intraId = data.intra_id;
 						playerNum = data.number;
+						sessionStorage.setItem('intraId', data.intra_id);
 					}
 
 					console.log("I am : " + playerNum + " " + intraId);
@@ -178,8 +178,9 @@ function Tournament({ $app, initialState }) {
 						playerNum = "player2"
 						versusId = data["1p"];
 					}
-					sessionStorage.setItem('Data', data);
-					sessionStorage.setItem('gameMode', "tournament_game");
+					sessionStorage.setItem('playerNum', playerNum);
+					sessionStorage.setItem('Data', JSON.stringify(data));
+					sessionStorage.setItem('gameMode', 'tournament_game');
 					let tournamentURL = `${tournamentName}/${round}`;
 					sessionStorage.setItem('tournamentIdValue', tournamentURL);
 					let targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
@@ -236,8 +237,14 @@ function Tournament({ $app, initialState }) {
 		if (canvas) {
 			body.removeChild(canvas);
 		}
-		this.pageRender();
+		this.render();
 	};
+	window.addEventListener(
+		"languageChange",
+		function () {
+			this.render();
+		}.bind(this)
+	);
 
 	this.init();
 }

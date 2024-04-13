@@ -4,6 +4,7 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
 function SelectMode({ initialState }) {
+	let gameIdValue, initSocket, targetURL;
 	this.state = initialState;
 	this.$element = document.createElement("div");
 	this.$element.className = "content default-container tp-sl-card-content";
@@ -55,26 +56,10 @@ function SelectMode({ initialState }) {
         </div>
       </div>
 		`;
-	};
-
-	this.init = () => {
-		let parent = $("#app");
-		const child = $(".content");
-		if (child) {
-			parent.removeChild(child);
-			parent.appendChild(this.$element);
-		}
-		let body = $("body");
-		const canvas = $("canvas");
-		if (canvas) {
-			body.removeChild(canvas);
-		}
-		this.render();
 
 		const singleBtn = $(".tp-sl-single-btn");
 		const multiBtn = $(".tp-sl-multi-btn");
 		const tournamentBtn = $(".tp-sl-tournament-btn");
-		let targetURL;
 		if (singleBtn) {
 			singleBtn.addEventListener("click", function (event) {
 				event.preventDefault();
@@ -91,7 +76,6 @@ function SelectMode({ initialState }) {
 				navigate(targetURL);
 			});
 		}
-		let gameIdObject, gameIdValue, gameInfo, initSocket;
 
 		if (multiBtn) {
 			multiBtn.addEventListener("click", function (event) {
@@ -102,20 +86,42 @@ function SelectMode({ initialState }) {
 				initSocket.addEventListener('message', idSocketConnect);
 			});
 		}
-
-		const idSocketConnect = (event) => {
-			console.log('Message from server ', event.data);
-			initSocket.close();
-			let data = JSON.parse(event.data);
-			gameIdValue = data.game_id;
-			// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
-			sessionStorage.setItem('generalIdValue', gameIdValue);
-			sessionStorage.setItem('gameMode', "general_game");
-
-			targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
-			navigate(targetURL);
-		}
 	};
+
+	const idSocketConnect = (event) => {
+		console.log('Message from server ', event.data);
+		initSocket.close();
+		let data = JSON.parse(event.data);
+		gameIdValue = data.game_id;
+		// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
+		sessionStorage.setItem('generalIdValue', gameIdValue);
+		sessionStorage.setItem('gameMode', "general_game");
+
+		targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
+		navigate(targetURL);
+	}
+
+	this.init = () => {
+		let parent = $("#app");
+		const child = $(".content");
+		if (child) {
+			parent.removeChild(child);
+			parent.appendChild(this.$element);
+		}
+		let body = $("body");
+		const canvas = $("canvas");
+		if (canvas) {
+			body.removeChild(canvas);
+		}
+		this.render();
+	};
+
+	window.addEventListener(
+		"languageChange",
+		function () {
+			this.render();
+		}.bind(this)
+	);
 
 	this.init();
 }
