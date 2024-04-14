@@ -53,98 +53,131 @@ function General({ $app, initialState }) {
 		try {
 			// 세션스토리지에 저장된 UUID로 소켓 연결하기
 			gameMode = sessionStorage.getItem('gameMode');
-
-			if (gameMode == "general_game") {
-				gameIdValue = sessionStorage.getItem('generalIdValue');
-				await this.connectWebSocket();
-				window.addEventListener("popstate", clearThreeJs);
-			}
-			else if (gameMode == "tournament_game") {
-				gameIdValue = sessionStorage.getItem('tournamentIdValue');
+			gameIdValue = sessionStorage.getItem('idValue');
+			await this.connectWebSocket();
+			window.addEventListener("popstate", clearThreeJs);
+			if (gameMode == "tournament_game") {
 				data = sessionStorage.getItem('Data');
-				console.log("가져온 data: ", data);
-				//TODO 플레이어아이디, 상대아이디, 플레이어넘 받아서 초기화해야함
 				playerNum = sessionStorage.getItem('playerNum');
 				intraId = sessionStorage.getItem('intraId');
-				await this.connectWebSocket();
-				window.addEventListener("popstate", clearThreeJs);
 				gameSocket.send(data);
 				console.log("전송함: ", data);
 			}
 			console.log(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
-
-			gameSocket.onmessage = (event) => {
-				data = JSON.parse(event.data);
-				console.log("Received data:", data);
-				if (data.message_type == "ready") {
-					console.log("Ready!");
-					// 플레이어 정보 초기화
-					intraId = data.intra_id;
-					playerNum = data.number;
-					gameSocket.send(event.data);
-				}
-				else if (data.message_type == "start") {
-					// console.log("Start!");
-					if (data["1p"] != intraId) {
-						versusId = data["1p"];
-					}
-					else {
-						versusId = data["2p"]
-					}
-					console.log("player info: " + intraId + " " + playerNum + ", " + versusId);
-					this.$element.innerHTML = '';
-					this.initThreeJs(this.$element);
-					this.initEventListeners();
-					setTimeout(() => {
-						this.startRender();
-					}, 2000);
-				}
-				else if (data.message_type == "score") {
-					score.player1 = data.player1_score;
-					score.player2 = data.player2_score;
-				}
-				else if (data.message_type == "end" || data.message_type == "stay") {
-					//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
-					state = "end";
-					clearThreeJs();
-					if (data.round == "3") {
-						sessionStorage.setItem('winner', data.winner);
-						sessionStorage.setItem('loser', data.loser);
-					}
-					this.$element.innerHTML = '';
-					console.log(gameSocket);
-					gameSocket.send(event.data);
-					//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
-					if (gameMode == "tournament_game") {
-						if (data.message_type == stay)
-							// 이겼으면 새 소켓 연결 후 대기,
-							state = "win";
-						else {
-							// 졌으면 소켓 끊고 종료
-							state = "lose";
-						}
-
-
-					}
-				}
-				else if (data.message_type == "error") {
-					clearThreeJs();
-					this.$element.innerHTML = errorMsg();
-				}
-				else if (data.message_type == "complete") {
-					gameSocket.close();
-					let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
-					navigate(targetURL);
-					// $("#nav-bar").hidden = false;
-				}
-
-
-			};
+			gameSocket.addEventListener('message', this.onGame);
 		}
 		catch (error) {
 			console.error("Error socket connet:", error);
 		}
 	};
+
+	this.onGame = (event) => {
+		data = JSON.parse(event.data);
+		console.log("Received data:", data);
+		if (data.message_type == "ready") {
+			console.log("Ready!");
+			// 플레이어 정보 초기화
+			intraId = data.intra_id;
+			playerNum = data.number;
+			gameSocket.send(event.data);
+		}
+		else if (data.message_type == "start") {
+			// console.log("Start!");
+			if (data["1p"] != intraId) {
+				versusId = data["1p"];
+			}
+			else {
+				versusId = data["2p"]
+			}
+			console.log("player info: " + intraId + " " + playerNum + ", " + versusId);
+			this.$element.innerHTML = '';
+			this.initThreeJs(this.$element);
+			this.initEventListeners();
+			setTimeout(() => {
+				this.startRender();
+			}, 2000);
+		}
+		else if (data.message_type == "score") {
+			score.player1 = data.player1_score;
+			score.player2 = data.player2_score;
+		}
+		else if (data.message_type == "end") {
+			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
+			state = "end";
+			clearThreeJs();
+
+			gameSocket.send(event.data);
+			//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
+			if (gameMode == "tournament_game") {
+				if (data.round == "3") {
+					sessionStorage.setItem('winner', data.winner);
+					sessionStorage.setItem('loser', data.loser);
+				}
+				else {
+					// 졌으면 소켓 끊고 종료
+					state = "lose";
+					this.$element.innerHTML = endMsg();
+
+				}
+			}
+		}
+		else if (data.message_type == "stay") {
+			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
+			state = "stay";
+			clearThreeJs();
+			gameSocket.send(event.data);
+			// 이겼으면 새 소켓 연결 후 대기,
+			state = "win";
+			this.$element.innerHTML = `
+					<div class='text-center h1 text-left tp-color-secondary'>Waiting other player...</div>
+					<div class='text-center h1 text-left tp-color-secondary'>1 / 2</div>
+					<div class="text-center">
+					</div>
+					`;
+			const tournamentName = sessionStorage.getItem('tournamentName');
+			sessionStorage.setItem('idValue', `${tournamentName}/3`);
+			gameSocket.removeEventListener('message', this.onGame);
+			gameSocket.addEventListener('message', this.finalGame);
+			gameSocket.send(event.data);
+			console.log("Received 대기중 data:", data);
+		}
+		else if (data.message_type == "error") {
+			clearThreeJs();
+			this.$element.innerHTML = errorMsg();
+		}
+		else if (data.message_type == "complete") {
+			gameSocket.close();
+			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
+			navigate(targetURL);
+			// $("#nav-bar").hidden = false;
+		}
+	}
+
+	this.finalGame = (event) => {
+		data = JSON.parse(event.data);
+		if (data.message_type == "ready") {
+			// this.renderPlaying(data);
+			console.log('ready');
+			// 1p, 2p 나랑 versus 저장
+			if (data["1p"] == intraId) {
+				playerNum = "player1"
+				versusId = data["2p"];
+			}
+			else {
+				playerNum = "player2"
+				versusId = data["1p"];
+			}
+			sessionStorage.setItem('playerNum', playerNum);
+			sessionStorage.setItem('Data', JSON.stringify(data));
+			const tournamentName = sessionStorage.getItem('tournamentName');
+			const tournamentURL = `${tournamentName}/3`;
+			sessionStorage.setItem('idValue', tournamentURL);
+			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
+			navigate(targetURL);
+			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
+		}
+	}
+
 
 
 	const endMsg = () => {

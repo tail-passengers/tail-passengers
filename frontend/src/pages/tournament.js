@@ -5,7 +5,7 @@ import locales from "../utils/locales/locales.js";
 
 function Tournament({ $app, initialState }) {
 
-	let gameSocket, tournamentName, round, playerNum = 0, data, intraId = "", versusId, scoreElement, animationFrameId;
+	let gameSocket, tournamentName, round, playerNum = 0, data, intraId = "";
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 
@@ -181,8 +181,9 @@ function Tournament({ $app, initialState }) {
 					sessionStorage.setItem('playerNum', playerNum);
 					sessionStorage.setItem('Data', JSON.stringify(data));
 					sessionStorage.setItem('gameMode', 'tournament_game');
+					sessionStorage.setItem('tournamentName', tournamentName);
 					let tournamentURL = `${tournamentName}/${round}`;
-					sessionStorage.setItem('tournamentIdValue', tournamentURL);
+					sessionStorage.setItem('idValue', tournamentURL);
 					let targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
 					navigate(targetURL);
 					// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결

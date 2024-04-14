@@ -94,7 +94,7 @@ function SelectMode({ initialState }) {
 		let data = JSON.parse(event.data);
 		gameIdValue = data.game_id;
 		// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
-		sessionStorage.setItem('generalIdValue', gameIdValue);
+		sessionStorage.setItem('idValue', gameIdValue);
 		sessionStorage.setItem('gameMode', "general_game");
 
 		targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
