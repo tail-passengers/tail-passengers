@@ -28,7 +28,17 @@ const enLocale = {
 		mainTextDesc: "You can create or join a tournament.",
 		list: "Tournament Name",
 		createBtn: "Create New Tournament",
-		refresh: "Refresh"
+		refresh: "Refresh",
+		noGame: "No games available to join",
+		waiting: "Waiting other players...",
+		goBack: "Go back to list",
+		createFail: "You cannot create existing titles or titles longer than 20 characters.",
+		noticePrompt: "Enter the name of the new tournament:"
+	},
+	general: {
+		waiting: "Waiting for other players...",
+		error: "error occured.",
+		getReady: "Get ready to protego spell!!",
 	},
 	rank: {
 		mainText: "Top Player",

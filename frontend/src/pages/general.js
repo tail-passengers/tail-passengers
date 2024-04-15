@@ -2,9 +2,13 @@ import { $ } from "../utils/querySelector.js";
 import { navigate } from "../utils/navigate.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 
 
 function General({ $app, initialState }) {
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, state = "playing",
 		noticeElement, animationFrameId, gameIdValue, gameMode;
 	let navBarHeight = $(".navigation-bar").clientHeight;
@@ -20,8 +24,8 @@ function General({ $app, initialState }) {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
 		if (state == "playing") {
 			gameSocket.close();
-			console.log("socket close");
 			gameSocket = null;
+			console.log("socket close");
 			$("#nav-bar").hidden = false;
 		}
 		removeScoreElement();
@@ -122,6 +126,7 @@ function General({ $app, initialState }) {
 					state = "lose";
 					this.$element.innerHTML = endMsg();
 					gameSocket.close();
+					gameSocket = null;
 					console.log("socket close");
 					$("#nav-bar").hidden = false;
 				}
@@ -141,7 +146,7 @@ function General({ $app, initialState }) {
 				// 이겼으면 새 소켓 연결 후 대기,
 				state = "win";
 				this.$element.innerHTML = `
-					<div class='text-center h1 text-left tp-color-secondary'>Waiting other player...</div>
+					<div class='text-center h1 text-left tp-color-secondary'>${locale.general.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>1 / 2</div>
 					<div class="text-center">
 					</div>
@@ -157,11 +162,16 @@ function General({ $app, initialState }) {
 		else if (data.message_type == "error") {
 			console.log(data.message_type);
 			clearThreeJs();
+			if (gameSocket != null) {
+				gameSocket.close();
+				gameSocket = null;
+			}
 			this.$element.innerHTML = errorMsg();
 		}
 		else if (data.message_type == "complete") {
 			console.log(data.message_type);
 			gameSocket.close();
+			gameSocket = null;
 			console.log("socket close");
 			$("#nav-bar").hidden = false;
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
@@ -193,6 +203,7 @@ function General({ $app, initialState }) {
 			sessionStorage.setItem('idValue', tournamentURL);
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
 			gameSocket.close();
+			gameSocket = null;
 			console.log("socket close");
 			navigate(targetURL);
 			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
@@ -517,7 +528,7 @@ function General({ $app, initialState }) {
 
 
 		noticeElement = document.createElement('div');
-		noticeElement.textContent = `${intraId} vs ${versusId}\nGet ready to protego spell!`;
+		noticeElement.textContent = `${intraId} vs ${versusId}<br><span>\n${locale.general.getReady}`;
 		noticeElement.style.fontSize = '200%';
 		// noticeElement.style.position = 'absolute';
 		noticeElement.style.top = '50%';

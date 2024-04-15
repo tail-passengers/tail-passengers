@@ -2,16 +2,14 @@ import { $ } from "../utils/querySelector.js";
 
 /*
  * TODO
- * 스코어판 만들기, 결과판도 결과
+ * 스코어판 만들기
  * 튜토리얼 안내문 만들기
  * 커스텀 요소 (볼 유형, 컬러, 난이도)
  * 
  * BUG
  * 게임 결과, 페이지 이동시 종료되도록 (소켓)
- * 리사이즈
- * 볼 스페이스 액션 공 튀기는 문제
- * 상대도 적용되게 할 것인지?, 1초 딜레이로 할 것인지?(연타도 아직 가능)
- * 볼 벽에 붙어서 안떨어지는 문제
+ * 리사이즈 끄기?
+ *
  * 
 */
 
@@ -19,6 +17,24 @@ import { $ } from "../utils/querySelector.js";
 function Example({ $app, initialState }) {
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
+	$("#nav-bar").hidden = true;
+
+
+	function clearThreeJs() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		if (state == "playing") {
+			console.log("socket close");
+			$("#nav-bar").hidden = false;
+		}
+		removeScoreElement();
+		cancelAnimationFrame(animationFrameId);
+		document.removeEventListener('keydown', handleKeyPress);
+		document.removeEventListener('keyup', handleKeyRelease);
+		window.removeEventListener("popstate", clearThreeJs);
+		scene = null;
+		camera = null;
+		renderer = null;
+	}
 
 	let WIDTH = window.innerWidth,                                 //canvas.css에서 반응형으로 처리
 		HEIGHT = window.innerHeight - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
@@ -32,12 +48,8 @@ function Example({ $app, initialState }) {
 		PADDLE_WIDTH = 200,
 		PADDLE_HEIGHT = 30,
 
-		// //get the scoreboard element.
-		// scoreBoard = document.getElementById('scoreBoard'),
-
-
 		mainLight, subLight,
-		ball, ballRendered = false, paddle1, paddle2, field, running,
+		ball, ballRendered = false, paddle1, paddle2, field, running, modeChange = false,
 		randomOffset = 0,
 		rotationSpeed = 0.01,
 		score = {
@@ -103,9 +115,11 @@ function Example({ $app, initialState }) {
 			renderer.setScissorTest(true);
 			renderer.render(scene, camera2);
 
-			// if (ball.$velocity.z < 0) {
-			// 	processCpuPaddle();
-			// }
+			if (modeChange == true) {
+				if (ball.$velocity.z < 0) {
+					processCpuPaddle();
+				}
+			}
 		}
 	}
 
@@ -402,23 +416,12 @@ function Example({ $app, initialState }) {
 
 	function scoreBy(playerName) {
 		addPoint(playerName);
-		updateScoreBoard();
 		stopBall();
 		setTimeout(reset, 2000);
 	}
-
-	function updateScoreBoard() {
-		const scoreBoard = $("#scoreBoard");
-		if (scoreBoard) {
-			scoreBoard.innerHTML = 'Player 1: ' + score.player1 + ' Player 2: ' +
-				score.player2;
-		}
-	}
-
 	function stopBall() {
 		ball.$stopped = true;
 	}
-
 	function addPoint(playerName) {
 		score[playerName]++;
 		console.log(score);
@@ -573,10 +576,6 @@ function Example({ $app, initialState }) {
 				console.log(ball.$velocity.z);
 				// 회전 속도증가
 				rotationSpeed += 0.008; // TODO 로테이션스피드는 애니메이션에서 갱신적용해야함
-				// 크기 증가
-				if (BALL_RADIUS < 50) {
-					BALL_RADIUS += 5;
-				}
 				updateBallSize();
 				isSpaceBarPressed = true;
 
@@ -709,6 +708,12 @@ function Example({ $app, initialState }) {
 	};
 
 
+	function initEventListeners() {
+		document.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('keyup', handleKeyUp);
+		renderer.domElement.addEventListener('mousemove', containerMouseMove);
+	}
+
 	this.init = () => {
 		let parent = $("#app");
 		const child = $(".content");
@@ -732,11 +737,6 @@ function Example({ $app, initialState }) {
 		// Add event listeners or other initialization logic here
 		initEventListeners();
 
-		function initEventListeners() {
-			document.addEventListener('keydown', handleKeyDown);
-			document.addEventListener('keyup', handleKeyUp);
-			renderer.domElement.addEventListener('mousemove', containerMouseMove);
-		}
 	};
 
 	this.init();
