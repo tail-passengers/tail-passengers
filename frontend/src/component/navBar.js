@@ -71,7 +71,7 @@ export default function renderNavBar() {
 }
 
 async function renderProgressBar() {
-    const renderUser = (user) => {
+    const renderUserBar = (user) => {
         if (user) {
             const progressBar = $(".tp-progress-bar")[0];
             const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
@@ -85,7 +85,7 @@ async function renderProgressBar() {
     };
     
     const setState = (content) => {
-        renderUser(content);
+        renderUserBar(content);
     };
 
     const csrfToken = getCSRFToken();
