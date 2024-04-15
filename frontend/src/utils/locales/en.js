@@ -36,7 +36,7 @@ const enLocale = {
 		thRank: "Rank",
 		thUserProfile: "Profile",
 		thUserIntraId: "Intra ID",
-		thUserName: "User Name",
+		thNickname: "Nickname",
 		thWins: "Wins",
 		thLoses: "Loses",
 		thRankPoint: "Rank Point",

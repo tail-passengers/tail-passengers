@@ -129,8 +129,8 @@ function Rank({ initialState }) {
                                     <thead>
                                         <tr class="text-center align-middle">
                                             <th class="tp-bgc-secondary">${locale.rank.thRank}</th>
-                                            <th class="tp-bgc-secondary">${locale.rank.thRank}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thUserProfile}</th>
+                                            <th class="tp-bgc-secondary">${locale.rank.thNickname}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thUserIntraId}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thWins}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thLoses}</th>
