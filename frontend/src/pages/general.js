@@ -73,16 +73,16 @@ function General({ $app, initialState }) {
 
 	this.onGame = (event) => {
 		data = JSON.parse(event.data);
-		console.log("Received data:", data);
+		// console.log("Received data:", data);
 		if (data.message_type == "ready") {
-			console.log("Ready!");
+			console.log(data.message_type);
 			// 플레이어 정보 초기화
 			intraId = data.intra_id;
 			playerNum = data.number;
 			gameSocket.send(event.data);
 		}
 		else if (data.message_type == "start") {
-			// console.log("Start!");
+			console.log(data.message_type);
 			if (data["1p"] != intraId) {
 				versusId = data["1p"];
 			}
@@ -98,18 +98,21 @@ function General({ $app, initialState }) {
 			}, 2000);
 		}
 		else if (data.message_type == "score") {
+			console.log(data.message_type);
 			score.player1 = data.player1_score;
 			score.player2 = data.player2_score;
 		}
 		else if (data.message_type == "end") {
+			console.log(data.message_type);
 			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
 			state = "end";
 			clearThreeJs();
-
 			gameSocket.send(event.data);
+
 			//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
 			if (gameMode == "tournament_game") {
 				if (data.round == "3") {
+					console.log("set result");
 					sessionStorage.setItem('winner', data.winner);
 					sessionStorage.setItem('loser', data.loser);
 				}
@@ -117,12 +120,13 @@ function General({ $app, initialState }) {
 					// 졌으면 소켓 끊고 종료
 					state = "lose";
 					this.$element.innerHTML = endMsg();
-
+					gameSocket.close();
+					$("#nav-bar").hidden = false;
 				}
 			}
 		}
 		else if (data.message_type == "stay") {
-			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
+			console.log(data.message_type);
 			state = "stay";
 			clearThreeJs();
 			if (data.round == "3") {
@@ -149,20 +153,24 @@ function General({ $app, initialState }) {
 			}
 		}
 		else if (data.message_type == "error") {
+			console.log(data.message_type);
 			clearThreeJs();
 			this.$element.innerHTML = errorMsg();
 		}
 		else if (data.message_type == "complete") {
+			console.log(data.message_type);
 			gameSocket.close();
 			$("#nav-bar").hidden = false;
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
+
 		}
 	}
 
 	this.finalGame = (event) => {
 		data = JSON.parse(event.data);
 		if (data.message_type == "ready") {
+			console.log("Final " + data.message_type);
 			// this.renderPlaying(data);
 			console.log('ready');
 			// 1p, 2p 나랑 versus 저장
@@ -180,6 +188,7 @@ function General({ $app, initialState }) {
 			const tournamentURL = `${tournamentName}/3`;
 			sessionStorage.setItem('idValue', tournamentURL);
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
+			gameSocket.close();
 			navigate(targetURL);
 			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 		}
@@ -505,7 +514,7 @@ function General({ $app, initialState }) {
 		noticeElement = document.createElement('div');
 		noticeElement.textContent = 'Get ready to Protego spell!';
 		noticeElement.style.fontSize = '200%';
-		noticeElement.style.position = 'absolute';
+		// noticeElement.style.position = 'absolute';
 		noticeElement.style.top = '50%';
 		noticeElement.style.left = '50%';
 		noticeElement.style.transform = 'translate(-50%, -50%)';
@@ -544,9 +553,11 @@ function General({ $app, initialState }) {
 	}
 	function removeScoreElement() {
 		if (scoreElement.parentNode) {
+			console.log("score removed");
 			scoreElement.parentNode.removeChild(scoreElement);
 		}
 		if (noticeElement.parentNode) {
+			console.log("notice removed");
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 	}
