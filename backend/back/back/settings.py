@@ -28,11 +28,15 @@ load_dotenv()
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = [os.environ.get("BASE_IP")]
+ALLOWED_HOSTS = ["*"]
+
+# frontend 요구 사항
+CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('BASE_IP')}"]
 
 # Application definition
+
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -64,6 +68,35 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# 허용할 메소드
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+# 허용할 헤더
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# CORS 전체 허용
+CORS_ORIGIN_ALLOW_ALL = True
+
+# 쿠키가 cross-site HTTP 요청에 포함될 수 있도록 허용
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "back.urls"
 

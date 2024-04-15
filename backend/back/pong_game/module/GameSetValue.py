@@ -13,7 +13,6 @@ MAX_SCORE: int = 5
 PADDLE_BOUNDARY: int = FIELD_WIDTH // 2 - PADDLE_WIDTH // 2
 TOURNAMENT_PLAYER_MAX_CNT: int = 4
 NOT_ALLOWED_TOURNAMENT_NAME: str = "wait"
-MAX_TOURNAMENT_NAME_LENGTH: int = 20
 
 
 class KeyboardInput(Enum):
@@ -31,16 +30,6 @@ class PlayerStatus(Enum):
     PLAYING = "playing"
     SCORE = "score"
     END = "end"
-
-
-class GameStatus(Enum):
-    WAIT = "wait"
-    READY = "ready"
-    ROUND_READY = "round_ready"
-    PLAYING = "playing"
-    SCORE = "score"
-    END = "end"
-    ERROR = "error"
 
 
 class MessageType(Enum):
@@ -65,7 +54,6 @@ class RoundNumber(Enum):
     ROUND_1 = "1"
     ROUND_2 = "2"
     ROUND_3 = "3"
-    FINAL_NUMBER = "3"
 
 
 class TournamentStatus(Enum):
@@ -73,7 +61,6 @@ class TournamentStatus(Enum):
     READY = "ready"
     PLAYING = "playing"
     END = "end"
-    ERROR = "error"
 
 
 class ResultType(Enum):
