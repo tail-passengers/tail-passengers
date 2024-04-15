@@ -74,7 +74,7 @@ function General({ $app, initialState }) {
 
 	this.onGame = (event) => {
 		data = JSON.parse(event.data);
-		console.log("Received data:", data);
+		// console.log("Received data:", data);
 		if (data.message_type == "ready") {
 			console.log(data.message_type);
 			// 플레이어 정보 초기화
@@ -185,6 +185,7 @@ function General({ $app, initialState }) {
 				playerNum = "player2"
 				versusId = data["1p"];
 			}
+			console.log("내 인트라 : " + intraId + ", 상대 인트라 :" + versusId);
 			sessionStorage.setItem('playerNum', playerNum);
 			sessionStorage.setItem('Data', JSON.stringify(data));
 			const tournamentName = sessionStorage.getItem('tournamentName');
@@ -516,7 +517,7 @@ function General({ $app, initialState }) {
 
 
 		noticeElement = document.createElement('div');
-		noticeElement.textContent = 'Get ready to Protego spell!';
+		noticeElement.textContent = `${intraId} vs ${versusId}\nGet ready to protego spell!`;
 		noticeElement.style.fontSize = '200%';
 		// noticeElement.style.position = 'absolute';
 		noticeElement.style.top = '50%';
