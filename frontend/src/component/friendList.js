@@ -107,8 +107,6 @@ export default function renderFriendList(content, parentElement) {
 	renderFriendListField(content, parentElement);
 	
 	window.addEventListener("languageChange", function() {
-		console.log("language!!", language);
-		console.log("locales[language]!!", locales[language]);
 		const formBody = parentElement.querySelector(".tp-pf-form");
 		if (formBody) {
 			parentElement.removeChild(formBody);
