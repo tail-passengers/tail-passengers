@@ -6,9 +6,9 @@ import { addMyInfoEventListener } from "../utils/profileEventListener.js";
 export default function renderMyInfoForm(content, parentElement) {
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
-	const renderMyInfoField = (parentElement) => {
+	const renderMyInfoField = (content, parentElement) => {
 		let contentHTML = `
-			<form class="tp-pf-form-myinfo-view default-container tp-pf-forms tp-sl-card-row">
+			<form class="tp-pf-form tp-pf-form-myinfo-view default-container tp-pf-forms tp-sl-card-row">
 					<div class="tp-pf-photo-box">
 							<div class="tp-pf-wd-blank"></div>
 							<img class="tp-pf-photo-thumnail" src="../../public/assets/img/sharkcookie.png" />
@@ -47,7 +47,13 @@ export default function renderMyInfoForm(content, parentElement) {
 				</div>
 			</form>
 		`;
+		const prevForm = parentElement.querySelector(".tp-pf-form");
+		if (prevForm) {
+			parentElement.removeChild(prevForm);
+		}
 		parentElement.innerHTML = contentHTML;
+		renderUserInfo(content);
+		addMyInfoEventListener(content);
 	};
 
 	const handlerHouseValue = function(houseName) {
@@ -60,26 +66,27 @@ export default function renderMyInfoForm(content, parentElement) {
     });
 	}
 
-	const renderUser = function (content) {
-		if (content) {
+	const renderUserInfo = function (content) {
 			const nickname = $(".tp-pf-input-nickname");
 			const intraId = $(".tp-pf-input-intraId");
 			const profileImg = $(".tp-pf-photo-thumnail");
 			const record = $(".tp-pf-input-record");
-			const house = $(".tp-pf-input-house");
-			nickname.value = content.nickname;
-			intraId.value = content.intra_id;
-			profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
-			record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
-			handlerHouseValue(content.house);
-		}
-	};
+			if (nickname && intraId && profileImg && record && content) {
+				nickname.value = content.nickname;
+				intraId.value = content.intra_id;
+				profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
+				record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
+				handlerHouseValue(content.house);
+			}
+	}
 
-	renderMyInfoField(parentElement);
-	addMyInfoEventListener(content);
-	renderUser(content);
+	renderMyInfoField(content, parentElement);
 
 	window.addEventListener("languageChange", function() {
-		renderMyInfoField(parentElement);
+		const formBody = parentElement.querySelector(".tp-pf-form");
+		if (formBody) {
+			parentElement.removeChild(formBody);
+			renderMyInfoField(content, parentElement);
+		}
 	}.bind(this));
 }

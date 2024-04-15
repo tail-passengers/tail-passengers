@@ -40,7 +40,7 @@ const jaLocale = {
 		thRank: "ランク",
 		thUserProfile: "フロフィルイメージ",
 		thUserIntraId: "イントラアイディー",
-		thUserName: "ユーザー名",
+		thNickname: "ニックネーム",
 		thWins: "勝利",
 		thLoses: "敗北",
 		thRankPoint: "ランクポイント",

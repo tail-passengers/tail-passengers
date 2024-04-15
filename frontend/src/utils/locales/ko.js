@@ -40,7 +40,7 @@ const koLocale = {
 		thRank: "순위",
 		thUserProfile: "프로필 사진",
 		thUserIntraId: "인트라 아이디",
-		thUserName: "사용자 이름",
+		thNickname: "닉네임",
 		thWins: "승리",
 		thLoses: "패배",
 		thRankPoint: "랭크 포인트",

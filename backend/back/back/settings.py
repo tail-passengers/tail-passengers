@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = [os.environ.get("BASE_IP")]
-
+CSRF_TRUSTED_ORIGINS = [f"https://{os.environ.get('BASE_IP')}"]
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.auth",

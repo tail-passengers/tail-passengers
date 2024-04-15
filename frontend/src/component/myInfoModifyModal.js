@@ -108,7 +108,7 @@ export default function renderModifyFormModal(myInfo, parentElement) {
     });
 	}
 
-	const renderUser = function (content) {
+	const renderUserInfo = function (content) {
 		if (content) {
 			const nickname = $(".tp-pf-modal-nickname");
 			const intraId = $(".tp-pf-modal-intraId");
@@ -124,6 +124,6 @@ export default function renderModifyFormModal(myInfo, parentElement) {
 	};
 
 	renderModalForm(parentElement);
-	renderUser(myInfo);
+	renderUserInfo(myInfo);
 	addProfileModalEventListener(parentElement, "MY");
 }
