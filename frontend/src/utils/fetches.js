@@ -1,6 +1,39 @@
 import { deleteCSRFToken, getCSRFToken } from "./cookie.js";
 import { navigate } from "./navigate.js";
 
+export const fetchGenenralGameResult = async (gameName) => {
+    try {
+        const response = await fetch(
+            `https://${process.env.BASE_IP}/api/v1/general_game_logs/${gameName}/`,
+            {
+                credentials: "include",
+            }
+        );
+
+        const data = await response.json();
+        console.log("fetchGenenralGameResult", data);
+        // return data[0].intra_id;
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
+};
+
+export const fetchTournamentGameResult = async (gameName) => {
+    try {
+        const response = await fetch(
+            `https://${process.env.BASE_IP}/api/v1/tournament_game_logs/tournament/${gameName}/`,
+            {
+                credentials: "include",
+            }
+        );
+
+        const data = await response.json();
+        console.log("fetchTournamentGameResult", data);
+        // return data[0].intra_id;
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
+};
 
 /**
  *
@@ -35,16 +68,16 @@ export const fetchUser = async () => {
             }
         );
 
-			if (response.status === 200) {
-				const data = await response.json();
-				return data;
-			} else {
-				return false;
-			}
-	} catch (error) {
-			console.error("Error fetching user data:", error);
-			return false;
-	}
+        if (response.status === 200) {
+            const data = await response.json();
+            return data;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return false;
+    }
 };
 
 /**
@@ -222,27 +255,30 @@ export const fetchAcceptedFriends = async (intraId) => {
  * @param {*} responseUserId 친구 요청 수신자
  * @returns 친구 요청 테이블에 생성된 튜플의 PK
  */
-export const fetchRequestFriend = async(requestUserId, responseUserId) => {
-	try {
-		const csrfToken = getCSRFToken();
-		const response = await fetch(`https://${process.env.BASE_IP}/api/v1/friend_requests/`, {
-				method: "POST",
-				headers: {
-					"X-CSRFToken": csrfToken,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					"request_user_id": requestUserId.trim(),
-					"response_user_id": responseUserId.trim(),
-				}),
-		});
+export const fetchRequestFriend = async (requestUserId, responseUserId) => {
+    try {
+        const csrfToken = getCSRFToken();
+        const response = await fetch(
+            `https://${process.env.BASE_IP}/api/v1/friend_requests/`,
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    request_user_id: requestUserId.trim(),
+                    response_user_id: responseUserId.trim(),
+                }),
+            }
+        );
 
-		const data = await response.json();
-		return data;
-	} catch (error) {
-			console.error("Error fetchRequestFriend data:", error);
-	}
-}
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetchRequestFriend data:", error);
+    }
+};
 
 /**
  *

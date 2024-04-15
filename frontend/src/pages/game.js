@@ -87,6 +87,7 @@ function Example({ $app, initialState }) {
 		}
 		if (running) {
 			requestAnimationFrame(render);
+			handleMultipleKeys();
 
 			//camera1
 			processBallMovement();
@@ -515,11 +516,9 @@ function Example({ $app, initialState }) {
 		let minX = -maxX;
 		camera.position.x = paddle1.position.x = Math.max(minX, Math.min(maxX, -((WIDTH - mouseX) / WIDTH * FIELD_WIDTH) + (FIELD_WIDTH / 2)));
 	}
-
 	//////////
 	function handleMultipleKeys() {
 		// 여러 키를 동시에 처리하는 로직 작성
-
 		if (keyState.KeyA) {
 			// A 키가 눌려 있을 때의 동작
 			// paddle1과 camera를 이동시킴
@@ -548,13 +547,13 @@ function Example({ $app, initialState }) {
 		keyState[event.code] = false;
 
 		// 여러 키를 동시에 처리하는 함수 호출
-		handleMultipleKeys();
+		// handleMultipleKeys();
 	}
 
 	function handleKeyDown(event) {
 
 		keyState[event.code] = true;
-		handleMultipleKeys();
+		// handleMultipleKeys();
 
 		const currentTime = new Date().getTime();
 		if (currentTime - lastSpaceBarPressTime < 1000 && isSpaceBarPressed) {

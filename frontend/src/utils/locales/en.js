@@ -20,10 +20,10 @@ const enLocale = {
 		singleModeDesc: "Single mode against computer",
 		multiMode: "Multi mode",
 		multiModeDesc: "Multi mode against other users",
-		tornamentMode: "Tornament mode",
-		tornamentModeDesc: "Tornament mode with 4 users"
+		tournamentMode: "Tournament mode",
+		tournamentModeDesc: "Tournament mode with 4 users"
 	},
-	tornament: {
+	tournament: {
 		mainText: "Tournament List",
 		mainTextDesc: "You can create or join a tournament.",
 		list: "Tournament Name",

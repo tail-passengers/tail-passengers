@@ -21,10 +21,10 @@ const jaLocale = {
 		singleModeDesc: "コンピューターと対戦するシングルモード",
 		multiMode: "マルチモード",
 		multiModeDesc: "他のユーザーと対戦するマルチモード",
-		tornamentMode: "トーナメントモード",
-		tornamentModeDesc: "4人で対戦するトーナメントモード"
+		tournamentMode: "トーナメントモード",
+		tournamentModeDesc: "4人で対戦するトーナメントモード"
 	},
-	tornament: {
+	tournament: {
 		mainText: "トーナメント表",
 		mainTextDesc: "トーナメントを作ることも、参加することもできる。",
 		list: "トーナメント名",
