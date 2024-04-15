@@ -27,7 +27,7 @@
 ```json
 {
   "message_type": "ready",
-  "intra_id": "{intra_id}",
+  "nickname": "{nickname}",
   "number": "{player1 / player2}"
 }
 ```
@@ -37,7 +37,7 @@
 ```json
 {
   "message_type": "ready",
-  "intra_id": "{intra_id}",
+  "nickname": "{nickname}",
   "number": "{player1 / player2}"
 }
 ```
@@ -49,8 +49,8 @@
 ```json
 {
   "message_type": "start",
-  "1p": "{intra_id}",
-  "2p": "{intra_id}"
+  "1p": "{nickname}",
+  "2p": "{nickname}"
 }
 ```
 
@@ -99,7 +99,7 @@
 ```json
 {
     "message_type": "error",
-    "intra_id": "{접속 종료한 intra_id}"
+    "nickname": "{접속 종료한 nickname}"
 }
 ```
 

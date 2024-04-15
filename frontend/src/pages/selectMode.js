@@ -16,6 +16,14 @@ function SelectMode({ initialState }) {
 		this.render();
 	};
 
+	function closeSocket() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		if (initSocket && initSocket.readyState <= 1) {
+			initSocket.close();
+			window.removeEventListener("popstate", closeSocket);
+		}
+	}
+
 	this.render = () => {
 
 		this.$element.innerHTML = `
@@ -60,6 +68,8 @@ function SelectMode({ initialState }) {
 		const singleBtn = $(".tp-sl-single-btn");
 		const multiBtn = $(".tp-sl-multi-btn");
 		const tournamentBtn = $(".tp-sl-tournament-btn");
+		window.addEventListener("popstate", closeSocket);
+
 		if (singleBtn) {
 			singleBtn.addEventListener("click", function (event) {
 				event.preventDefault();

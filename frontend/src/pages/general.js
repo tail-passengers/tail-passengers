@@ -9,7 +9,7 @@ import locales from "../utils/locales/locales.js";
 function General({ $app, initialState }) {
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
-	let playerNum = 0, data, nickName, versusNickName, gameSocket, scoreElement, state = "playing",
+	let playerNum = 0, data, nickname, versusNickname, gameSocket, scoreElement, state = "playing",
 		noticeElement, animationFrameId, gameIdValue, gameMode;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
@@ -64,7 +64,7 @@ function General({ $app, initialState }) {
 			if (gameMode == "tournament_game") {
 				data = sessionStorage.getItem('Data');
 				playerNum = sessionStorage.getItem('playerNum');
-				nickName = sessionStorage.getItem('nickName');
+				nickname = sessionStorage.getItem('nickname');
 				gameSocket.send(data);
 				console.log("전송함: ", data);
 			}
@@ -82,19 +82,19 @@ function General({ $app, initialState }) {
 		if (data.message_type == "ready") {
 			console.log(data.message_type);
 			// 플레이어 정보 초기화
-			nickName = data.nickname;
+			nickname = data.nickname;
 			playerNum = data.number;
 			gameSocket.send(event.data);
 		}
 		else if (data.message_type == "start") {
 			console.log(data.message_type);
-			if (data["1p"] != nickName) {
-				versusNickName = data["1p"];
+			if (data["1p"] != nickname) {
+				versusNickname = data["1p"];
 			}
 			else {
-				versusNickName = data["2p"]
+				versusNickname = data["2p"]
 			}
-			console.log("player info: " + nickName + " " + playerNum + ", " + versusNickName);
+			console.log("player info: " + nickname + " " + playerNum + ", " + versusNickname);
 			this.$element.innerHTML = '';
 			this.initThreeJs(this.$element);
 			this.initEventListeners();
@@ -187,15 +187,15 @@ function General({ $app, initialState }) {
 			// this.renderPlaying(data);
 			console.log('ready');
 			// 1p, 2p 나랑 versus 저장
-			if (data["1p"] == nickName) {
+			if (data["1p"] == nickname) {
 				playerNum = "player1"
-				versusNickName = data["2p"];
+				versusNickname = data["2p"];
 			}
 			else {
 				playerNum = "player2"
-				versusNickName = data["1p"];
+				versusNickname = data["1p"];
 			}
-			console.log("내 인트라 : " + nickName + ", 상대 인트라 :" + versusNickName);
+			console.log("내 인트라 : " + nickname + ", 상대 인트라 :" + versusNickname);
 			sessionStorage.setItem('playerNum', playerNum);
 			sessionStorage.setItem('Data', JSON.stringify(data));
 			const tournamentName = sessionStorage.getItem('tournamentName');
@@ -506,7 +506,7 @@ function General({ $app, initialState }) {
 
 
 		noticeElement = document.createElement('div');
-		noticeElement.textContent = `${nickName} vs ${versusNickName} ${locale.general.getReady}`;
+		noticeElement.textContent = `${nickname} vs ${versusNickname} ${locale.general.getReady}`;
 		noticeElement.style.fontSize = '200%';
 		// noticeElement.style.position = 'absolute';
 		noticeElement.style.top = '50%';
@@ -539,10 +539,10 @@ function General({ $app, initialState }) {
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 		if (playerNum == "player1") {
-			scoreElement.textContent = `${nickName} ${score.player1}:${score.player2} ${versusNickName}`;
+			scoreElement.textContent = `${nickname} ${score.player1}:${score.player2} ${versusNickname}`;
 		}
 		else if (playerNum == "player2") {
-			scoreElement.textContent = `${nickName} ${score.player2}:${score.player1} ${versusNickName}`;
+			scoreElement.textContent = `${nickname} ${score.player2}:${score.player1} ${versusNickname}`;
 		}
 	}
 	function removeScoreElement() {

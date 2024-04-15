@@ -5,12 +5,19 @@ import locales from "../utils/locales/locales.js";
 
 function Tournament({ $app, initialState }) {
 
-	let gameSocket, tournamentName, round, playerNum = 0, data, nickName = "", versusId;
+	let gameSocket, tournamentName, round, playerNum = 0, data, nickname = "", versusId;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
 
+	function closeSocket() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		if (gameSocket && gameSocket.readyState <= 1) {
+			gameSocket.close();
+			window.removeEventListener("popstate", closeSocket);
+		}
+	}
 	//초기 토너먼트 테이블 렌더
 	this.render = () => {
 		this.$element.innerHTML = `
@@ -138,13 +145,13 @@ function Tournament({ $app, initialState }) {
 			gameSocket.addEventListener('message', (event) => {
 				data = JSON.parse(event.data);
 				if (data.message_type == "wait") {
-					if (nickName == "" || nickName == data.nickname) {
-						nickName = data.nickname;
+					if (nickname == "" || nickname == data.nickname) {
+						nickname = data.nickname;
 						playerNum = data.number;
-						sessionStorage.setItem('nickName', data.nickname);
+						sessionStorage.setItem('nickname', data.nickname);
 					}
 
-					console.log("I am : " + playerNum + " " + nickName);
+					console.log("I am : " + playerNum + " " + nickname);
 					gameSocket.send(event.data);
 
 
@@ -166,7 +173,7 @@ function Tournament({ $app, initialState }) {
 					// round 저장, 1p, 2p 나랑 versus 저장
 					round = data.round;
 					console.log('round = ', round);
-					if (data["1p"] == nickName) {
+					if (data["1p"] == nickname) {
 						playerNum = "player1"
 						versusId = data["2p"];
 					}
@@ -205,7 +212,7 @@ function Tournament({ $app, initialState }) {
 	this.connectWebSocket = async (url) => {
 		return new Promise((resolve, reject) => {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/tournament_game/${url}/`);
-
+			window.addEventListener("popstate", closeSocket);
 			gameSocket.onopen = () => {
 				console.log('WebSocket connected');
 				resolve(gameSocket);

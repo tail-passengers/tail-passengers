@@ -56,13 +56,13 @@
 ### 6. [Back] 클라이언트에게 wait 전송
 
 - 대기방 인원 전체에게 발송
-- 프론트가 저장하고 있는 intra_id 값이 기본값이면 intra_id와 number 저장
+- 프론트가 저장하고 있는 nickname 값이 기본값이면 nickname와 number 저장
 - 이후에는 total만 갱신하면서 대기 중인 인원 표시
 
 ```json
 {
   "message_type": "wait",
-  "intra_id": "{intra_id}",
+  "nickname": "{nickname}",
   "total": "{join_player_num}",
   "number": "{player1 / player2 / player3 / player4}"
 }
@@ -73,7 +73,7 @@
 ```json
 {
   "message_type": "wait",
-  "intra_id": "{intra_id}",
+  "nickname": "{nickname}",
   "total": "{join_player_num}",
   "number": "{player1 / player2 / player3 / player4}"
 }
@@ -86,7 +86,7 @@
 ```json
 {
     "message_type": "wait",
-    "intra_id": "{접속 종료한 intra_id}",
+    "nickname": "{접속 종료한 nickname}",
     "total": "{join_player_num}",
     "number": "{player1 / player2 / player3 / player4}"
 }
@@ -98,8 +98,8 @@
 {
   "message_type": "ready",
   "round": "{1 / 2}",
-  "1p": "{intra_id}",
-  "2p": "{intra_id}"
+  "1p": "{nickname}",
+  "2p": "{nickname}"
 }
 ```
 
@@ -111,8 +111,8 @@
 {
   "message_type": "ready",
   "round": "{1 / 2 / 3}",
-  "1p": "{intra_id}",
-  "2p": "{intra_id}"
+  "1p": "{nickname}",
+  "2p": "{nickname}"
 }
 ```
 
@@ -123,7 +123,9 @@
 ```json
 {
   "message_type": "start",
-  "round": "{1 / 2 / 3}"
+  "round": "{1 / 2 / 3}",
+  "1p": "{nickname}",
+  "2p": "{nickname}" 
 }
 ```
 
@@ -162,7 +164,7 @@
 ```json
 {
     "message_type": "error",
-    "intra_id": "{접속 종료한 intra_id}"
+    "nickname": "{접속 종료한 nickname}"
 }
 ```
 
@@ -214,8 +216,8 @@
 {
   "message_type": "ready",
   "round": "3",
-  "1p": "{intra_id}",
-  "2p": "{intra_id}"
+  "1p": "{nickname}",
+  "2p": "{nickname}"
 }
 ```
 
@@ -229,8 +231,8 @@
 {
   "message_type": "ready",
   "round": "3",
-  "1p": "{intra_id}",
-  "2p": "{intra_id}"
+  "1p": "{nickname}",
+  "2p": "{nickname}"
 }
 ```
 

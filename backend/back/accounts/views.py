@@ -1,5 +1,6 @@
 import os
 import requests
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,7 +19,6 @@ from games.serializers import (
     GeneralGameLogsListSerializer,
     TournamentGameLogsListSerializer,
 )
-from django.views.decorators.csrf import csrf_exempt
 
 HOUSE = {
     "Gam": HouseEnum.RAVENCLAW,
@@ -59,7 +59,6 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 
 class MeViewSet(viewsets.ModelViewSet):
@@ -236,7 +235,6 @@ def logout_view(request) -> redirect:
 
     logout(request)
     return redirect(BASE_FULL_IP)
-
 
 
 class ChartViewSet(viewsets.ModelViewSet):

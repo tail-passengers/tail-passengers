@@ -72,12 +72,12 @@ class GeneralGame:
             self.player2.paddle_handler(data["input"])
 
     @staticmethod
-    def build_ready_json(number: int, intra_id: str) -> json:
+    def build_ready_json(number: int, nickname: str) -> json:
         return json.dumps(
             {
                 "message_type": MessageType.READY.value,
                 "number": "player1" if number == 1 else "player2",
-                "intra_id": intra_id,
+                "nickname": nickname,
             }
         )
 
@@ -85,14 +85,15 @@ class GeneralGame:
         return json.dumps(
             {
                 "message_type": MessageType.START.value,
-                "1p": self.player1.get_intra_id(),
-                "2p": self.player2.get_intra_id(),
+                "1p": self.player1.get_nickname(),
+                "2p": self.player2.get_nickname(),
             }
         )
 
-    def build_game_json(self) -> json:
+    def build_game_json(self, game_start: bool = True) -> json:
         self._move_paddle()
-        self._move_ball()
+        if game_start:
+            self._move_ball()
         paddle1 = self.player1.get_paddle().get_position_x()
         paddle2 = self.player2.get_paddle().get_position_x()
         ball_x, ball_y, ball_z = self.ball.get_position()
@@ -128,12 +129,23 @@ class GeneralGame:
             }
         )
 
-    def build_error_json(self, intra_id: str) -> json:
+    def build_error_json(self, nickname: str) -> json:
         self.status = GameStatus.END
         return json.dumps(
             {
                 "message_type": MessageType.ERROR.value,
-                "intra_id": intra_id,
+                "nickname": nickname,
+            }
+        )
+
+    def build_complete_json(self, is_error=False) -> json:
+        return json.dumps(
+            {
+                "message_type": (
+                    MessageType.ERROR.value if is_error else MessageType.COMPLETE.value
+                ),
+                "player1": self.player1.get_nickname(),
+                "player2": self.player2.get_nickname(),
             }
         )
 
@@ -207,13 +219,13 @@ class GeneralGame:
         else:
             return None, None
 
-    def set_player(self, player_intra_id: str) -> None:
+    def set_player(self, player_intra_id: str, player_nickname: str) -> None:
         if self.player1 is None:
-            self.player1 = Player(1, player_intra_id)
+            self.player1 = Player(1, player_intra_id, player_nickname)
             return
 
         if self.player2 is None:
-            self.player2 = Player(2, player_intra_id)
+            self.player2 = Player(2, player_intra_id, player_nickname)
             return
 
     def set_ready(self, number: str) -> None:

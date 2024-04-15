@@ -6,10 +6,14 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, intra_id, **extra_fields):
+    def create_user(self, intra_id, nickname=None, **extra_fields):
         if not intra_id:
             raise ValueError("The Intra ID must be set")
-        user: Users = self.model(intra_id=intra_id, nickname=intra_id, **extra_fields)
+        user: Users = self.model(
+            intra_id=intra_id,
+            nickname=nickname if nickname else intra_id,
+            **extra_fields
+        )
         user.save(using=self._db)
         user.set_unusable_password()
         return user
@@ -61,6 +65,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         default=False
     )  # 추가: 관리자 사이트에 로그인하기 위해 필요
     is_active: bool = models.BooleanField(default=True)  # 추가: 사용자가 활성 상태인지
+    session_key = models.CharField(max_length=40, null=True, blank=True)
 
     objects: UserManager = UserManager()
 
