@@ -42,6 +42,7 @@ export function addNavBarClickListener(navBarContainer) {
         });
     }
 }
+
 window.addEventListener("beforeunload", async (event) => {
     if (!window.refreshing) {
         try {
