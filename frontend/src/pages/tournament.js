@@ -5,7 +5,7 @@ import locales from "../utils/locales/locales.js";
 
 function Tournament({ $app, initialState }) {
 
-	let gameSocket, tournamentName, round, playerNum = 0, data, intraId = "";
+	let gameSocket, tournamentName, round, playerNum = 0, data, intraId = "", versusId;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 
