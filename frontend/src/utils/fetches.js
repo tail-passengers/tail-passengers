@@ -72,10 +72,12 @@ export const fetchUser = async () => {
             const data = await response.json();
             return data;
         } else {
-            return false;
+            deleteCSRFToken();
+            window.location.reload();
         }
     } catch (error) {
-        console.error("Error fetching user data:", error);
+        deleteCSRFToken();
+        window.location.reload();
         return false;
     }
 };
