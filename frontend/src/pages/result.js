@@ -26,8 +26,17 @@ function GameResult({ initialState }) {
 
 	const renderPlayers = async () => {
 		// const data = await getGameResult(); //TODO - 게임 종료 후 받아오기(소켓? 폴링?)
-		//const 1st = letsessionStorage.setItem('winner', data.winner);
-		//const 2nd = sessionStorage.setItem('loser', data.loser);
+		// const wineer = letsessionStorage.getItem('winner');
+		// const loser = sessionStorage.getItem('loser');
+		const gameMode = sessionStorage.getItem('gameMode');
+		let gameName;
+		if (gameMode == 'general_game') {
+			gameName = sessionStorage.getItem('idValue');
+		}
+		else if (gameMode == 'tournament_game') {
+			gameName = sessionStorage.getItem('torunamentName');
+		}
+
 		// 1st와 2nd에 해당 등수 인트라 아이디 저장됨.
 		const data = await fetchUsers();
 		if (data) {

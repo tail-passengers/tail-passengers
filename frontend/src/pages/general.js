@@ -125,21 +125,28 @@ function General({ $app, initialState }) {
 			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
 			state = "stay";
 			clearThreeJs();
-			gameSocket.send(event.data);
-			// 이겼으면 새 소켓 연결 후 대기,
-			state = "win";
-			this.$element.innerHTML = `
+			if (data.round == "3") {
+				sessionStorage.setItem('winner', data.winner);
+				sessionStorage.setItem('loser', data.loser);
+				gameSocket.send(event.data);
+			}
+			else {
+				gameSocket.send(event.data);
+				// 이겼으면 새 소켓 연결 후 대기,
+				state = "win";
+				this.$element.innerHTML = `
 					<div class='text-center h1 text-left tp-color-secondary'>Waiting other player...</div>
 					<div class='text-center h1 text-left tp-color-secondary'>1 / 2</div>
 					<div class="text-center">
 					</div>
 					`;
-			const tournamentName = sessionStorage.getItem('tournamentName');
-			sessionStorage.setItem('idValue', `${tournamentName}/3`);
-			gameSocket.removeEventListener('message', this.onGame);
-			gameSocket.addEventListener('message', this.finalGame);
-			gameSocket.send(event.data);
-			console.log("Received 대기중 data:", data);
+				const tournamentName = sessionStorage.getItem('tournamentName');
+				sessionStorage.setItem('idValue', `${tournamentName}/3`);
+				gameSocket.removeEventListener('message', this.onGame);
+				gameSocket.addEventListener('message', this.finalGame);
+				gameSocket.send(event.data);
+				console.log("Received 대기중 data:", data);
+			}
 		}
 		else if (data.message_type == "error") {
 			clearThreeJs();
@@ -147,9 +154,9 @@ function General({ $app, initialState }) {
 		}
 		else if (data.message_type == "complete") {
 			gameSocket.close();
+			$("#nav-bar").hidden = false;
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
-			// $("#nav-bar").hidden = false;
 		}
 	}
 
@@ -538,6 +545,9 @@ function General({ $app, initialState }) {
 	function removeScoreElement() {
 		if (scoreElement.parentNode) {
 			scoreElement.parentNode.removeChild(scoreElement);
+		}
+		if (noticeElement.parentNode) {
+			noticeElement.parentNode.removeChild(noticeElement);
 		}
 	}
 

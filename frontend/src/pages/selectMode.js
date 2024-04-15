@@ -26,7 +26,7 @@ function SelectMode({ initialState }) {
         <div class="tp-sl-card-container default-container text-center">
           <form class="tp-sl-card-row tp-sl-card-row-height row g-2">
             <div class="tp-sl-btn-parent col">
-                <button type="submit" class="tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100" value="game"> 
+                <button type="submit" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100" value="game"> 
                   <div class="card-body row">
                     <div></div>
                     <h5 class="tp-sl-card-title default-container">${locale.selectMode.singleMode}</h5>
@@ -96,6 +96,7 @@ function SelectMode({ initialState }) {
 		// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
 		sessionStorage.setItem('idValue', gameIdValue);
 		sessionStorage.setItem('gameMode', "general_game");
+
 
 		targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
 		navigate(targetURL);
