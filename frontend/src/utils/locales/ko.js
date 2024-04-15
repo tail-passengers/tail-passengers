@@ -29,7 +29,17 @@ const koLocale = {
 		mainTextDesc: "새 토너먼트를 생성하거나 참가할 수 있습니다.",
 		list: "토너먼트 이름",
 		createBtn: "새 토너먼트 만들기",
-		refresh: "새로고침"
+		refresh: "새로고침",
+		noGame: "참여 가능한 게임 없음",
+		waiting: "다른 플레이어를 기다리는 중...",
+		goBack: "게임 목록으로 돌아가기",
+		createFail: "중복된 이름이나 20자가 넘는 제목은 사용할 수 없습니다.",
+		noticePrompt: "생성할 토너먼트 이름을 기입하세요."
+	},
+	general: {
+		waiting: "상대방을 기다리는 중...",
+		error: "문제가 발생했습니다.",
+		getReady: "프로테고 주문을 준비하세요!",
 	},
 	result: {
 		mainText: "결과"

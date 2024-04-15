@@ -52,11 +52,7 @@ function Tournament({ $app, initialState }) {
 		// Create New Tournament 버튼 클릭 이벤트 핸들러 등록
 		const createTournamentBtn = this.$element.querySelector("#createTournamentBtn");
 		createTournamentBtn.addEventListener("click", () => {
-			tournamentName = prompt("Enter the name of the new tournament:");
-			// if (/[\uac00-\ud7a3]/.test(tournamentName)) {
-			// 	alert("Available in English only. ");
-			// }
-			// else {
+			tournamentName = prompt(`${locale.tournament.noticePrompt}`);
 			const message = {
 				"message_type": "create",
 				"tournament_name": tournamentName
@@ -89,7 +85,7 @@ function Tournament({ $app, initialState }) {
 						this.renderWaiting();
 					} else if (data.result === "fail") {
 						// 방 생성 실패 시 처리
-						alert("You cannot create existing titles or titles longer than 20 characters.");
+						alert(`${locale.tournament.createFail}`);
 						this.render();
 					}
 				}
@@ -131,7 +127,7 @@ function Tournament({ $app, initialState }) {
 				});
 			});
 		} else {
-			tableBody.innerHTML = "<tr><td colspan='3' class='text-left'>No games available</td></tr>";
+			tableBody.innerHTML = `<tr><td colspan='3' class='text-left'>${locale.tournament.noGame}</td></tr>`;
 		}
 	};
 
@@ -154,10 +150,10 @@ function Tournament({ $app, initialState }) {
 
 					console.log("Received 대기중 data:", data);
 					this.$element.innerHTML = `
-					<div class='text-center h1 text-left tp-color-secondary'>Waiting other players...</div>
+					<div class='text-center h1 text-left tp-color-secondary'>${locale.tournament.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>${data.total} / 4</div>
 					<div class="text-center">
-							<button id="goBackToListBtn" class="btn tp-btn-primary">Go back to list</button>
+							<button id="goBackToListBtn" class="btn tp-btn-primary">${locale.tournament.goBack}</button>
 					</div>
 			`;
 					// "Go back to list" 버튼 클릭 이벤트 핸들러 등록
