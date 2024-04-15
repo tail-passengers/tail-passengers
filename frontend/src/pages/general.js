@@ -20,6 +20,7 @@ function General({ $app, initialState }) {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
 		if (state == "playing") {
 			gameSocket.close();
+			console.log("socket close");
 			gameSocket = null;
 			$("#nav-bar").hidden = false;
 		}
@@ -73,7 +74,7 @@ function General({ $app, initialState }) {
 
 	this.onGame = (event) => {
 		data = JSON.parse(event.data);
-		// console.log("Received data:", data);
+		console.log("Received data:", data);
 		if (data.message_type == "ready") {
 			console.log(data.message_type);
 			// 플레이어 정보 초기화
@@ -95,7 +96,7 @@ function General({ $app, initialState }) {
 			this.initEventListeners();
 			setTimeout(() => {
 				this.startRender();
-			}, 2000);
+			}, 1000);
 		}
 		else if (data.message_type == "score") {
 			console.log(data.message_type);
@@ -121,6 +122,7 @@ function General({ $app, initialState }) {
 					state = "lose";
 					this.$element.innerHTML = endMsg();
 					gameSocket.close();
+					console.log("socket close");
 					$("#nav-bar").hidden = false;
 				}
 			}
@@ -160,6 +162,7 @@ function General({ $app, initialState }) {
 		else if (data.message_type == "complete") {
 			console.log(data.message_type);
 			gameSocket.close();
+			console.log("socket close");
 			$("#nav-bar").hidden = false;
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
@@ -189,6 +192,7 @@ function General({ $app, initialState }) {
 			sessionStorage.setItem('idValue', tournamentURL);
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
 			gameSocket.close();
+			console.log("socket close");
 			navigate(targetURL);
 			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 		}
