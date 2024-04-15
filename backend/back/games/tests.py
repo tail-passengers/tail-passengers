@@ -164,6 +164,41 @@ class GeneralGameLogsViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class GeneralGameLogsListMeViewSetTest(APITestCase):
+    def setUp(self):
+        self.user1 = Users.objects.create_user(intra_id="user1")
+        self.user2 = Users.objects.create_user(intra_id="user2")
+        self.user3 = Users.objects.create_user(intra_id="user3")
+        # 게임 로그 URL
+        self.list_url = reverse("general_game_me_logs")
+        GeneralGameLogs.objects.create(
+            start_time=make_aware(datetime(2021, 1, 1, 0, 0, 0)),
+            end_time=make_aware(datetime(2021, 1, 2, 1, 0, 0)),
+            player1=self.user1,
+            player2=self.user2,
+            player1_score=5,
+            player2_score=3,
+        )
+        GeneralGameLogs.objects.create(
+            start_time=make_aware(datetime(2021, 1, 1, 0, 0, 0)),
+            end_time=make_aware(datetime(2021, 1, 2, 1, 0, 0)),
+            player1=self.user1,
+            player2=self.user3,
+            player1_score=5,
+            player2_score=3,
+        )
+
+    def test_get_general_game_log_with_me(self):
+        """
+        get으로 자신의 로그를 가져오는지 테스트
+        """
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(self.list_url)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["player1"]["intra_id"], self.user1.intra_id)
+        self.assertEqual(response.data[1]["player1"]["intra_id"], self.user1.intra_id)
+
+
 class TournamentGameLogsViewSetTest(APITestCase):
     def setUp(self):
         # 네 명의 사용자 생성
@@ -411,3 +446,44 @@ class TournamentGameLogsViewSetTest(APITestCase):
         }
         response = self.client.post(self.create_log, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TournamentGameLogsListMeViewSetTest(APITestCase):
+    def setUp(self):
+        self.user1 = Users.objects.create_user(intra_id="user1")
+        self.user2 = Users.objects.create_user(intra_id="user2")
+        self.user3 = Users.objects.create_user(intra_id="user3")
+        # 게임 로그 URL
+        self.list_url = reverse("tournament_game_me_logs")
+        TournamentGameLogs.objects.create(
+            start_time=make_aware(datetime(2021, 1, 1, 0, 0, 0)),
+            end_time=make_aware(datetime(2021, 1, 2, 1, 0, 0)),
+            player1=self.user1,
+            player2=self.user2,
+            player1_score=5,
+            player2_score=3,
+            tournament_name="test",
+            round=1,
+            is_final=False,
+        )
+        TournamentGameLogs.objects.create(
+            start_time=make_aware(datetime(2021, 1, 1, 0, 0, 0)),
+            end_time=make_aware(datetime(2021, 1, 2, 1, 0, 0)),
+            player1=self.user1,
+            player2=self.user3,
+            player1_score=5,
+            player2_score=3,
+            tournament_name="test",
+            round=3,
+            is_final=True,
+        )
+
+    def test_get_general_game_log_with_me(self):
+        """
+        get으로 자신의 로그를 가져오는지 테스트
+        """
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(self.list_url)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["player1"]["intra_id"], self.user1.intra_id)
+        self.assertEqual(response.data[1]["player1"]["intra_id"], self.user1.intra_id)
