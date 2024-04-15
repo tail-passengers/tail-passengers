@@ -35,40 +35,6 @@ export const fetchTournamentGameResult = async (gameName) => {
 	}
 };
 
-export const fetchGenenralGameResult = async (gameName) => {
-	try {
-		const response = await fetch(
-			`https://${process.env.BASE_IP}/api/v1/general_game_logs/${gameName}/`,
-			{
-				credentials: "include",
-			}
-		);
-
-		const data = await response.json();
-		console.log("fetchGenenralGameResult", data);
-		// return data[0].intra_id;
-	} catch (error) {
-		console.error("Error fetching user data:", error);
-	}
-};
-
-export const fetchTournamentGameResult = async (gameName) => {
-	try {
-		const response = await fetch(
-			`https://${process.env.BASE_IP}/api/v1/tournament_game_logs/tournament/${gameName}/`,
-			{
-				credentials: "include",
-			}
-		);
-
-		const data = await response.json();
-		console.log("fetchTournamentGameResult", data);
-		// return data[0].intra_id;
-	} catch (error) {
-		console.error("Error fetching user data:", error);
-	}
-};
-
 /**
  *
  * @returns 나의 intraId
