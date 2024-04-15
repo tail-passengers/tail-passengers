@@ -367,3 +367,22 @@ export const fetchChartData = async () => {
         return {};
     }
 };
+
+export const fetchGameLogs = async () => {
+    try {
+        const response = await fetch(
+            `https://${process.env.BASE_IP}/api/v1/general_game_logs/me/`
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            console.error("Error fetching chart data: ", response.statusText);
+            return {};
+        }
+    } catch (error) {
+        console.error("Error fetching chart data:", error);
+        return {};
+    }
+};
