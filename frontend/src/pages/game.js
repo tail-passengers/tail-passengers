@@ -91,12 +91,6 @@ function Example({ $app, initialState }) {
 	}
 
 	function render() {
-		if (resizeRenderer(renderer)) {
-			const canvas = renderer.domElement;
-			camera.aspect = canvas.clientWidth / canvas.clientHeight;
-			camera.updateProjectionMatrix();
-			renderer.render(scene, camera);
-		}
 		if (running) {
 			requestAnimationFrame(render);
 			handleMultipleKeys();
@@ -248,15 +242,14 @@ function Example({ $app, initialState }) {
 		paddle2.position.y = 0;
 
 
+		renderer.domElement.addEventListener('mousemove', containerMouseMove);
+		renderer.domElement.style.cursor = 'none';
 
 		// wand
 		loadWanders(wandLoader1).then(() => loadWanders(wandLoader2)).then(() => {
-			updateScoreBoard();
 			startRender();
 		});
 
-		renderer.domElement.addEventListener('mousemove', containerMouseMove);
-		renderer.domElement.style.cursor = 'none';
 
 	}
 
@@ -291,13 +284,6 @@ function Example({ $app, initialState }) {
 	this.setState = (content) => {
 		this.state = content;
 		this.render();
-	};
-
-	this.render = () => {
-		// Render component contents here
-		this.$element.innerHTML = `
-			<h3 id="scoreBoard"></h3>
-    `;
 	};
 
 	function startBallMovement() {
@@ -726,7 +712,6 @@ function Example({ $app, initialState }) {
 		if (canvas) {
 			body.removeChild(canvas);
 		}
-		this.render();
 
 		// Initialize Three.js
 		initThreeJs(this.$element);

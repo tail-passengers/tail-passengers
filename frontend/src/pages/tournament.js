@@ -5,14 +5,14 @@ import locales from "../utils/locales/locales.js";
 
 function Tournament({ $app, initialState }) {
 
-	let gameSocket, tournamentName, round, playerNum = 0, data, intraId = "", versusId;
+	let gameSocket, tournamentName, round, playerNum = 0, data, nickName = "", versusId;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 
 	//초기 토너먼트 테이블 렌더
 	this.render = () => {
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
 		this.$element.innerHTML = `
 					<div class="content default-container">
 							<div class="container">
@@ -138,13 +138,13 @@ function Tournament({ $app, initialState }) {
 			gameSocket.addEventListener('message', (event) => {
 				data = JSON.parse(event.data);
 				if (data.message_type == "wait") {
-					if (intraId == "" || intraId == data.intra_id) {
-						intraId = data.intra_id;
+					if (nickName == "" || nickName == data.nickname) {
+						nickName = data.nickname;
 						playerNum = data.number;
-						sessionStorage.setItem('intraId', data.intra_id);
+						sessionStorage.setItem('nickName', data.nickname);
 					}
 
-					console.log("I am : " + playerNum + " " + intraId);
+					console.log("I am : " + playerNum + " " + nickName);
 					gameSocket.send(event.data);
 
 
@@ -166,7 +166,7 @@ function Tournament({ $app, initialState }) {
 					// round 저장, 1p, 2p 나랑 versus 저장
 					round = data.round;
 					console.log('round = ', round);
-					if (data["1p"] == intraId) {
+					if (data["1p"] == nickName) {
 						playerNum = "player1"
 						versusId = data["2p"];
 					}
@@ -178,6 +178,7 @@ function Tournament({ $app, initialState }) {
 					sessionStorage.setItem('Data', JSON.stringify(data));
 					sessionStorage.setItem('gameMode', 'tournament_game');
 					sessionStorage.setItem('tournamentName', tournamentName);
+					sessionStorage.setItem('versusId', versusId);
 					let tournamentURL = `${tournamentName}/${round}`;
 					sessionStorage.setItem('idValue', tournamentURL);
 					let targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;

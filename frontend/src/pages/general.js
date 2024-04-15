@@ -9,7 +9,7 @@ import locales from "../utils/locales/locales.js";
 function General({ $app, initialState }) {
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
-	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, state = "playing",
+	let playerNum = 0, data, nickName, versusNickName, gameSocket, scoreElement, state = "playing",
 		noticeElement, animationFrameId, gameIdValue, gameMode;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
@@ -64,7 +64,7 @@ function General({ $app, initialState }) {
 			if (gameMode == "tournament_game") {
 				data = sessionStorage.getItem('Data');
 				playerNum = sessionStorage.getItem('playerNum');
-				intraId = sessionStorage.getItem('intraId');
+				nickName = sessionStorage.getItem('nickName');
 				gameSocket.send(data);
 				console.log("전송함: ", data);
 			}
@@ -82,19 +82,19 @@ function General({ $app, initialState }) {
 		if (data.message_type == "ready") {
 			console.log(data.message_type);
 			// 플레이어 정보 초기화
-			intraId = data.intra_id;
+			nickName = data.nickname;
 			playerNum = data.number;
 			gameSocket.send(event.data);
 		}
 		else if (data.message_type == "start") {
 			console.log(data.message_type);
-			if (data["1p"] != intraId) {
-				versusId = data["1p"];
+			if (data["1p"] != nickName) {
+				versusNickName = data["1p"];
 			}
 			else {
-				versusId = data["2p"]
+				versusNickName = data["2p"]
 			}
-			console.log("player info: " + intraId + " " + playerNum + ", " + versusId);
+			console.log("player info: " + nickName + " " + playerNum + ", " + versusNickName);
 			this.$element.innerHTML = '';
 			this.initThreeJs(this.$element);
 			this.initEventListeners();
@@ -187,15 +187,15 @@ function General({ $app, initialState }) {
 			// this.renderPlaying(data);
 			console.log('ready');
 			// 1p, 2p 나랑 versus 저장
-			if (data["1p"] == intraId) {
+			if (data["1p"] == nickName) {
 				playerNum = "player1"
-				versusId = data["2p"];
+				versusNickName = data["2p"];
 			}
 			else {
 				playerNum = "player2"
-				versusId = data["1p"];
+				versusNickName = data["1p"];
 			}
-			console.log("내 인트라 : " + intraId + ", 상대 인트라 :" + versusId);
+			console.log("내 인트라 : " + nickName + ", 상대 인트라 :" + versusNickName);
 			sessionStorage.setItem('playerNum', playerNum);
 			sessionStorage.setItem('Data', JSON.stringify(data));
 			const tournamentName = sessionStorage.getItem('tournamentName');
@@ -269,29 +269,7 @@ function General({ $app, initialState }) {
 	const wandLoader1 = new GLTFLoader();
 	const wandLoader2 = new GLTFLoader();
 
-	// Initialize the Three.js scene, camera, and renderer
-	function resizeRenderer(renderer) {
-		const canvas = renderer.domElement;
-		const width = window.innerWidth;
-		const height = window.innerHeight - (navBarHeight + footerHeight);
-		const needResize = canvas.width !== width || canvas.height !== height;
-		if (needResize) {
-			renderer.setSize(width, height, false);
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
-		}
-		return needResize;
-	}
-
-
-
 	this.render = () => {
-		// if (resizeRenderer(renderer)) {
-		// 	const canvas = renderer.domElement;
-		// 	camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		// 	camera.updateProjectionMatrix();
-		// 	renderer.render(scene, camera);
-		// }
 		if (running) {
 			animationFrameId = requestAnimationFrame(() => {
 				this.render();
@@ -528,7 +506,7 @@ function General({ $app, initialState }) {
 
 
 		noticeElement = document.createElement('div');
-		noticeElement.textContent = `${intraId} vs ${versusId}<br><span>\n${locale.general.getReady}`;
+		noticeElement.textContent = `${nickName} vs ${versusNickName} ${locale.general.getReady}`;
 		noticeElement.style.fontSize = '200%';
 		// noticeElement.style.position = 'absolute';
 		noticeElement.style.top = '50%';
@@ -561,10 +539,10 @@ function General({ $app, initialState }) {
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 		if (playerNum == "player1") {
-			scoreElement.textContent = `${intraId} ${score.player1}:${score.player2} ${versusId}`;
+			scoreElement.textContent = `${nickName} ${score.player1}:${score.player2} ${versusNickName}`;
 		}
 		else if (playerNum == "player2") {
-			scoreElement.textContent = `${intraId} ${score.player2}:${score.player1} ${versusId}`;
+			scoreElement.textContent = `${nickName} ${score.player2}:${score.player1} ${versusNickName}`;
 		}
 	}
 	function removeScoreElement() {
@@ -588,25 +566,6 @@ function General({ $app, initialState }) {
 	this.setState = (content) => {
 		this.state = content;
 	};
-
-	// bot 모드 paddle 이동
-	function processCpuPaddle() {
-		let ballPos = ball.position,
-			cpuPos = paddle2.position;
-		camera2.position.x = paddle2.position.x;
-
-		if (cpuPos.x - 100 > ballPos.x) {
-			cpuPos.x -= Math.min(cpuPos.x - ballPos.x + randomOffset, 12);
-		} else if (cpuPos.x - 100 < ballPos.x) {
-			cpuPos.x += Math.min(ballPos.x - cpuPos.x + randomOffset, 12);
-		}
-	}
-	function updateRandomOffset() {
-		// -25에서 25 사이의 랜덤한 값
-		randomOffset = Math.random() * 205 - 95;
-		// CPU 패들의 위치에 랜덤값을 더하여 업데이트
-		paddle2.position.x += randomOffset;
-	}
 
 	function reset() {
 		ball.position.set(0, 0, 0);

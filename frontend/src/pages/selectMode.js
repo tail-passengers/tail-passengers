@@ -4,10 +4,12 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
 function SelectMode({ initialState }) {
-	let gameIdValue, initSocket, targetURL;
+	let gameIdValue, initSocket = null, targetURL;
 	this.state = initialState;
 	this.$element = document.createElement("div");
 	this.$element.className = "content default-container tp-sl-card-content";
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 
 	this.setState = (content) => {
 		this.state = content;
@@ -15,8 +17,6 @@ function SelectMode({ initialState }) {
 	};
 
 	this.render = () => {
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
 
 		this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
@@ -81,7 +81,12 @@ function SelectMode({ initialState }) {
 			multiBtn.addEventListener("click", function (event) {
 				event.preventDefault();
 				const multiTextElement = document.querySelector(".tp-sl-multi-btn .tp-sl-card-text");
-				multiTextElement.textContent = "Waiting for other players...";
+				multiTextElement.textContent = `${locale.tournament.waiting}`;
+				if (initSocket != null) {
+					initSocket.close();
+					console.log("close!");
+					initSocket = null;
+				}
 				initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
 				initSocket.addEventListener('message', idSocketConnect);
 			});
