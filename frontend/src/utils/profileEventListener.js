@@ -167,16 +167,19 @@ export function addProfileModalEventListener(profileModal, flag) {
 
 			if (file === undefined) {
 				setImageToInput(originImagePath, imageInput);
+				return;
 			}
-
+			
 			if (file.size > maxSize) {
 				alert("Please select an image under 2MB");
 				setImageToInput(originImagePath, imageInput);
+				return;
 			}
 
 			if (!file.type.match("image/.*")) {
 				alert("Only image files can be uploaded");
 				setImageToInput(originImagePath, imageInput);
+				return;
 			}
 
 			const formData = new FormData();
