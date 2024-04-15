@@ -6,12 +6,11 @@ import { fetchMyIntraId, fetchAllFriends } from "../utils/fetches.js";
 import { getCSRFToken } from "../utils/cookie.js";
 
 export default function renderFriendList(content, parentElement) {
-	const language = getCurrentLanguage();
-	const locale = locales[language] || locales.en;
-
-	const renderFriendListField = (parentElement) => {
+	const renderFriendListField = (content, parentElement) => {
+		const language = getCurrentLanguage();
+		const locale = locales[language] || locales.en;
 		let contentHTML = `
-			<form class="tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
+			<form class="tp-pf-form tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
 				<table class="table table-dark table-hover">
 					<thead>
 						<tr class="tp-table-tr">
@@ -26,11 +25,17 @@ export default function renderFriendList(content, parentElement) {
 				</table>
 			</form>
 		`;
+		const prevForm = parentElement.querySelector(".tp-pf-form");
+		if (prevForm) {
+			parentElement.removeChild(prevForm);
+		}
 		parentElement.innerHTML = contentHTML;
+		renderFriends(content, locale);
+		addFriendListEventListener();
 	};
 
-	const renderFriends = (users) => {
-		if (users) {
+	const renderFriends = (users, locale) => {
+		if (users, locale) {
 			let tableHTML = "";
 			if (users.length === 0) {
 				tableHTML += `
@@ -99,14 +104,16 @@ export default function renderFriendList(content, parentElement) {
 		}
 	};
 
-	renderFriendListField(parentElement);
-	renderFriends(content);
-	addFriendListEventListener();
+	renderFriendListField(content, parentElement);
 	
 	window.addEventListener("languageChange", function() {
-		renderFriendListField(parentElement);
-		renderFriends(content);
-		addFriendListEventListener();
+		console.log("language!!", language);
+		console.log("locales[language]!!", locales[language]);
+		const formBody = parentElement.querySelector(".tp-pf-form");
+		if (formBody) {
+			parentElement.removeChild(formBody);
+			renderFriendListField(content, parentElement);
+		}
 	}.bind(this));
 	
 	const intervalRenderFriends = async function() {
@@ -114,8 +121,7 @@ export default function renderFriendList(content, parentElement) {
 		if (csrfToken !== null) {
 			const myIntraId = await fetchMyIntraId();
 			const content = await fetchAllFriends(myIntraId);
-			renderFriends(content);
-			addFriendListEventListener();
+			renderFriendListField(content, parentElement, );
 		}
 	}
 	pollingFetches(intervalRenderFriends, 3000);
