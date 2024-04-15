@@ -55,13 +55,17 @@ function Profile({ initialState }) {
             if (tabTrigger.value === "my") {
                 tabTrigger.renderForm = async function () {
                     const data = await fetchUser();
-                    setState(data[0], formContainer, tabTrigger.value);
+                    if (data) {
+                        setState(data[0], formContainer, tabTrigger.value);
+                    }
                 };
             } else if (tabTrigger.value === "friends") {
                 tabTrigger.renderForm = async function () {
                     const myIntraId = await fetchMyIntraId();
                     const data = await fetchAllFriends(myIntraId);
-                    setState(data, formContainer, tabTrigger.value);
+                    if (data) {
+                        setState(data, formContainer, tabTrigger.value);
+                    }
                 };
             }
 
