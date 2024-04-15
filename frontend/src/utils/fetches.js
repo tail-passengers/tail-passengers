@@ -296,7 +296,9 @@ export const fetchRefuseFriendRequest = async (requestPK) => {
                 }),
             }
         );
-        return data;
+        if (!response.ok) {
+            return data;
+        }
     } catch (error) {
         console.log("Error fetchRefuseFriendRequest data:", error);
     }

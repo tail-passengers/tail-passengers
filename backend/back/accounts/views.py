@@ -18,6 +18,7 @@ from games.serializers import (
     GeneralGameLogsListSerializer,
     TournamentGameLogsListSerializer,
 )
+from django.views.decorators.csrf import csrf_exempt
 
 HOUSE = {
     "Gam": HouseEnum.RAVENCLAW,
@@ -60,12 +61,14 @@ class UsersViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+
 class MeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Users.objects.all()
     serializer_class: UsersDetailSerializer = UsersDetailSerializer
     http_method_names = ["get"]
 
+    @csrf_exempt
     def list(self, request, *args, **kwargs) -> Response:
         """
         GET method override
@@ -235,6 +238,7 @@ def logout_view(request) -> redirect:
     return redirect(BASE_FULL_IP)
 
 
+
 class ChartViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Users.objects.all()
@@ -257,6 +261,7 @@ class ChartViewSet(viewsets.ModelViewSet):
                 else:
                     lose_logs[logs["player1"]["house"]] += 1
 
+    @csrf_exempt
     def list(self, request, *args, **kwargs) -> Response:
         """
         GET method override

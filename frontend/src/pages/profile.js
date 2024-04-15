@@ -32,10 +32,10 @@ function Profile({ initialState }) {
             <div class="card-header tp-pf-nav-container default-container">
               <ul class="nav nav-underline tp-pf-nav-tabs row" id="profile-tab">
                 <li class="nav-item tp-pf-nav-item col" role="presentation">
-                  <button class="nav-link tp-pf-nav-link default-container active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#my" type="button" role="tab" aria-controls="my" aria-selected="true" value="my">${locale.profileTab.myInfoTab}</button>
+                  <button class="nav-link tp-pf-nav-link tp-pf-tab-btn default-container active" data-bs-toggle="tab" data-bs-target="#my" type="button" role="tab" aria-controls="my" aria-selected="true" value="my">${locale.profileTab.myInfoTab}</button>
                 </li>
                 <li class="nav-item tp-pf-nav-item col" role="presentation">
-                  <button class="nav-link tp-pf-nav-link default-container" id="profile-tab" data-bs-toggle="tab" data-bs-target="#friends" type="button" role="tab" aria-controls="friends" aria-selected="false" value="friends">${locale.profileTab.friendListTab}</button>
+                  <button class="nav-link tp-pf-nav-link tp-pf-tab-btn default-container" data-bs-toggle="tab" data-bs-target="#friends" type="button" role="tab" aria-controls="friends" aria-selected="false" value="friends">${locale.profileTab.friendListTab}</button>
                 </li>
               </ul>
             </div> 
@@ -43,25 +43,37 @@ function Profile({ initialState }) {
             <div id="profile-modal"></div>
           </div>
         `;
+        renderTab();
     };
 
     const renderTab = () => {
-        const triggerTabList = document.querySelectorAll("#profile-tab button");
+        const triggerTabList = document.querySelectorAll(".tp-pf-tab-btn");
         const formContainer = $(".tp-pf-form-container");
-
+        const formBody = $(".tp-pf-form");
+        if (formBody) {
+            formContainer.removeChild(formBody);
+        }
         triggerTabList.forEach((triggerEl) => {
+            const contentForm = formContainer.querySelector(".tp-pf-form");
+            if (contentForm) {
+                formContaine.removeChild(contentForm);
+            }
             const tabTrigger = new bootstrap.Tab(triggerEl);
             tabTrigger.value = triggerEl.value;
             if (tabTrigger.value === "my") {
                 tabTrigger.renderForm = async function () {
                     const data = await fetchUser();
-                    setState(data[0], formContainer, tabTrigger.value);
+                    if (data) {
+                        setState(data[0], formContainer, tabTrigger.value);
+                    }
                 };
             } else if (tabTrigger.value === "friends") {
                 tabTrigger.renderForm = async function () {
                     const myIntraId = await fetchMyIntraId();
                     const data = await fetchAllFriends(myIntraId);
-                    setState(data, formContainer, tabTrigger.value);
+                    if (data) {
+                        setState(data, formContainer, tabTrigger.value);
+                    }
                 };
             }
 
@@ -92,14 +104,12 @@ function Profile({ initialState }) {
             body.removeChild(canvas);
         }
         this.render();
-        renderTab();
     };
 
     window.addEventListener(
         "languageChange",
         function () {
             this.render();
-            renderTab();
         }.bind(this)
     );
 
