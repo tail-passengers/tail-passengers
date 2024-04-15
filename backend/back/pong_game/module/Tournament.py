@@ -8,6 +8,8 @@ from .GameSetValue import (
     PlayerStatus,
     TournamentGroupName,
     RoundNumber,
+    GameStatus,
+    GameTimeType,
 )
 from .Player import Player
 from .Round import Round
@@ -127,6 +129,11 @@ class Tournament:
 
         return True
 
+    def is_all_round_ready(self):
+        if self.round_list[0].is_all_ready() and self.round_list[1].is_all_ready():
+            return True
+        return False
+
     def get_status(self) -> TournamentStatus:
         return self.status
 
@@ -159,3 +166,19 @@ class Tournament:
             return False
         self.player_list[idx].set_status(PlayerStatus.READY)
         return True
+
+    def set_round_status(self, status: GameStatus, is_final: bool) -> None:
+        if is_final:
+            self.round_list[int(RoundNumber.FINAL_NUMBER.value) - 1].set_status(status)
+        else:
+            for i in range(int(RoundNumber.FINAL_NUMBER.value) - 1):
+                self.round_list[i].set_status(status)
+
+    def set_round_game_time(self, time_type: GameTimeType, is_final: bool) -> None:
+        if is_final:
+            self.round_list[int(RoundNumber.FINAL_NUMBER.value) - 1].set_game_time(
+                time_type=time_type.value
+            )
+        else:
+            for i in range(int(RoundNumber.FINAL_NUMBER.value) - 1):
+                self.round_list[i].set_game_time(time_type=time_type.value)

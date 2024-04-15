@@ -273,5 +273,65 @@
       "updated_time": "2024-02-28T13:32:32.706Z",
       "status": "1"
     }
+  },
+  {
+    "model": "games.generalgamelogs",
+    "pk": "ca973376-dbf6-4747-9b30-39318fc57990",
+    "fields": {
+      "start_time": "2024-03-04T11:25:00Z",
+      "end_time": "2024-03-20T11:25:00Z",
+      "player1": "aa84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player2": "ab84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player1_score": 5,
+      "player2_score": 4
+    }
+  },
+  {
+    "model": "games.generalgamelogs",
+    "pk": "ca973376-dbf6-4747-9b30-39318fc57991",
+    "fields": {
+      "start_time": "2024-03-04T11:25:00Z",
+      "end_time": "2024-03-20T11:25:00Z",
+      "player1": "aa84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player2": "ac84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player1_score": 5,
+      "player2_score": 4
+    }
+  },
+  {
+    "model": "games.generalgamelogs",
+    "pk": "ca973376-dbf6-4747-9b30-39318fc57992",
+    "fields": {
+      "start_time": "2024-03-04T11:25:00Z",
+      "end_time": "2024-03-20T11:25:00Z",
+      "player1": "af84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player2": "aa84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player1_score": 3,
+      "player2_score": 5
+    }
+  },
+  {
+    "model": "games.generalgamelogs",
+    "pk": "ca973376-dbf6-4747-9b30-39318fc57993",
+    "fields": {
+      "start_time": "2024-03-04T11:25:00Z",
+      "end_time": "2024-03-20T11:25:00Z",
+      "player1": "ef7a4218-3c82-46e7-86cc-9616cbbfadb3",
+      "player2": "aa84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player1_score": 4,
+      "player2_score": 5
+    }
+  },
+  {
+    "model": "games.generalgamelogs",
+    "pk": "ca973376-dbf6-4747-9b30-39318fc57994",
+    "fields": {
+      "start_time": "2024-03-04T11:25:00Z",
+      "end_time": "2024-03-20T11:25:00Z",
+      "player1": "0e35bd1d-dd2f-4b60-93bc-7e1bf01e410b",
+      "player2": "aa84840e-61d2-4734-8acf-0ad2b26331ef",
+      "player1_score": 4,
+      "player2_score": 5
+    }
   }
 ]

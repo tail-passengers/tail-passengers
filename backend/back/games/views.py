@@ -108,6 +108,21 @@ class GeneralGameLogsListViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class GeneralGameLogsListMeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = GeneralGameLogs.objects.all()
+    serializer_class: GeneralGameLogsListSerializer = GeneralGameLogsListSerializer
+    http_method_names = ["get"]
+
+    def list(self, request, *args, **kwargs) -> Response:
+        user = request.user
+        queryset = self.queryset.filter(
+            Q(player1=user.user_id) | Q(player2=user.user_id)
+        )
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+
 class TournamentGameLogsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = TournamentGameLogs.objects.all()
@@ -152,5 +167,22 @@ class TournamentGameLogsListViewSet(viewsets.ModelViewSet):
             queryset = self.queryset.filter(tournament_name=kwargs["name"])
         else:
             raise ValidationError({"detail": "잘못된 요청입니다."})
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+
+class TournamentGameLogsListMeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = TournamentGameLogs.objects.all()
+    serializer_class: TournamentGameLogsListSerializer = (
+        TournamentGameLogsListSerializer
+    )
+    http_method_names = ["get"]
+
+    def list(self, request, *args, **kwargs) -> Response:
+        user = request.user
+        queryset = self.queryset.filter(
+            Q(player1=user.user_id) | Q(player2=user.user_id)
+        )
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

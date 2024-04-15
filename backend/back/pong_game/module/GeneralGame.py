@@ -10,6 +10,7 @@ from .GameSetValue import (
     MessageType,
     GameTimeType,
     MAX_SCORE,
+    GameStatus,
 )
 
 
@@ -20,7 +21,7 @@ class GeneralGame:
         self.player2: Player = player2
         self.score1: int = 0
         self.score2: int = 0
-        self.status: PlayerStatus = PlayerStatus.WAIT
+        self.status: GameStatus = GameStatus.WAIT
         self.start_time: datetime | None = None
         self.end_time: datetime | None = None
 
@@ -128,7 +129,7 @@ class GeneralGame:
         )
 
     def build_error_json(self, intra_id: str) -> json:
-        self.status = PlayerStatus.END
+        self.status = GameStatus.END
         return json.dumps(
             {
                 "message_type": MessageType.ERROR.value,
@@ -145,11 +146,11 @@ class GeneralGame:
         if self._is_past_paddle1():
             self.score2 += 1
             self._reset_position()
-            self.status = PlayerStatus.SCORE
+            self.status = GameStatus.SCORE
         elif self._is_past_paddle2():
             self.score1 += 1
             self._reset_position()
-            self.status = PlayerStatus.SCORE
+            self.status = GameStatus.SCORE
         elif self.ball.is_side_collision():
             self.ball.speed_x *= -1
         elif self._is_paddle1_collision():
@@ -164,7 +165,7 @@ class GeneralGame:
             return self.player2, 2
         return None
 
-    def get_status(self) -> PlayerStatus:
+    def get_status(self) -> GameStatus:
         return self.status
 
     def get_score(self) -> tuple:
@@ -221,5 +222,5 @@ class GeneralGame:
         elif number == "player2":
             self.player2.set_status(PlayerStatus.READY)
 
-    def set_status(self, status: PlayerStatus) -> None:
+    def set_status(self, status: GameStatus) -> None:
         self.status = status
