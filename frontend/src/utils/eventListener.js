@@ -60,12 +60,3 @@ window.addEventListener("beforeunload", async (event) => {
     }
 });
 
-window.addEventListener("keydown", (event) => {
-    if (event.key === "F5") {
-        window.refreshing = true;
-    }
-
-    if (event.key === "r" && event.metaKey) {
-        window.refreshing = true;
-    }
-});
