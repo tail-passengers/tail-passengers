@@ -198,6 +198,14 @@ export function addProfileModalEventListener(profileModal, flag) {
 	if (modifyForm) {
 		modifyForm.addEventListener("submit", async(event) => {
 			event.preventDefault();
+			const nickname = modifyForm.nickname.value;
+			if (nickname) {
+				const regex = /^[\s\t\n\r]+|\s+$/g;
+				if (regex.test(nickname) || nickname.length >= 20) {
+						alert("Strings must not consist solely of whitespace or be longer than 20 characters.");
+						return;
+				}
+			}
 			const myData = new FormData(modifyForm);
 			const updataMyInfo = await fetchModifyMyInfoRequest(myData);
 			closeProfileModal(profileModal);
