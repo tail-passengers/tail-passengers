@@ -10,7 +10,8 @@ export function addLoginEventListener(loginContainer) {
                 if (response !== false) {
                     closeLoginModal(loginContainer);
                 }
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 console.log("[Error] addLoginEventListener() : ", error);
             });
     }
@@ -44,7 +45,6 @@ export function addNavBarClickListener(navBarContainer) {
 window.addEventListener("beforeunload", async (event) => {
     if (!window.refreshing) {
         try {
-            
             await fetch(`https://${process.env.BASE_IP}/api/v1/logout/`, {
                 method: "GET",
                 credentials: "include",
@@ -60,3 +60,12 @@ window.addEventListener("beforeunload", async (event) => {
     }
 });
 
+window.addEventListener("keydown", (event) => {
+    if (event.key === "F5") {
+        deleteCSRFToken();
+    }
+
+    if (event.key === "r" && event.metaKey) {
+        deleteCSRFToken();
+    }
+});
