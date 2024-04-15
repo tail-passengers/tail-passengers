@@ -43,12 +43,6 @@ export function addMyInfoEventListener(myInfo) {
  */
 export function addFriendListEventListener() {
 
-	// Button Tooltip
-	const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-	tooltips.forEach(tooltip => {
-		new bootstrap.Tooltip(tooltip);
-	});
-
 	// ACCEPT/REFUSE Confirm Modal
 	const profileModal = document.querySelector("#profile-modal");
 	const acceptBtns = document.querySelectorAll('.tp-fl-accept-btn');

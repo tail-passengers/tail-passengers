@@ -3,6 +3,7 @@ import locales from "../utils/locales/locales.js";
 import { addFriendListEventListener } from "../utils/profileEventListener.js";
 import { pollingFetches } from "../utils/polling.js";
 import { fetchMyIntraId, fetchAllFriends } from "../utils/fetches.js";
+import { getCSRFToken } from "../utils/cookie.js";
 
 export default function renderFriendList(content, parentElement) {
 	const language = getCurrentLanguage();
@@ -109,10 +110,13 @@ export default function renderFriendList(content, parentElement) {
 	}.bind(this));
 	
 	const intervalRenderFriends = async function() {
-		const myIntraId = await fetchMyIntraId();
-		const content = await fetchAllFriends(myIntraId);
-		renderFriends(content);
-		addFriendListEventListener();
+		const csrfToken = getCSRFToken();
+		if (csrfToken !== null) {
+			const myIntraId = await fetchMyIntraId();
+			const content = await fetchAllFriends(myIntraId);
+			renderFriends(content);
+			addFriendListEventListener();
+		}
 	}
 	pollingFetches(intervalRenderFriends, 3000);
 }

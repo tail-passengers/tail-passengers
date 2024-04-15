@@ -89,7 +89,7 @@ async function renderProgressBar() {
     };
 
     const csrfToken = getCSRFToken();
-    if (csrfToken) {
+    if (csrfToken !== null) {
         let data = await fetchUser();
         if (data) {
             setState(data[0]);
