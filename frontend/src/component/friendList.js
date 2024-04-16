@@ -112,25 +112,6 @@ export default function renderFriendList(content, parentElement) {
         }
     };
 
-	renderFriendListField(content, parentElement);
-
-	window.addEventListener("languageChange", function() {
-		const formBody = parentElement.querySelector(".tp-pf-form");
-		if (formBody) {
-			parentElement.removeChild(formBody);
-			renderFriendListField(content, parentElement);
-		}
-	}.bind(this));
-	
-	const intervalRenderFriends = async function() {
-		const csrfToken = getCSRFToken();
-		if (csrfToken !== null) {
-			const myIntraId = await fetchMyIntraId();
-			const content = await fetchAllFriends(myIntraId);
-			renderFriendListField(content, parentElement);
-		}
-	}
-	return pollingFetches(intervalRenderFriends, 3000);
     renderFriendListField(content, parentElement);
 
     window.addEventListener(
@@ -152,5 +133,5 @@ export default function renderFriendList(content, parentElement) {
             renderFriendListField(content, parentElement);
         }
     };
-    pollingFetches(intervalRenderFriends, 3000);
+    return pollingFetches(intervalRenderFriends, 3000);
 }
