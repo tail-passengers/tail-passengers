@@ -72,10 +72,12 @@ export const fetchUser = async () => {
             const data = await response.json();
             return data;
         } else {
-            return false;
+            deleteCSRFToken();
+            window.location.reload();
         }
     } catch (error) {
-        console.error("Error fetching user data:", error);
+        deleteCSRFToken();
+        window.location.reload();
         return false;
     }
 };
@@ -353,6 +355,25 @@ export const fetchChartData = async () => {
             {
                 credentials: "include",
             }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            console.error("Error fetching chart data: ", response.statusText);
+            return {};
+        }
+    } catch (error) {
+        console.error("Error fetching chart data:", error);
+        return {};
+    }
+};
+
+export const fetchGameLogs = async () => {
+    try {
+        const response = await fetch(
+            `https://${process.env.BASE_IP}/api/v1/general_game_logs/me/`
         );
 
         if (response.ok) {

@@ -6,10 +6,10 @@ import { fetchMyIntraId, fetchAllFriends } from "../utils/fetches.js";
 import { getCSRFToken } from "../utils/cookie.js";
 
 export default function renderFriendList(content, parentElement) {
-	const renderFriendListField = (content, parentElement) => {
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
-		let contentHTML = `
+    const renderFriendListField = (content, parentElement) => {
+        const language = getCurrentLanguage();
+        const locale = locales[language] || locales.en;
+        let contentHTML = `
 			<form class="tp-pf-form tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
 				<table class="table table-dark table-hover">
 					<thead>
@@ -25,29 +25,31 @@ export default function renderFriendList(content, parentElement) {
 				</table>
 			</form>
 		`;
-		const prevForm = parentElement.querySelector(".tp-pf-form");
-		if (prevForm) {
-			parentElement.removeChild(prevForm);
-		}
-		parentElement.innerHTML = contentHTML;
-		renderFriends(content, locale);
-		addFriendListEventListener();
-	};
+        const prevForm = parentElement.querySelector(".tp-pf-form");
+        if (prevForm) {
+            parentElement.removeChild(prevForm);
+        }
+        parentElement.innerHTML = contentHTML;
+        renderFriends(content, locale);
+        addFriendListEventListener();
+    };
 
-	const renderFriends = (users, locale) => {
-		if (users, locale) {
-			let tableHTML = "";
-			if (users.length === 0) {
-				tableHTML += `
+    const renderFriends = (users, locale) => {
+        if ((users, locale)) {
+            let tableHTML = "";
+            if (users.length === 0) {
+                tableHTML += `
 					<tr>
 						<td colspan='5'>${locale.friendList.nofriends}</td>
 					</tr>
 					<tr style="height:3px;"></tr>
 				`;
-			} else {
-				const tableRows = users.map((data, index) => {
-					const imagePath = `https://${process.env.BASE_IP}` + data.friend_requests.profile_image;
-					let rowHTML = `
+            } else {
+                const tableRows = users.map((data, index) => {
+                    const imagePath =
+                        `https://${process.env.BASE_IP}` +
+                        data.friend_requests.profile_image;
+                    let rowHTML = `
 						<tr>
 								<td class="text-center align-middle col-1">
 									${index + 1}
@@ -59,13 +61,19 @@ export default function renderFriendList(content, parentElement) {
 									</div>
 								</td>
 								<td class="text-left align-middle tp-fl-display-intra-id col-2">
-										<input type="hidden" class="tp-fl-request-intra-id" value=${data.request_intra_id}></input>
-										<input type="hidden" class="tp-fl-response-intra-id" value=${data.response_intra_id}></input>
+										<input type="hidden" class="tp-fl-request-intra-id" value=${
+                                            data.request_intra_id
+                                        }></input>
+										<input type="hidden" class="tp-fl-response-intra-id" value=${
+                                            data.response_intra_id
+                                        }></input>
 								</td>
 								<td class="text-center align-middle col-1 tp-onoff-status">
 									<div class="online-indicator">
 										<span class="blink tp-online-indicator-blink"></span>
-										<input type="hidden" class="tp-online-indicator-value" value=${data.friend_requests.status}></input>
+										<input type="hidden" class="tp-online-indicator-value" value=${
+                                            data.friend_requests.status
+                                        }></input>
 									</div>
 								</td>
 								<td class="text-center align-middle col-1">
@@ -92,17 +100,17 @@ export default function renderFriendList(content, parentElement) {
 						</tr>
 						<tr style="height:3px;"></tr>
 					`;
-					return rowHTML;
-				});
-				tableHTML += tableRows.join("");
-			}
-		
-			const tableBody = document.querySelector("tbody");
-			if (tableBody) {
-				tableBody.innerHTML = tableHTML;
-			}
-		}
-	};
+                    return rowHTML;
+                });
+                tableHTML += tableRows.join("");
+            }
+
+            const tableBody = document.querySelector("tbody");
+            if (tableBody) {
+                tableBody.innerHTML = tableHTML;
+            }
+        }
+    };
 
 	renderFriendListField(content, parentElement);
 
@@ -123,4 +131,26 @@ export default function renderFriendList(content, parentElement) {
 		}
 	}
 	return pollingFetches(intervalRenderFriends, 3000);
+    renderFriendListField(content, parentElement);
+
+    window.addEventListener(
+        "languageChange",
+        function () {
+            const formBody = parentElement.querySelector(".tp-pf-form");
+            if (formBody) {
+                parentElement.removeChild(formBody);
+                renderFriendListField(content, parentElement);
+            }
+        }.bind(this)
+    );
+
+    const intervalRenderFriends = async function () {
+        const csrfToken = getCSRFToken();
+        if (csrfToken !== null) {
+            const myIntraId = await fetchMyIntraId();
+            const content = await fetchAllFriends(myIntraId);
+            renderFriendListField(content, parentElement);
+        }
+    };
+    pollingFetches(intervalRenderFriends, 3000);
 }

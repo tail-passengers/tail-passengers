@@ -1,5 +1,5 @@
 import Chart from "chart.js/auto";
-import { fetchChartData } from "../utils/fetches";
+import { fetchChartData, fetchGameLogs } from "../utils/fetches";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { getCSRFToken } from "../utils/cookie.js";
@@ -7,7 +7,6 @@ import { getCSRFToken } from "../utils/cookie.js";
 function Home($container) {
     this.$container = $container;
     this.$chartCanvas = null;
-    this.gameLogs = [];
     this.myChart = null;
     const language = getCurrentLanguage();
     const locale = locales[language] || locales.en;
@@ -41,23 +40,29 @@ function Home($container) {
         const csrfToken = getCSRFToken();
         if (csrfToken !== null) {
             const apiResponse = await fetchChartData();
+            const gameLogs = await fetchGameLogs();
             const houseRates = apiResponse.house;
             const userRates = apiResponse.rate;
 
             this.renderChart(houseRates, userRates, locale);
-            this.renderRecords();
+            this.renderRecords(gameLogs);
         }
     };
 
-    this.renderRecords = () => {
+    this.renderRecords = (gameLogs) => {
         const recordsList = document.getElementById("records-list");
         recordsList.innerHTML = "";
 
-        const limitedGameLogs = this.gameLogs.slice(0, 5);
+        const limitedGameLogs = gameLogs.slice(0, 5);
 
         limitedGameLogs.forEach((log) => {
+            const user1 = log.player1.nickname;
+            const user2 = log.player2.nickname;
+            const user1Score = log.player1_score;
+            const user2Score = log.player2_score;
+
             const li = document.createElement("li");
-            li.textContent = `${log.winner} vs ${log.loser}`;
+            li.textContent = `${user1} [${user1Score}]\tvs\t[${user2Score})] ${user2}`;
             li.style.color = "black";
             recordsList.appendChild(li);
         });
