@@ -11,8 +11,8 @@ function General({ $app, initialState }) {
 	const locale = locales[language] || locales.en;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	let navBarHeight = $(".navigation-bar").clientHeight;
-	let playerNum = 0, data, nickname, versusNickname, gameSocket, scoreElement, state = "playing",
-		noticeElement, animationFrameId, gameIdValue, gameMode;
+	let playerNum = 0, data, nickname, versusNickname = "", gameSocket, scoreElement, state = "playing",
+		noticeElement, animationFrameId, gameIdValue, gameMode, ballMaterials, ballCustom = 0;
 
 	$("#nav-bar").hidden = true;
 
@@ -107,6 +107,7 @@ function General({ $app, initialState }) {
 			console.log(data.message_type);
 			score.player1 = data.player1_score;
 			score.player2 = data.player2_score;
+			ballReset();
 		}
 		else if (data.message_type == "end") {
 			console.log(data.message_type);
@@ -462,7 +463,7 @@ function General({ $app, initialState }) {
 
 		// ball 
 		const ballGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
-		const ballMaterials = [
+		ballMaterials = [
 			new THREE.MeshLambertMaterial({ color: 0xFF9900, emissive: 0xFF9900 }),
 			new THREE.MeshLambertMaterial({ color: 0x00FF99, emissive: 0x00FF99 }),
 			new THREE.MeshLambertMaterial({ color: 0x9900FF, emissive: 0x9900FF }),
@@ -472,7 +473,7 @@ function General({ $app, initialState }) {
 		];
 
 
-		ball = new THREE.Mesh(ballGeometry, ballMaterials[0]);
+		ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
 		scene.add(ball);
 
 		ball.$velocity = {
@@ -539,6 +540,10 @@ function General({ $app, initialState }) {
 		document.body.appendChild(noticeElement);
 
 	}
+	function ballReset() {
+		ball.material = ballMaterials[ballCustom];
+	}
+
 	// 스코어 업데이트 함수
 	function updateScore() {
 		if (noticeElement.parentNode) {
@@ -561,6 +566,7 @@ function General({ $app, initialState }) {
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 	}
+
 
 
 	// 완드 회전 애니메이션
@@ -603,6 +609,11 @@ function General({ $app, initialState }) {
 
 	// 키 입력 동작
 	function handleKeyPress(event) {
+		if (event.code == "KeyB") {
+			console.log("키 눌림");
+			ballCustom = (ballCustom + 1) % 6;
+			ballReset();
+		}
 		keyState[event.code] = true;
 		let keyPressSend = {
 			number: playerNum,
@@ -678,10 +689,7 @@ function General({ $app, initialState }) {
 	function blinkEffect() {
 		// 초기값 저장
 		let initialEmissive = ball.material.emissive.getHex();
-		console.log(initialEmissive);
-		if (initialEmissive > 0xFF0900) {
-			initialEmissive -= 0x001000;
-		}
+		initialEmissive -= 0x001000;
 
 		// 반짝임 효과를 위한 애니메이션
 		const blinkDuration = 400; // 반짝임 지속 시간 (밀리초)
