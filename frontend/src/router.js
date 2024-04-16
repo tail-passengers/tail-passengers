@@ -14,10 +14,9 @@ function Router($container) {
         const TargetPage = findMatchedRoute()?.element || NotFound;
         currentPage = new TargetPage(this.$container);
 
-        if (!(currentPage instanceof Profile)) {
-            for (let i = 0; i < intervalIdArray.length; i++) {
-                clearInterval(intervalIdArray[i]);
-            }
+        if (!(currentPage instanceof Profile) && localStorage.getItem('intervalId')) {
+            clearInterval(localStorage.getItem('intervalId'));
+            localStorage.removeItem('intervalId');
         }
     };
 

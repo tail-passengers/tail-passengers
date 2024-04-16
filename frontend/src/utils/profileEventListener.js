@@ -115,7 +115,9 @@ export function addProfileModalEventListener(profileModal, flag) {
 				renderMyInfoForm(myInfo[0], formContainer);
 			} else if (flag === "FRIENDS") {
 				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
-				renderFriendList(friendsList, formContainer);
+				deleteIntervalId();
+				const intervalId = renderFriendList(friendsList, formContainer);
+				localStorage.setItem('intervalId', intervalId);
 			}
 	};
 
@@ -167,16 +169,19 @@ export function addProfileModalEventListener(profileModal, flag) {
 
 			if (file === undefined) {
 				setImageToInput(originImagePath, imageInput);
+				return;
 			}
-
+			
 			if (file.size > maxSize) {
 				alert("Please select an image under 2MB");
 				setImageToInput(originImagePath, imageInput);
+				return;
 			}
 
 			if (!file.type.match("image/.*")) {
 				alert("Only image files can be uploaded");
 				setImageToInput(originImagePath, imageInput);
+				return;
 			}
 
 			const formData = new FormData();
@@ -195,9 +200,24 @@ export function addProfileModalEventListener(profileModal, flag) {
 	if (modifyForm) {
 		modifyForm.addEventListener("submit", async(event) => {
 			event.preventDefault();
+			const nickname = modifyForm.nickname.value;
+			if (nickname) {
+				const regex = /^[\s\t\n\r]+|\s+$/g;
+				if (regex.test(nickname) || nickname.length >= 20) {
+						alert("Strings must not consist solely of whitespace or be longer than 20 characters.");
+						return;
+				}
+			}
 			const myData = new FormData(modifyForm);
 			const updataMyInfo = await fetchModifyMyInfoRequest(myData);
 			closeProfileModal(profileModal);
 		});
+	}
+}
+
+export const deleteIntervalId = () => {
+	if (localStorage.getItem('intervalId')) {
+			clearInterval(localStorage.getItem('intervalId'));
+			localStorage.removeItem('intervalId');
 	}
 }

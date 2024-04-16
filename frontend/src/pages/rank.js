@@ -19,10 +19,11 @@ function Rank({ initialState }) {
                 credentials: 'include'
             });
             const data = await response.json();
-            data.sort(
-                (a, b) =>
-                    b.win_count - b.lose_count < a.win_count - a.lose_count
-            );
+            data.sort((a, b) => {
+                return (
+                    b.win_count - b.lose_count - (a.win_count - a.lose_count)
+                );
+            });
             this.setState(data, locale);
         } catch (error) {
             console.error("Error fetching user data:", error);
