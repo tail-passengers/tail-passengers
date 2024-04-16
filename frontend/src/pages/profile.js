@@ -8,6 +8,8 @@ import {
 } from "../utils/fetches.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
+import { deleteIntervalId } from "../utils/profileEventListener.js";
+
 
 function Profile({ initialState }) {
     this.state = initialState;
@@ -16,10 +18,12 @@ function Profile({ initialState }) {
         "content default-container tp-sl-card-content tp-pf-content";
 
     const setState = (content, formContainer, flag) => {
+        deleteIntervalId();
         if (flag === "my") {
             renderMyInfoForm(content, formContainer);
         } else if (flag === "friends") {
-            renderFriendList(content, formContainer);
+            const intervalId = renderFriendList(content, formContainer);
+            localStorage.setItem('intervalId', intervalId);
         }
     };
 
@@ -79,6 +83,7 @@ function Profile({ initialState }) {
 
             triggerEl.addEventListener("click", (event) => {
                 event.preventDefault();
+                deleteIntervalId();
                 tabTrigger.renderForm();
             });
         });
@@ -103,6 +108,7 @@ function Profile({ initialState }) {
         if (canvas) {
             body.removeChild(canvas);
         }
+        deleteIntervalId();
         this.render();
     };
 
