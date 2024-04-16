@@ -11,15 +11,13 @@ function General({ $app, initialState }) {
 	const locale = locales[language] || locales.en;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	let navBarHeight = $(".navigation-bar").clientHeight;
-	let playerNum = 0, data, nickname, versusNickname = "", gameSocket, scoreElement, state = "playing",
+	let playerNum = 0, data, nickname, versusNickname = "", gameSocket, scoreElement, infoElement, state = "playing",
 		noticeElement, animationFrameId, gameIdValue, gameMode, ballMaterials, ballCustom = 0;
 
 	$("#nav-bar").hidden = true;
 
 
-	// TODO 소켓끊는 함수 다른 소켓연결에 모두 적용하기, 토너먼트에서 페이지 이동할 때 제너럴로 이동하기.
-	// 토너먼트 주소랑 라운드를 스토리지에 저장해서 활용하기, 끝날 때 게임유형 판단하고 결과페이지, 대기 결정하기
-	//소켓 끊는 함수
+	// TODO 제너럴 레디 후 토너먼트 가면 소켓 안끊는 문제
 
 	function clearThreeJs() {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
@@ -101,12 +99,14 @@ function General({ $app, initialState }) {
 			this.initEventListeners();
 			setTimeout(() => {
 				this.startRender();
+				updateScore();
 			}, 1000);
 		}
 		else if (data.message_type == "score") {
 			console.log(data.message_type);
 			score.player1 = data.player1_score;
 			score.player2 = data.player2_score;
+			updateScore();
 			ballReset();
 		}
 		else if (data.message_type == "end") {
@@ -145,6 +145,7 @@ function General({ $app, initialState }) {
 			}
 			else {
 				gameSocket.send(event.data);
+				$("#nav-bar").hidden = true;
 				// 이겼으면 새 소켓 연결 후 대기,
 				state = "win";
 				this.$element.innerHTML = `
@@ -287,7 +288,6 @@ function General({ $app, initialState }) {
 			else if (playerNum == "player2") {
 				camera.position.x = paddle2.position.x;
 			}
-			updateScore();
 			// camera2.position.x = paddle2.position.x;
 			ball.position.x = data.ball_x;
 			ball.position.y = data.ball_y;
@@ -498,9 +498,11 @@ function General({ $app, initialState }) {
 		renderer.domElement.style.cursor = 'none';
 		renderer.domElement.style.zIndex = '0';
 
+
+
 		scoreElement = document.createElement('div');
 		scoreElement.textContent = '';
-		scoreElement.style.fontSize = '120%';
+		scoreElement.style.fontSize = '170%';
 		scoreElement.style.position = 'absolute';
 		scoreElement.style.top = '10px';
 		scoreElement.style.left = '10px';
@@ -509,7 +511,19 @@ function General({ $app, initialState }) {
 		const canvasRect = renderer.domElement.getBoundingClientRect();
 		scoreElement.style.top = `${canvasRect.top + 10}px`;
 		scoreElement.style.left = `${canvasRect.left + 10}px`;
+
+		infoElement = document.createElement('div');
+		infoElement.textContent = '';
+		infoElement.style.fontSize = '120%';
+		infoElement.style.position = 'absolute';
+		infoElement.style.top = '10px';
+		infoElement.style.left = '10px';
+		infoElement.style.color = '#ffffff';
+		infoElement.style.zIndex = '1';
+		infoElement.style.top = `${canvasRect.top + 70}px`;
+		infoElement.style.left = `${canvasRect.left + 10}px`;
 		document.body.appendChild(scoreElement);
+		document.body.appendChild(infoElement);
 
 
 		noticeElement = document.createElement('div');
@@ -550,12 +564,14 @@ function General({ $app, initialState }) {
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 		if (playerNum == "player1") {
-			scoreElement.textContent = `${nickname} ${score.player1}:${score.player2} ${versusNickname}`;
+			scoreElement.textContent = `${nickname} ${score.player1} : ${score.player2} ${versusNickname}`;
 		}
 		else if (playerNum == "player2") {
-			scoreElement.textContent = `${nickname} ${score.player2}:${score.player1} ${versusNickname}`;
+			scoreElement.textContent = `${nickname} ${score.player2} : ${score.player1} ${versusNickname}`;
 		}
+		infoElement.textContent = `B - ${locale.general.ballChange}`;
 	}
+
 	function removeScoreElement() {
 		if (scoreElement.parentNode) {
 			console.log("score removed");
@@ -564,6 +580,10 @@ function General({ $app, initialState }) {
 		if (noticeElement.parentNode) {
 			console.log("notice removed");
 			noticeElement.parentNode.removeChild(noticeElement);
+		}
+		if (infoElement.parentNode) {
+			console.log("info removed");
+			infoElement.parentNode.removeChild(infoElement);
 		}
 	}
 
@@ -780,6 +800,13 @@ function General({ $app, initialState }) {
 		}
 		this.makeGame();
 	};
+
+	window.addEventListener(
+		"languageChange",
+		function () {
+			this.render();
+		}.bind(this)
+	);
 
 	this.init();
 }

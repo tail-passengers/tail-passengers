@@ -28,6 +28,8 @@ const jaLocale = {
 		waiting: "他の選手を待つ...",
 		error: "エラーが発生した.",
 		getReady: "プロテゴの呪文に備えよう！",
+		ballChange: "Change ball color",
+		comMode: "Computer mode on"
 	},
 	tournament: {
 		mainText: "トーナメント表",

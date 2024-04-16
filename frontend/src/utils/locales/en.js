@@ -39,6 +39,8 @@ const enLocale = {
 		waiting: "Waiting for other players...",
 		error: "error occured.",
 		getReady: "Get ready to protego spell!!",
+		ballChange: "ボールの色を変える",
+		comMode: "コンピュータモード オン"
 	},
 	rank: {
 		mainText: "Top Player",
