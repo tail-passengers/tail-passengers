@@ -74,7 +74,6 @@ function SelectMode({ initialState }) {
 			singleBtn.addEventListener("click", function (event) {
 				event.preventDefault();
 				targetURL = `https://${process.env.BASE_IP}/${this.value}`;
-				console.log("targetURL", targetURL);
 				navigate(targetURL);
 			});
 		}
@@ -82,7 +81,6 @@ function SelectMode({ initialState }) {
 			tournamentBtn.addEventListener("click", function (event) {
 				event.preventDefault();
 				targetURL = `https://${process.env.BASE_IP}/${this.value}`;
-				console.log("targetURL", targetURL);
 				navigate(targetURL);
 			});
 		}
@@ -94,7 +92,6 @@ function SelectMode({ initialState }) {
 				multiTextElement.textContent = `${locale.tournament.waiting}`;
 				if (initSocket != null) {
 					initSocket.close();
-					console.log("close!");
 					initSocket = null;
 				}
 				initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
@@ -104,7 +101,6 @@ function SelectMode({ initialState }) {
 	};
 
 	const idSocketConnect = (event) => {
-		console.log('Message from server ', event.data);
 		initSocket.close();
 		let data = JSON.parse(event.data);
 		gameIdValue = data.game_id;

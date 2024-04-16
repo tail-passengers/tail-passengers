@@ -82,7 +82,6 @@ function Tournament({ $app, initialState }) {
 			await this.connectWebSocket("wait");
 			gameSocket.addEventListener('message', (event) => {
 				const data = JSON.parse(event.data);
-				console.log("Received data:", data);
 				if (data.game_list) {
 					// 토너먼트 리스트를 받은 경우
 					this.fillTable(data.game_list);
@@ -128,7 +127,6 @@ function Tournament({ $app, initialState }) {
 				text.addEventListener("click", () => {
 					// 선택된 토너먼트 이름을 전역 변수 tournamentName에 할당
 					tournamentName = text.textContent;
-					console.log(tournamentName);
 					// 선택된 토너먼트로 renderWaiting 호출하여 소켓 연결 시도
 					this.renderWaiting();
 				});
@@ -151,11 +149,9 @@ function Tournament({ $app, initialState }) {
 						sessionStorage.setItem('nickname', data.nickname);
 					}
 
-					console.log("I am : " + playerNum + " " + nickname);
 					gameSocket.send(event.data);
 
 
-					console.log("Received 대기중 data:", data);
 					this.$element.innerHTML = `
 					<div class='text-center h1 text-left tp-color-secondary'>${locale.tournament.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>${data.total} / 4</div>
@@ -169,10 +165,8 @@ function Tournament({ $app, initialState }) {
 				}
 				else if (data.message_type == "ready") {
 					// this.renderPlaying(data);
-					console.log('ready');
 					// round 저장, 1p, 2p 나랑 versus 저장
 					round = data.round;
-					console.log('round = ', round);
 					if (data["1p"] == nickname) {
 						playerNum = "player1"
 						versusNickname = data["2p"];
@@ -214,7 +208,6 @@ function Tournament({ $app, initialState }) {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/tournament_game/${url}/`);
 			window.addEventListener("popstate", closeSocket);
 			gameSocket.onopen = () => {
-				console.log('WebSocket connected');
 				resolve(gameSocket);
 			};
 

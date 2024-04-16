@@ -24,7 +24,6 @@ function General({ $app, initialState }) {
 		if (state == "playing") {
 			gameSocket.close();
 			gameSocket = null;
-			console.log("socket close");
 		}
 		$("#nav-bar").hidden = false;
 		removeScoreElement();
@@ -42,7 +41,6 @@ function General({ $app, initialState }) {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 
 			gameSocket.onopen = () => {
-				console.log('WebSocket connected:', `wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 				resolve(gameSocket);
 			};
 
@@ -65,9 +63,7 @@ function General({ $app, initialState }) {
 				playerNum = sessionStorage.getItem('playerNum');
 				nickname = sessionStorage.getItem('nickname');
 				gameSocket.send(data);
-				console.log("전송함: ", data);
 			}
-			console.log(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 			gameSocket.addEventListener('message', this.onGame);
 		}
 		catch (error) {
@@ -77,23 +73,19 @@ function General({ $app, initialState }) {
 
 	this.onGame = (event) => {
 		data = JSON.parse(event.data);
-		// console.log("Received data:", data);
 		if (data.message_type == "ready") {
-			console.log(data.message_type);
 			// 플레이어 정보 초기화
 			nickname = data.nickname;
 			playerNum = data.number;
 			gameSocket.send(event.data);
 		}
 		else if (data.message_type == "start") {
-			console.log(data.message_type);
 			if (data["1p"] != nickname) {
 				versusNickname = data["1p"];
 			}
 			else {
 				versusNickname = data["2p"]
 			}
-			console.log("player info: " + nickname + " " + playerNum + ", " + versusNickname);
 			this.$element.innerHTML = '';
 			this.initThreeJs(this.$element);
 			this.initEventListeners();
@@ -103,23 +95,22 @@ function General({ $app, initialState }) {
 			}, 1000);
 		}
 		else if (data.message_type == "score") {
-			console.log(data.message_type);
 			score.player1 = data.player1_score;
 			score.player2 = data.player2_score;
 			updateScore();
 			ballReset();
 		}
 		else if (data.message_type == "end") {
-			console.log(data.message_type);
 			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
 			state = "end";
 			clearThreeJs();
+			sessionStorage.setItem('winner', data.winner);
+			sessionStorage.setItem('loser', data.loser);
 			gameSocket.send(event.data);
 
 			//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
 			if (gameMode == "tournament_game") {
 				if (data.round == "3") {
-					console.log("set result");
 					sessionStorage.setItem('winner', data.winner);
 					sessionStorage.setItem('loser', data.loser);
 				}
@@ -129,13 +120,11 @@ function General({ $app, initialState }) {
 					this.$element.innerHTML = endMsg();
 					gameSocket.close();
 					gameSocket = null;
-					console.log("socket close");
 					$("#nav-bar").hidden = false;
 				}
 			}
 		}
 		else if (data.message_type == "stay") {
-			console.log(data.message_type);
 			state = "stay";
 			clearThreeJs();
 			if (data.round == "3") {
@@ -159,11 +148,9 @@ function General({ $app, initialState }) {
 				gameSocket.removeEventListener('message', this.onGame);
 				gameSocket.addEventListener('message', this.finalGame);
 				gameSocket.send(event.data);
-				console.log("Received 대기중 data:", data);
 			}
 		}
 		else if (data.message_type == "error") {
-			console.log(data.message_type);
 			clearThreeJs();
 			if (gameSocket != null) {
 				gameSocket.close();
@@ -172,10 +159,14 @@ function General({ $app, initialState }) {
 			this.$element.innerHTML = errorMsg();
 		}
 		else if (data.message_type == "complete") {
-			console.log(data.message_type);
+			sessionStorage.setItem('p1', data.player1);
+			sessionStorage.setItem('p2', data.player2);
+			if (gameMode == "tournament_game") {
+				sessionStorage.setItem('p3', data.player3);
+				sessionStorage.setItem('p4', data.player4);
+			}
 			gameSocket.close();
 			gameSocket = null;
-			console.log("socket close");
 			$("#nav-bar").hidden = false;
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
@@ -186,9 +177,7 @@ function General({ $app, initialState }) {
 	this.finalGame = (event) => {
 		data = JSON.parse(event.data);
 		if (data.message_type == "ready") {
-			console.log("Final " + data.message_type);
 			// this.renderPlaying(data);
-			console.log('ready');
 			// 1p, 2p 나랑 versus 저장
 			if (data["1p"] == nickname) {
 				playerNum = "player1"
@@ -198,7 +187,6 @@ function General({ $app, initialState }) {
 				playerNum = "player2"
 				versusNickname = data["1p"];
 			}
-			console.log("내 인트라 : " + nickname + ", 상대 인트라 :" + versusNickname);
 			sessionStorage.setItem('playerNum', playerNum);
 			sessionStorage.setItem('Data', JSON.stringify(data));
 			const tournamentName = sessionStorage.getItem('tournamentName');
@@ -207,7 +195,6 @@ function General({ $app, initialState }) {
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
 			gameSocket.close();
 			gameSocket = null;
-			console.log("socket close");
 			navigate(targetURL);
 			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 		}
@@ -574,15 +561,12 @@ function General({ $app, initialState }) {
 
 	function removeScoreElement() {
 		if (scoreElement.parentNode) {
-			console.log("score removed");
 			scoreElement.parentNode.removeChild(scoreElement);
 		}
 		if (noticeElement.parentNode) {
-			console.log("notice removed");
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 		if (infoElement.parentNode) {
-			console.log("info removed");
 			infoElement.parentNode.removeChild(infoElement);
 		}
 	}
@@ -630,7 +614,6 @@ function General({ $app, initialState }) {
 	// 키 입력 동작
 	function handleKeyPress(event) {
 		if (event.code == "KeyB") {
-			console.log("키 눌림");
 			ballCustom = (ballCustom + 1) % 6;
 			ballReset();
 		}
@@ -682,7 +665,6 @@ function General({ $app, initialState }) {
 		}
 		if (code === 'ArrowUp') {
 			if (shouldPerformAction(code) && !isKeyPressed) {
-				console.log("Critical!");
 				// 맥시마 받았을 때도 발동하기
 				sendMaxima();
 				blinkEffect();
