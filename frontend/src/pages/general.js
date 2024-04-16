@@ -27,8 +27,8 @@ function General({ $app, initialState }) {
 			gameSocket.close();
 			gameSocket = null;
 			console.log("socket close");
-			$("#nav-bar").hidden = false;
 		}
+		$("#nav-bar").hidden = false;
 		removeScoreElement();
 		cancelAnimationFrame(animationFrameId);
 		document.removeEventListener('keydown', handleKeyPress);
@@ -181,7 +181,7 @@ function General({ $app, initialState }) {
 
 		}
 	}
-
+	// final waiting중일 때 뒤로가기 누르면 
 	this.finalGame = (event) => {
 		data = JSON.parse(event.data);
 		if (data.message_type == "ready") {
@@ -476,10 +476,7 @@ function General({ $app, initialState }) {
 		ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
 		scene.add(ball);
 
-		ball.$velocity = {
-			x: 0,
-			z: direction * 10
-		};
+
 
 		// paddle 
 		paddle1 = addPaddle(0xFFFFFF, 0.7);

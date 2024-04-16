@@ -5,7 +5,7 @@ import locales from "../utils/locales/locales.js";
 
 function Tournament({ $app, initialState }) {
 
-	let gameSocket, tournamentName, round, playerNum = 0, data, nickname = "", versusId;
+	let gameSocket, tournamentName, round, playerNum = 0, data, nickname = "", versusNickname;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	const language = getCurrentLanguage();
@@ -175,17 +175,17 @@ function Tournament({ $app, initialState }) {
 					console.log('round = ', round);
 					if (data["1p"] == nickname) {
 						playerNum = "player1"
-						versusId = data["2p"];
+						versusNickname = data["2p"];
 					}
 					else {
 						playerNum = "player2"
-						versusId = data["1p"];
+						versusNickname = data["1p"];
 					}
 					sessionStorage.setItem('playerNum', playerNum);
 					sessionStorage.setItem('Data', JSON.stringify(data));
 					sessionStorage.setItem('gameMode', 'tournament_game');
 					sessionStorage.setItem('tournamentName', tournamentName);
-					sessionStorage.setItem('versusId', versusId);
+					sessionStorage.setItem('versusNickname', versusNickname);
 					let tournamentURL = `${tournamentName}/${round}`;
 					sessionStorage.setItem('idValue', tournamentURL);
 					let targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
