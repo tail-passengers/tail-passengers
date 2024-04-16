@@ -1567,10 +1567,10 @@ class TournamentGameRoundConsumerTests(TestCase):
         user2_dict = json.loads(user2_response)
 
         self.assertEqual(user2_dict["message_type"], "complete")
-        self.assertEqual(user2_dict["player1"], "room_1_owner_nickname")
-        self.assertEqual(user2_dict["player2"], "room_1_user1_nickname")
-        self.assertEqual(user2_dict["player3"], "room_1_user2_nickname")
-        self.assertEqual(user2_dict["player4"], "room_1_user3_nickname")
+        self.assertEqual(user2_dict["winner"], "room_1_user3_nickname")
+        self.assertEqual(user2_dict["loser"], "room_1_user1_nickname")
+        self.assertEqual(user2_dict["etc1"], "room_1_owner_nickname")
+        self.assertEqual(user2_dict["etc2"], "room_1_user2_nickname")
 
         await self.discard_all_message(self.test_tournament1_communicators)
 

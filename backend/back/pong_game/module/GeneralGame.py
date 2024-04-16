@@ -5,7 +5,6 @@ from .Player import Player
 from .Ball import Ball
 from .GameSetValue import (
     PlayerStatus,
-    PADDLE_CORRECTION,
     PADDLE_WIDTH,
     MessageType,
     GameTimeType,
@@ -33,10 +32,16 @@ class GeneralGame:
         return False
 
     def _is_past_paddle1(self) -> bool:
-        return self.ball.position_z > self.player1.paddle.position_z + self.ball.paddle_correction
+        return (
+            self.ball.position_z
+            > self.player1.paddle.position_z + self.ball.paddle_correction
+        )
 
     def _is_past_paddle2(self) -> bool:
-        return self.ball.position_z < self.player2.paddle.position_z - self.ball.paddle_correction
+        return (
+            self.ball.position_z
+            < self.player2.paddle.position_z - self.ball.paddle_correction
+        )
 
     def _is_paddle1_collision(self) -> bool:
         return (

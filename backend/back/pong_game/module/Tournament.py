@@ -129,10 +129,10 @@ class Tournament:
                 "message_type": (
                     MessageType.ERROR.value if is_error else MessageType.COMPLETE.value
                 ),
-                "player1": self.nickname_list[0],
-                "player2": self.nickname_list[1],
-                "player3": self.nickname_list[2],
-                "player4": self.nickname_list[3],
+                "winner": self.round_list[2].get_winner(),
+                "loser": self.round_list[2].get_loser(),
+                "etc1": self.round_list[0].get_loser(),
+                "etc2": self.round_list[1].get_loser(),
             }
         )
 
