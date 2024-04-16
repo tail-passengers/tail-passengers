@@ -9,10 +9,11 @@ import locales from "../utils/locales/locales.js";
 function General({ $app, initialState }) {
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
+	let footerHeight = $(".tp-footer-container").clientHeight;
+	let navBarHeight = $(".navigation-bar").clientHeight;
 	let playerNum = 0, data, nickname, versusNickname, gameSocket, scoreElement, state = "playing",
 		noticeElement, animationFrameId, gameIdValue, gameMode;
-	let navBarHeight = $(".navigation-bar").clientHeight;
-	let footerHeight = $(".tp-footer-container").clientHeight;
+
 	$("#nav-bar").hidden = true;
 
 
@@ -237,8 +238,8 @@ function General({ $app, initialState }) {
 	};
 
 
-	let WIDTH = window.innerWidth,                                 //canvas.css에서 반응형으로 처리
-		HEIGHT = window.innerHeight - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
+	let WIDTH = /*window.innerWidth,*/ 1920,                                 //canvas.css에서 반응형으로 처리
+		HEIGHT = /*window.innerHeight*/ 1080 - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
 		VIEW_ANGLE = 45,
 		ASPECT = WIDTH / HEIGHT,
 		NEAR = 1,
@@ -461,12 +462,17 @@ function General({ $app, initialState }) {
 
 		// ball 
 		const ballGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
-		const ballMaterial = new THREE.MeshLambertMaterial({
-			color: 0xFF9900,
-			emissive: 0xFF9900
-		});
+		const ballMaterials = [
+			new THREE.MeshLambertMaterial({ color: 0xFF9900, emissive: 0xFF9900 }),
+			new THREE.MeshLambertMaterial({ color: 0x00FF99, emissive: 0x00FF99 }),
+			new THREE.MeshLambertMaterial({ color: 0x9900FF, emissive: 0x9900FF }),
+			new THREE.MeshLambertMaterial({ color: 0x99FF00, emissive: 0x99FF00 }),
+			new THREE.MeshLambertMaterial({ color: 0x0099FF, emissive: 0x0099FF }),
+			new THREE.MeshLambertMaterial({ color: 0xFF0099, emissive: 0xFF0099 })
+		];
 
-		ball = new THREE.Mesh(ballGeometry, ballMaterial);
+
+		ball = new THREE.Mesh(ballGeometry, ballMaterials[0]);
 		scene.add(ball);
 
 		ball.$velocity = {
@@ -629,8 +635,14 @@ function General({ $app, initialState }) {
 	}
 
 
-
-
+	function sendMaxima() {
+		let maxima = {
+			number: playerNum,
+			input: "protego_maxima",
+			message_type: "playing"
+		}
+		gameSocket.send(JSON.stringify(maxima));
+	}
 	// 맥시마 키액션
 	function keyAction(code) {
 		const currentTime = new Date().getTime();
@@ -641,6 +653,7 @@ function General({ $app, initialState }) {
 			if (shouldPerformAction(code) && !isKeyPressed) {
 				console.log("Critical!");
 				// 맥시마 받았을 때도 발동하기
+				sendMaxima();
 				blinkEffect();
 				if (ball && ball.$velocity) {
 					if (ball.$velocity.z < 0) {
