@@ -1,5 +1,6 @@
 import os
 import requests
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,7 +19,6 @@ from games.serializers import (
     GeneralGameLogsListSerializer,
     TournamentGameLogsListSerializer,
 )
-from django.views.decorators.csrf import csrf_exempt
 
 HOUSE = {
     "Gam": HouseEnum.RAVENCLAW,
@@ -35,31 +35,33 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Users.objects.all()
     serializer_class: UsersSerializer = UsersSerializer
-    http_method_names = ["get", "post"]  # TODO debug를 위해 post 임시 추가
+    http_method_names = ["get"]
 
-    def create(self, request, *args, **kwargs) -> Response:
-        """
-        디버그용 post
-        """
-        intra_id: str | None = request.data.get("intra_id")
-        if not intra_id:
-            return Response(
-                {"error": "intra_id is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # intra_id 중복 검사
-        if Users.objects.filter(intra_id=intra_id).exists():
-            return Response(
-                {"error": "User with this intra_id already exists"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # 새로운 사용자 생성
-        user = Users.objects.create_user(intra_id=intra_id)
-        serializer = self.get_serializer(user)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+    # debug용 post
+    # http_method_names = ["get", "post"]
+    #
+    # def create(self, request, *args, **kwargs) -> Response:
+    #     """
+    #     디버그용 post
+    #     """
+    #     intra_id: str | None = request.data.get("intra_id")
+    #     if not intra_id:
+    #         return Response(
+    #             {"error": "intra_id is required"}, status=status.HTTP_400_BAD_REQUEST
+    #         )
+    #
+    #     # intra_id 중복 검사
+    #     if Users.objects.filter(intra_id=intra_id).exists():
+    #         return Response(
+    #             {"error": "User with this intra_id already exists"},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
+    #
+    #     # 새로운 사용자 생성
+    #     user = Users.objects.create_user(intra_id=intra_id)
+    #     serializer = self.get_serializer(user)
+    #
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class MeViewSet(viewsets.ModelViewSet):
@@ -189,9 +191,12 @@ class CallbackAPIView(APIView):
             headers={"Authorization": f"Bearer {access_token}"},
         )
         coalition_info = coalition_info_request.json()
-        login_id = user_info["login"]
-        image_address = user_info["image"]["versions"]["large"]
-        house = HOUSE[coalition_info[0]["name"]]
+        try:
+            login_id = user_info["login"]
+            image_address = user_info["image"]["versions"]["large"]
+            house = HOUSE[coalition_info[0]["name"]]
+        except:
+            return redirect(BASE_FULL_IP)
         user_instance, created = Users.objects.get_or_create(
             intra_id=login_id, defaults={"nickname": login_id, "house": house}
         )
@@ -236,7 +241,6 @@ def logout_view(request) -> redirect:
 
     logout(request)
     return redirect(BASE_FULL_IP)
-
 
 
 class ChartViewSet(viewsets.ModelViewSet):
@@ -319,7 +323,7 @@ class ChartViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-# TODO test 용도 삭제 해야함
+# test 유저용 login
 class TestAccountLogin(APIView):
 
     def get(self, request, *args, **kwargs) -> redirect or Response:

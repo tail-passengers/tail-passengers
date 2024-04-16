@@ -1,27 +1,31 @@
 import { $ } from "../utils/querySelector.js";
-
-/*
- * TODO
- * 스코어판 만들기, 결과판도 결과
- * 튜토리얼 안내문 만들기
- * 커스텀 요소 (볼 유형, 컬러, 난이도)
- * 
- * BUG
- * 게임 결과, 페이지 이동시 종료되도록 (소켓)
- * 리사이즈
- * 볼 스페이스 액션 공 튀기는 문제
- * 상대도 적용되게 할 것인지?, 1초 딜레이로 할 것인지?(연타도 아직 가능)
- * 볼 벽에 붙어서 안떨어지는 문제
- * 
-*/
-
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 
 function Example({ $app, initialState }) {
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 
-	let WIDTH = window.innerWidth,                                 //canvas.css에서 반응형으로 처리
-		HEIGHT = window.innerHeight - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
+
+
+	function clearThreeJs() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		removeScoreElement();
+		cancelAnimationFrame(animationFrameId);
+		document.removeEventListener('keydown', handleKeyDown);
+		document.removeEventListener('keyup', handleKeyUp);
+		window.removeEventListener("popstate", clearThreeJs);
+		scene = null;
+		camera = null;
+		renderer = null;
+		console.log("game end");
+		$("#nav-bar").hidden = false;
+	}
+
+	let WIDTH = 1920,                                 //canvas.css에서 반응형으로 처리
+		HEIGHT = 1080 - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
 		VIEW_ANGLE = 45,
 		ASPECT = WIDTH / HEIGHT,
 		NEAR = 1,
@@ -32,14 +36,12 @@ function Example({ $app, initialState }) {
 		PADDLE_WIDTH = 200,
 		PADDLE_HEIGHT = 30,
 
-		// //get the scoreboard element.
-		// scoreBoard = document.getElementById('scoreBoard'),
-
-
 		mainLight, subLight,
-		ball, ballRendered = false, paddle1, paddle2, field, running,
+		ball, ballCustom = 0, ballMaterials, paddle1, paddle2, field, running,
+		modeChange = false, animationFrameId,
 		randomOffset = 0,
 		rotationSpeed = 0.01,
+		scoreElement, infoElement, modeElement,
 		score = {
 			player1: 0,
 			player2: 0
@@ -63,30 +65,11 @@ function Example({ $app, initialState }) {
 	this.$element.className = "content default-container";
 
 	// Initialize the Three.js scene, camera, and renderer
-	function resizeRenderer(renderer) {
-		let navBarHeight = $(".navigation-bar").clientHeight;
-		let footerHeight = $(".tp-footer-container").clientHeight;
-		const canvas = renderer.domElement;
-		const width = window.innerWidth;
-		const height = window.innerHeight - (navBarHeight + footerHeight);
-		const needResize = canvas.width !== width || canvas.height !== height;
-		if (needResize) {
-			renderer.setSize(width, height, false);
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
-		}
-		return needResize;
-	}
+
 
 	function render() {
-		if (resizeRenderer(renderer)) {
-			const canvas = renderer.domElement;
-			camera.aspect = canvas.clientWidth / canvas.clientHeight;
-			camera.updateProjectionMatrix();
-			renderer.render(scene, camera);
-		}
 		if (running) {
-			requestAnimationFrame(render);
+			animationFrameId = requestAnimationFrame(render);
 			handleMultipleKeys();
 
 			//camera1
@@ -103,9 +86,16 @@ function Example({ $app, initialState }) {
 			renderer.setScissorTest(true);
 			renderer.render(scene, camera2);
 
-			// if (ball.$velocity.z < 0) {
-			// 	processCpuPaddle();
-			// }
+			if (ball) {
+				ball.rotation.y += 0.03;
+				ball.rotation.x += rotationSpeed;
+			}
+
+			if (modeChange == true) {
+				if (ball.$velocity.z < 0) {
+					processCpuPaddle();
+				}
+			}
 		}
 	}
 
@@ -129,10 +119,6 @@ function Example({ $app, initialState }) {
 			contentDiv.appendChild(renderer.domElement);
 		}
 
-		const scoreBoard = $("#scoreBoard");
-		if (scoreBoard) {
-			scoreBoard.classList.add("visually-hidden");
-		}
 
 		// field
 		let fieldGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 5, 1),
@@ -213,12 +199,17 @@ function Example({ $app, initialState }) {
 
 		// ball 
 		const ballGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
-		const ballMaterial = new THREE.MeshLambertMaterial({
-			color: 0xFF9900,
-			emissive: 0xFF9900
-		});
+		ballMaterials = [
+			new THREE.MeshLambertMaterial({ color: 0xFF9900, emissive: 0xFF9900 }),
+			new THREE.MeshLambertMaterial({ color: 0x00FF99, emissive: 0x00FF99 }),
+			new THREE.MeshLambertMaterial({ color: 0x9900FF, emissive: 0x9900FF }),
+			new THREE.MeshLambertMaterial({ color: 0x99FF00, emissive: 0x99FF00 }),
+			new THREE.MeshLambertMaterial({ color: 0x0099FF, emissive: 0x0099FF }),
+			new THREE.MeshLambertMaterial({ color: 0xFF0099, emissive: 0xFF0099 })
+		];
 
-		ball = new THREE.Mesh(ballGeometry, ballMaterial);
+
+		ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
 		scene.add(ball);
 
 
@@ -233,17 +224,50 @@ function Example({ $app, initialState }) {
 		paddle2.position.x = 0;
 		paddle2.position.y = 0;
 
+		//score
+		scoreElement = document.createElement('div');
+		scoreElement.textContent = '0 : 0';
+		scoreElement.style.fontSize = '170%';
+		scoreElement.style.position = 'absolute';
+		scoreElement.style.top = '10px';
+		scoreElement.style.left = '10px';
+		scoreElement.style.color = '#ffffff';
+		scoreElement.style.zIndex = '1';
+		const canvasRect = renderer.domElement.getBoundingClientRect();
+		scoreElement.style.top = `${canvasRect.top + 10}px`;
+		scoreElement.style.left = `${canvasRect.left + 10}px`;
+		infoElement = document.createElement('div');
+		infoElement.textContent = `B - ${locale.general.ballChange}`;
+		infoElement.style.fontSize = '90%';
+		infoElement.style.position = 'absolute';
+		infoElement.style.top = '10px';
+		infoElement.style.left = '10px';
+		infoElement.style.color = '#ffffff';
+		infoElement.style.zIndex = '1';
+		infoElement.style.top = `${canvasRect.top + 60}px`;
+		infoElement.style.left = `${canvasRect.left + 10}px`;
 
-
-		// wand
-		loadWanders(wandLoader1).then(() => loadWanders(wandLoader2)).then(() => {
-			updateScoreBoard();
-			startRender();
-		});
+		modeElement = document.createElement('div');
+		modeElement.textContent = `M - ${locale.general.comMode}`;
+		modeElement.style.fontSize = '90%';
+		modeElement.style.position = 'absolute';
+		modeElement.style.top = '10px';
+		modeElement.style.left = '10px';
+		modeElement.style.color = '#ffffff';
+		modeElement.style.zIndex = '1';
+		modeElement.style.top = `${canvasRect.top + 80}px`;
+		modeElement.style.left = `${canvasRect.left + 10}px`;
+		document.body.appendChild(scoreElement);
+		document.body.appendChild(infoElement);
+		document.body.appendChild(modeElement);
 
 		renderer.domElement.addEventListener('mousemove', containerMouseMove);
 		renderer.domElement.style.cursor = 'none';
 
+		// wand
+		loadWanders(wandLoader1).then(() => loadWanders(wandLoader2)).then(() => {
+			startRender();
+		});
 	}
 
 
@@ -253,37 +277,9 @@ function Example({ $app, initialState }) {
 		wand2.rotation.y += wandRotationSpeed;
 	}
 
-	// Animation function
-	function animate() {
-		requestAnimationFrame(animate);
-
-		// if (ballRendered) {
-		// 	animateWands();
-		// }
-
-		if (ball) {
-			ball.rotation.y += 0.03;
-			ball.rotation.x += rotationSpeed;
-
-			renderer.render(scene, camera);
-		}
-	}
-
-	// Start animation loop
-	function startAnimation() {
-		animate();
-	}
-
 	this.setState = (content) => {
 		this.state = content;
 		this.render();
-	};
-
-	this.render = () => {
-		// Render component contents here
-		this.$element.innerHTML = `
-			<h3 id="scoreBoard"></h3>
-    `;
 	};
 
 	function startBallMovement() {
@@ -293,7 +289,6 @@ function Example({ $app, initialState }) {
 			z: direction * 10
 		};
 		ball.$stopped = false;
-		ballRendered = true;
 	}
 
 	function processCpuPaddle() {
@@ -325,7 +320,7 @@ function Example({ $app, initialState }) {
 
 		if (isPaddle1Collision()) {
 			hitBallBack(paddle1);
-			// updateRandomOffset(); //cpu용 랜덤 패들위치설정
+			updateRandomOffset(); //cpu용 랜덤 패들위치설정
 		}
 
 		if (isPaddle2Collision()) {
@@ -342,11 +337,17 @@ function Example({ $app, initialState }) {
 		}
 	}
 
+	function ballReset() {
+		ball.material = ballMaterials[ballCustom];
+	}
+
 	function updateRandomOffset() {
 		// -25에서 25 사이의 랜덤한 값
 		randomOffset = Math.random() * 205 - 95;
 		// CPU 패들의 위치에 랜덤값을 더하여 업데이트
-		paddle2.position.x += randomOffset;
+		if (modeChange == true) {
+			paddle2.position.x += randomOffset;
+		}
 	}
 
 	function isPastPaddle1() {
@@ -377,6 +378,25 @@ function Example({ $app, initialState }) {
 		return ballX - BALL_RADIUS < -halfFieldWidth || ballX + BALL_RADIUS > halfFieldWidth;
 	}
 
+	function updateScore() {
+		scoreElement.textContent = `${score.player1} : ${score.player2}`;
+	}
+
+	function removeScoreElement() {
+		if (scoreElement.parentNode) {
+			console.log("score removed");
+			scoreElement.parentNode.removeChild(scoreElement);
+		}
+		if (infoElement.parentNode) {
+			console.log("info removed");
+			infoElement.parentNode.removeChild(infoElement);
+		}
+		if (modeElement.parentNode) {
+			console.log("info removed");
+			modeElement.parentNode.removeChild(modeElement);
+		}
+	}
+
 	function hitBallBack(paddle) {
 		ball.$velocity.x = (ball.position.x - paddle.position.x) / 9;
 		ball.$velocity.z *= -1;
@@ -402,17 +422,9 @@ function Example({ $app, initialState }) {
 
 	function scoreBy(playerName) {
 		addPoint(playerName);
-		updateScoreBoard();
+		updateScore();
 		stopBall();
 		setTimeout(reset, 2000);
-	}
-
-	function updateScoreBoard() {
-		const scoreBoard = $("#scoreBoard");
-		if (scoreBoard) {
-			scoreBoard.innerHTML = 'Player 1: ' + score.player1 + ' Player 2: ' +
-				score.player2;
-		}
 	}
 
 	function stopBall() {
@@ -436,12 +448,10 @@ function Example({ $app, initialState }) {
 	function reset() {
 		ball.position.set(0, 0, 0);
 		ball.$velocity = null;
-
 		BALL_RADIUS = 20;
 		ball.geometry.dispose();
 		ball.geometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
 		ball.material.emissive.setHex(0xFF9900);
-
 		rotationSpeed = 0.02;
 	}
 
@@ -540,20 +550,32 @@ function Example({ $app, initialState }) {
 		// 다른 여러 키를 처리하는 로직 추가
 	}
 
+
 	/////////
 
 	function handleKeyUp(event) {
 		// 각 키의 상태를 떼어진 상태로 설정
 		keyState[event.code] = false;
 
-		// 여러 키를 동시에 처리하는 함수 호출
-		// handleMultipleKeys();
 	}
 
 	function handleKeyDown(event) {
+		if (event.code == 'KeyB') {
+			console.log("ballcustom");
+			ballCustom = (ballCustom + 1) % 6;
+			ballReset();
+		}
+		if (event.code == 'KeyM') {
+			console.log("cpu on");
+			if (modeChange == false) {
+				modeChange = true;
+			}
+			else {
+				modeChange = false;
+			}
+		}
 
 		keyState[event.code] = true;
-		// handleMultipleKeys();
 
 		const currentTime = new Date().getTime();
 		if (currentTime - lastSpaceBarPressTime < 1000 && isSpaceBarPressed) {
@@ -570,13 +592,7 @@ function Example({ $app, initialState }) {
 						ball.$velocity.z += 4;
 					}
 				}
-				console.log(ball.$velocity.z);
-				// 회전 속도증가
 				rotationSpeed += 0.008; // TODO 로테이션스피드는 애니메이션에서 갱신적용해야함
-				// 크기 증가
-				if (BALL_RADIUS < 50) {
-					BALL_RADIUS += 5;
-				}
 				updateBallSize();
 				isSpaceBarPressed = true;
 
@@ -591,6 +607,7 @@ function Example({ $app, initialState }) {
 		}
 	}
 
+
 	function movePaddle1WithKeyboard(direction) {
 		// 키보드 입력에 따라 새로운 패들 위치 계산
 		const newPaddleX = paddle1.position.x + direction * 30; // 필요에 따라 이동 속도 조절
@@ -601,6 +618,7 @@ function Example({ $app, initialState }) {
 		// 카메라 위치 업데이트
 		camera.position.x = paddle1.position.x;
 	}
+
 	function movePaddle2WithKeyboard(direction) {
 		// 키보드 입력에 따라 새로운 패들 위치 계산
 		const newPaddleX = paddle2.position.x + direction * 30; // 필요에 따라 이동 속도 조절
@@ -709,6 +727,12 @@ function Example({ $app, initialState }) {
 	};
 
 
+	function initEventListeners() {
+		document.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('keyup', handleKeyUp);
+		renderer.domElement.addEventListener('mousemove', containerMouseMove);
+	}
+
 	this.init = () => {
 		let parent = $("#app");
 		const child = $(".content");
@@ -721,23 +745,21 @@ function Example({ $app, initialState }) {
 		if (canvas) {
 			body.removeChild(canvas);
 		}
-		this.render();
 
 		// Initialize Three.js
+		$("#nav-bar").hidden = true;
+		window.addEventListener("popstate", clearThreeJs);
 		initThreeJs(this.$element);
-
-		// Start animation loop
-		startAnimation();
-
 		// Add event listeners or other initialization logic here
 		initEventListeners();
 
-		function initEventListeners() {
-			document.addEventListener('keydown', handleKeyDown);
-			document.addEventListener('keyup', handleKeyUp);
-			renderer.domElement.addEventListener('mousemove', containerMouseMove);
-		}
 	};
+	window.addEventListener(
+		"languageChange",
+		function () {
+			this.render();
+		}.bind(this)
+	);
 
 	this.init();
 }

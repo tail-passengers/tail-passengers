@@ -118,8 +118,12 @@ class GeneralGameWaitConsumerTests(TestCase):
 
 class GeneralGameConsumerTests(TestCase):
     @database_sync_to_async
-    def create_test_user(self, intra_id):
+    def create_test_user(self, intra_id, nickname=None):
         # 테스트 사용자 생성
+        if nickname:
+            return get_user_model().objects.create_user(
+                intra_id=intra_id, nickname=nickname
+            )
         return get_user_model().objects.create_user(intra_id=intra_id)
 
     @database_sync_to_async
@@ -161,8 +165,12 @@ class GeneralGameConsumerTests(TestCase):
         start 전까지 환경 세팅
         """
 
-        self.user1 = await self.create_test_user(intra_id="test1")
-        self.user2 = await self.create_test_user(intra_id="test2")
+        self.user1 = await self.create_test_user(
+            intra_id="test1", nickname="test1_nickname"
+        )
+        self.user2 = await self.create_test_user(
+            intra_id="test2", nickname="test2_nickname"
+        )
         # 대기방 입장 및 게임 id 생성
         communicator1 = WebsocketCommunicator(application, "/ws/general_game/wait/")
         communicator1.scope["user"] = self.user1
@@ -204,7 +212,7 @@ class GeneralGameConsumerTests(TestCase):
             text_data=json.dumps(
                 {
                     "message_type": "ready",
-                    "intra_id": "test1",
+                    "nickname": "test1_nickname",
                     "number": "player1",
                 }
             )
@@ -214,7 +222,7 @@ class GeneralGameConsumerTests(TestCase):
             text_data=json.dumps(
                 {
                     "message_type": "ready",
-                    "intra_id": "test2",
+                    "nickname": "test2_nickname",
                     "number": "player2",
                 }
             )
@@ -242,8 +250,12 @@ class GeneralGameConsumerTests(TestCase):
         """
         두 명 접속시 message_type 잘 보내는지 확인
         """
-        self.user1 = await self.create_test_user(intra_id="test3")
-        self.user2 = await self.create_test_user(intra_id="test4")
+        self.user1 = await self.create_test_user(
+            intra_id="test3", nickname="test3_nickname"
+        )
+        self.user2 = await self.create_test_user(
+            intra_id="test4", nickname="test4_nickname"
+        )
 
         # 대기방 입장 및 게임 id 생성
         communicator1 = WebsocketCommunicator(application, "/ws/general_game/wait/")
@@ -276,7 +288,7 @@ class GeneralGameConsumerTests(TestCase):
         user1_response = await communicator1.receive_from()
         user1_response_dict = json.loads(user1_response)
         self.assertEqual(user1_response_dict["message_type"], "ready")
-        self.assertEqual(user1_response_dict["intra_id"], self.user1.intra_id)
+        self.assertEqual(user1_response_dict["nickname"], self.user1.nickname)
         self.assertEqual(user1_response_dict["number"], "player1")
 
         communicator2 = WebsocketCommunicator(
@@ -292,7 +304,7 @@ class GeneralGameConsumerTests(TestCase):
         user2_response = await communicator2.receive_from()
         user2_response_dict = json.loads(user2_response)
         self.assertEqual(user2_response_dict["message_type"], "ready")
-        self.assertEqual(user2_response_dict["intra_id"], self.user2.intra_id)
+        self.assertEqual(user2_response_dict["nickname"], self.user2.nickname)
         self.assertEqual(user2_response_dict["number"], "player2")
 
         # user1,2 응답
@@ -303,14 +315,14 @@ class GeneralGameConsumerTests(TestCase):
         user1_second_response = await communicator1.receive_from()
         user1_second_dict = json.loads(user1_second_response)
         self.assertEqual(user1_second_dict["message_type"], "start")
-        self.assertEqual(user1_second_dict["1p"], self.user1.intra_id)
-        self.assertEqual(user1_second_dict["2p"], self.user2.intra_id)
+        self.assertEqual(user1_second_dict["1p"], self.user1.nickname)
+        self.assertEqual(user1_second_dict["2p"], self.user2.nickname)
 
         user2_second_response = await communicator2.receive_from()
         user2_second_dict = json.loads(user2_second_response)
         self.assertEqual(user2_second_dict["message_type"], "start")
-        self.assertEqual(user2_second_dict["1p"], self.user1.intra_id)
-        self.assertEqual(user2_second_dict["2p"], self.user2.intra_id)
+        self.assertEqual(user2_second_dict["1p"], self.user1.nickname)
+        self.assertEqual(user2_second_dict["2p"], self.user2.nickname)
 
         # disconnect 안하면 밑에서 에러 발생
         await communicator1.disconnect()
@@ -337,6 +349,12 @@ class GeneralGameConsumerTests(TestCase):
             if user1_dict["message_type"] == "end":
                 break
 
+        while True:
+            user2_response = await communicator2.receive_from()
+            user2_dict = json.loads(user2_response)
+            if user2_dict["message_type"] == "end":
+                break
+
         # end 메세지를 consumer로 날림
         await communicator1.send_to(
             text_data=json.dumps(
@@ -345,9 +363,20 @@ class GeneralGameConsumerTests(TestCase):
                 }
             )
         )
-        user1_response = await communicator1.receive_from()
-        user1_dict = json.loads(user1_response)
-        self.assertEqual(user1_dict["message_type"], MessageType.COMPLETE.value)
+        await communicator2.send_to(
+            text_data=json.dumps(
+                {
+                    "message_type": "end",
+                }
+            )
+        )
+
+        # 승자만 db 관련 메시지를 받음
+        user2_response = await communicator2.receive_from()
+        user2_dict = json.loads(user2_response)
+        self.assertEqual(user2_dict["message_type"], MessageType.COMPLETE.value)
+        self.assertEqual(user2_dict["player1"], "test1_nickname")
+        self.assertEqual(user2_dict["player2"], "test2_nickname")
 
         # db 저장 될 때 까지 0.2초씩 기다림 timeout은 2초
         game_data_from_db = await self.wait_for_game_data(
@@ -469,11 +498,13 @@ class TournamentGameWaitConsumerTests(TestCase):
         {
             "tournament_name": "test_tournament1",
             "create_user_intra_id": "test_intra_id1",
+            "create_user_nickname": "test_nickname1",
             "wait_num": "1",
         },
         {
             "tournament_name": "test_tournament2",
             "create_user_intra_id": "test_intra_id2",
+            "create_user_nickname": "test_nickname2",
             "wait_num": "1",
         },
     ]
@@ -484,8 +515,12 @@ class TournamentGameWaitConsumerTests(TestCase):
         TournamentGameLogs.objects.create(
             tournament_name=tournament_name,
             round=1,
-            player1=get_user_model().objects.create_user(intra_id="default1"),
-            player2=get_user_model().objects.create_user(intra_id="default2"),
+            player1=get_user_model().objects.create_user(
+                intra_id="default1", nickname="default1_nickname"
+            ),
+            player2=get_user_model().objects.create_user(
+                intra_id="default2", nickname="default2_nickname"
+            ),
             player1_score=5,
             player2_score=0,
             start_time=timezone.now() - datetime.timedelta(hours=5),
@@ -494,9 +529,11 @@ class TournamentGameWaitConsumerTests(TestCase):
         )
 
     @database_sync_to_async
-    def create_test_user(self, intra_id):
+    def create_test_user(self, intra_id, nickname):
         # 테스트 사용자 생성
-        return get_user_model().objects.create_user(intra_id=intra_id)
+        return get_user_model().objects.create_user(
+            intra_id=intra_id, nickname=nickname
+        )
 
     @database_sync_to_async
     def delete_test_user(self, user):
@@ -511,6 +548,7 @@ class TournamentGameWaitConsumerTests(TestCase):
             tournament_info["tournament_name"]: Tournament(
                 tournament_name=tournament_info["tournament_name"],
                 create_user_intra_id=tournament_info["create_user_intra_id"],
+                create_user_nickname=tournament_info["create_user_nickname"],
             )
             for tournament_info in self.TEST_TOURNAMENTS_INFO
         }
@@ -544,12 +582,14 @@ class TournamentGameWaitConsumerTests(TestCase):
         response = await communicator.receive_from()
         return json.loads(response)
 
-    async def test_receive_active_tournamnet_data(self):
+    async def test_receive_active_tournament_data(self):
         """
         현재 존재하는 토너먼트 방을 잘 받아오는지 테스트
         """
 
-        self.user1 = await self.create_test_user(intra_id="test1")
+        self.user1 = await self.create_test_user(
+            intra_id="test1", nickname="test1_nickname"
+        )
         communicator1 = WebsocketCommunicator(application, "/ws/tournament_game/wait/")
         communicator1.scope["user"] = self.user1
         connected, _ = await communicator1.connect()
@@ -577,7 +617,9 @@ class TournamentGameWaitConsumerTests(TestCase):
         토너먼트 네임을 consumer에게 보냈을때 성공 또는 실패를 클라이언트에게 잘 보내는지 테스트
         """
 
-        self.user1 = await self.create_test_user(intra_id="test1")
+        self.user1 = await self.create_test_user(
+            intra_id="test1", nickname="test1_nickname"
+        )
         communicator1 = WebsocketCommunicator(application, "/ws/tournament_game/wait/")
         communicator1.scope["user"] = self.user1
         connected, _ = await communicator1.connect()
@@ -677,11 +719,13 @@ class TournamentGameConsumerTests(TestCase):
         {
             "tournament_name": "test_tournament1",
             "create_user_intra_id": "room_1_owner",
+            "create_user_nickname": "room_1_owner_nickname",
             "wait_num": "1",
         },
         {
             "tournament_name": "test_tournament2",
             "create_user_intra_id": "room_2_owner",
+            "create_user_nickname": "room_2_owner_nickname",
             "wait_num": "1",
         },
     ]
@@ -698,11 +742,14 @@ class TournamentGameConsumerTests(TestCase):
         self.room_2_user1_id = "room_2_user1"
         self.room_2_user2_id = "room_2_user2"
         self.room_2_user3_id = "room_2_user3"
+        self.suffix = "_nickname"
 
     @database_sync_to_async
-    def create_test_user(self, intra_id):
+    def create_test_user(self, intra_id, nickname):
         # 테스트 사용자 생성
-        return get_user_model().objects.create_user(intra_id=intra_id)
+        return get_user_model().objects.create_user(
+            intra_id=intra_id, nickname=nickname
+        )
 
     @database_sync_to_async
     def delete_test_user(self, user):
@@ -722,6 +769,7 @@ class TournamentGameConsumerTests(TestCase):
             tournament_info["tournament_name"]: Tournament(
                 tournament_name=tournament_info["tournament_name"],
                 create_user_intra_id=tournament_info["create_user_intra_id"],
+                create_user_nickname=tournament_info["create_user_nickname"],
             )
             for tournament_info in self.TEST_TOURNAMENTS_INFO
         }
@@ -766,13 +814,16 @@ class TournamentGameConsumerTests(TestCase):
         communicators = []
         total_num = 1
         for user_info in users_info:
-            user = await self.create_test_user(intra_id=user_info["intra_id"])
+            user = await self.create_test_user(
+                intra_id=user_info["intra_id"],
+                nickname=user_info["intra_id"] + self.suffix,
+            )
             communicator, response_dict = await self.connect_and_echo_data(
                 tournament_name=tournament_name, user=user
             )
 
             self.assertEqual(response_dict["message_type"], MessageType.WAIT.value)
-            self.assertEqual(response_dict["intra_id"], user.intra_id)
+            self.assertEqual(response_dict["nickname"], user.nickname)
             self.assertEqual(response_dict["total"], total_num)
             self.assertEqual(
                 response_dict["number"], user_info["expected_player_number"].value
@@ -812,38 +863,38 @@ class TournamentGameConsumerTests(TestCase):
     async def test_receive_wait_ready_data(self):
         users_info_test_tournament1 = [
             {
-                "intra_id": self.room_1_owner_id,
+                "nickname": self.room_1_owner_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_1,
             },
             {
-                "intra_id": self.room_1_user1_id,
+                "nickname": self.room_1_user1_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_2,
             },
             {
-                "intra_id": self.room_1_user2_id,
+                "nickname": self.room_1_user2_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_3,
             },
             {
-                "intra_id": self.room_1_user3_id,
+                "nickname": self.room_1_user3_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_4,
             },
         ]
 
         users_info_test_tournament2 = [
             {
-                "intra_id": self.room_2_owner_id,
+                "nickname": self.room_2_owner_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_1,
             },
             {
-                "intra_id": self.room_2_user1_id,
+                "nickname": self.room_2_user1_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_2,
             },
             {
-                "intra_id": self.room_2_user2_id,
+                "nickname": self.room_2_user2_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_3,
             },
             {
-                "intra_id": self.room_2_user3_id,
+                "nickname": self.room_2_user3_id + self.suffix,
                 "expected_player_number": PlayerNumber.PLAYER_4,
             },
         ]
@@ -863,46 +914,46 @@ class TournamentGameConsumerTests(TestCase):
         users_ready_info_test_tournament1 = [
             {
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
         ]
 
         users_ready_info_test_tournament2 = [
             {
                 "round": "1",
-                "1p": self.room_2_owner_id,
-                "2p": self.room_2_user1_id,
+                "1p": self.room_2_owner_id + self.suffix,
+                "2p": self.room_2_user1_id + self.suffix,
             },
             {
                 "round": "1",
-                "1p": self.room_2_owner_id,
-                "2p": self.room_2_user1_id,
+                "1p": self.room_2_owner_id + self.suffix,
+                "2p": self.room_2_user1_id + self.suffix,
             },
             {
                 "round": "2",
-                "1p": self.room_2_user2_id,
-                "2p": self.room_2_user3_id,
+                "1p": self.room_2_user2_id + self.suffix,
+                "2p": self.room_2_user3_id + self.suffix,
             },
             {
                 "round": "2",
-                "1p": self.room_2_user2_id,
-                "2p": self.room_2_user3_id,
+                "1p": self.room_2_user2_id + self.suffix,
+                "2p": self.room_2_user3_id + self.suffix,
             },
         ]
 
@@ -1006,7 +1057,10 @@ class TournamentGameConsumerTests(TestCase):
         # room1에 세번째 유저 참가
         communicator, response_dict = await self.connect_and_echo_data(
             tournament_name=self.room_1_name,
-            user=await self.create_test_user(intra_id=self.room_1_user2_id),
+            user=await self.create_test_user(
+                intra_id=self.room_1_user2_id,
+                nickname=self.room_1_user2_id + self.suffix,
+            ),
         )
 
         # 남는 메세지 버리기
@@ -1054,7 +1108,9 @@ class TournamentGameConsumerTests(TestCase):
         communicator = WebsocketCommunicator(
             application, f"/ws/tournament_game/{self.room_1_name}/"
         )
-        user = await self.create_test_user(intra_id="other_user")
+        user = await self.create_test_user(
+            intra_id="other_user", nickname="other_user" + self.suffix
+        )
         communicator.scope["user"] = user
         connected, _ = await communicator.connect()
         tournament = ACTIVE_TOURNAMENTS.get(self.room_1_name)
@@ -1069,11 +1125,13 @@ class TournamentGameRoundConsumerTests(TestCase):
         {
             "tournament_name": "한글",
             "create_user_intra_id": "room_1_owner",
+            "create_user_nickname": "room_1_owner_nickname",
             "wait_num": "1",
         },
         {
             "tournament_name": "test_tournament2",
             "create_user_intra_id": "room_2_owner",
+            "create_user_nickname": "room_2_owner_nickname",
             "wait_num": "1",
         },
     ]
@@ -1090,11 +1148,14 @@ class TournamentGameRoundConsumerTests(TestCase):
         self.room_2_user1_id = "room_2_user1"
         self.room_2_user2_id = "room_2_user2"
         self.room_2_user3_id = "room_2_user3"
+        self.suffix = "_nickname"
 
     @database_sync_to_async
     def create_test_user(self, intra_id):
         # 테스트 사용자 생성
-        return get_user_model().objects.create_user(intra_id=intra_id)
+        return get_user_model().objects.create_user(
+            intra_id=intra_id, nickname=intra_id + self.suffix
+        )
 
     @database_sync_to_async
     def delete_test_user(self, user):
@@ -1138,6 +1199,7 @@ class TournamentGameRoundConsumerTests(TestCase):
             tournament_info["tournament_name"]: Tournament(
                 tournament_name=tournament_info["tournament_name"],
                 create_user_intra_id=tournament_info["create_user_intra_id"],
+                create_user_nickname=tournament_info["create_user_nickname"],
             )
             for tournament_info in self.TEST_TOURNAMENTS_INFO
         }
@@ -1203,7 +1265,7 @@ class TournamentGameRoundConsumerTests(TestCase):
             )
 
             self.assertEqual(response_dict["message_type"], MessageType.WAIT.value)
-            self.assertEqual(response_dict["intra_id"], user.intra_id)
+            self.assertEqual(response_dict["nickname"], user.nickname)
             self.assertEqual(response_dict["total"], total_num)
             self.assertEqual(
                 response_dict["number"], user_info["expected_player_number"].value
@@ -1272,26 +1334,26 @@ class TournamentGameRoundConsumerTests(TestCase):
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
         ]
 
@@ -1329,18 +1391,26 @@ class TournamentGameRoundConsumerTests(TestCase):
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "1")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_owner_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user1_id + self.suffix)
         start_reponse = await self.test_tournament1_communicators[1].receive_from()
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "1")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_owner_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user1_id + self.suffix)
         start_reponse = await self.test_tournament1_communicators[2].receive_from()
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "2")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_user2_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user3_id + self.suffix)
         start_reponse = await self.test_tournament1_communicators[3].receive_from()
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "2")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_user2_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user3_id + self.suffix)
 
         await self.test_tournament1_communicators[0].send_to(
             text_data=json.dumps(
@@ -1397,8 +1467,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "1",
-                    "winner": "room_1_user1",
-                    "loser": "room_1_owner",
+                    "winner": "room_1_user1" + self.suffix,
+                    "loser": "room_1_owner" + self.suffix,
                 }
             )
         )
@@ -1408,8 +1478,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "2",
-                    "winner": "room_1_user3",
-                    "loser": "room_1_user2",
+                    "winner": "room_1_user3" + self.suffix,
+                    "loser": "room_1_user2" + self.suffix,
                 }
             )
         )
@@ -1429,8 +1499,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 ready_data={
                     "message_type": MessageType.READY.value,
                     "round": "3",
-                    "1p": self.room_1_user1_id,
-                    "2p": self.room_1_user3_id,
+                    "1p": self.room_1_user1_id + self.suffix,
+                    "2p": self.room_1_user3_id + self.suffix,
                 },
             )
         )
@@ -1443,8 +1513,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 ready_data={
                     "message_type": MessageType.READY.value,
                     "round": "3",
-                    "1p": self.room_1_user1_id,
-                    "2p": self.room_1_user3_id,
+                    "1p": self.room_1_user1_id + self.suffix,
+                    "2p": self.room_1_user3_id + self.suffix,
                 },
             )
         )
@@ -1482,8 +1552,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "3",
-                    "winner": "room_1_user3",
-                    "loser": "room_1_user1",
+                    "winner": "room_1_user3" + self.suffix,
+                    "loser": "room_1_user1" + self.suffix,
                 }
             )
         )
@@ -1492,6 +1562,16 @@ class TournamentGameRoundConsumerTests(TestCase):
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=1)
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=2)
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=3)
+
+        user2_response = await self.test_tournament1_communicators[1].receive_from()
+        user2_dict = json.loads(user2_response)
+
+        self.assertEqual(user2_dict["message_type"], "complete")
+        self.assertEqual(user2_dict["player1"], "room_1_owner_nickname")
+        self.assertEqual(user2_dict["player2"], "room_1_user1_nickname")
+        self.assertEqual(user2_dict["player3"], "room_1_user2_nickname")
+        self.assertEqual(user2_dict["player4"], "room_1_user3_nickname")
+
         await self.discard_all_message(self.test_tournament1_communicators)
 
         # user db에 잘 저장 됐는지 확인하는 테스트
@@ -1562,26 +1642,26 @@ class TournamentGameRoundConsumerTests(TestCase):
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
         ]
         # 1221
@@ -1589,26 +1669,26 @@ class TournamentGameRoundConsumerTests(TestCase):
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
         ]
         await self.check_recieved_ready_messgae_valid(
@@ -1712,8 +1792,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "1",
-                    "winner": "room_1_user1",
-                    "loser": "room_1_owner",
+                    "winner": "room_1_user1" + self.suffix,
+                    "loser": "room_1_owner" + self.suffix,
                 }
             )
         )
@@ -1723,8 +1803,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "2",
-                    "winner": "room_1_user3",
-                    "loser": "room_1_user2",
+                    "winner": "room_1_user3" + self.suffix,
+                    "loser": "room_1_user2" + self.suffix,
                 }
             )
         )
@@ -1744,8 +1824,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 ready_data={
                     "message_type": MessageType.READY.value,
                     "round": "3",
-                    "1p": self.room_1_user1_id,
-                    "2p": self.room_1_user3_id,
+                    "1p": self.room_1_user1_id + self.suffix,
+                    "2p": self.room_1_user3_id + self.suffix,
                 },
             )
         )
@@ -1758,8 +1838,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 ready_data={
                     "message_type": MessageType.READY.value,
                     "round": "3",
-                    "1p": self.room_1_user1_id,
-                    "2p": self.room_1_user3_id,
+                    "1p": self.room_1_user1_id + self.suffix,
+                    "2p": self.room_1_user3_id + self.suffix,
                 },
             )
         )
@@ -1797,8 +1877,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "3",
-                    "winner": "room_1_user3",
-                    "loser": "room_1_user1",
+                    "winner": "room_1_user3" + self.suffix,
+                    "loser": "room_1_user1" + self.suffix,
                 }
             )
         )
@@ -1858,26 +1938,26 @@ class TournamentGameRoundConsumerTests(TestCase):
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
         ]
 
@@ -1915,18 +1995,26 @@ class TournamentGameRoundConsumerTests(TestCase):
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "1")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_owner_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user1_id + self.suffix)
         start_reponse = await self.test_tournament1_communicators[1].receive_from()
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "1")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_owner_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user1_id + self.suffix)
         start_reponse = await self.test_tournament1_communicators[2].receive_from()
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "2")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_user2_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user3_id + self.suffix)
         start_reponse = await self.test_tournament1_communicators[3].receive_from()
         start_reponse_dict = json.loads(start_reponse)
         self.assertEqual(start_reponse_dict["message_type"], MessageType.START.value)
         self.assertEqual(start_reponse_dict["round"], "2")
+        self.assertEqual(start_reponse_dict["1p"], self.room_1_user2_id + self.suffix)
+        self.assertEqual(start_reponse_dict["2p"], self.room_1_user3_id + self.suffix)
 
         await self.test_tournament1_communicators[0].send_to(
             text_data=json.dumps(
@@ -1995,26 +2083,26 @@ class TournamentGameRoundConsumerTests(TestCase):
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "1",
-                "1p": self.room_1_owner_id,
-                "2p": self.room_1_user1_id,
+                "1p": self.room_1_owner_id + self.suffix,
+                "2p": self.room_1_user1_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
             {
                 "message_type": MessageType.READY.value,
                 "round": "2",
-                "1p": self.room_1_user2_id,
-                "2p": self.room_1_user3_id,
+                "1p": self.room_1_user2_id + self.suffix,
+                "2p": self.room_1_user3_id + self.suffix,
             },
         ]
 
@@ -2120,8 +2208,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "1",
-                    "winner": "room_1_user1",
-                    "loser": "room_1_owner",
+                    "winner": "room_1_user1" + self.suffix,
+                    "loser": "room_1_owner" + self.suffix,
                 }
             )
         )
@@ -2131,8 +2219,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 {
                     "message_type": "stay",
                     "round": "2",
-                    "winner": "room_1_user3",
-                    "loser": "room_1_user2",
+                    "winner": "room_1_user3" + self.suffix,
+                    "loser": "room_1_user2" + self.suffix,
                 }
             )
         )
@@ -2152,8 +2240,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 ready_data={
                     "message_type": MessageType.READY.value,
                     "round": "3",
-                    "1p": self.room_1_user1_id,
-                    "2p": self.room_1_user3_id,
+                    "1p": self.room_1_user1_id + self.suffix,
+                    "2p": self.room_1_user3_id + self.suffix,
                 },
             )
         )
@@ -2166,8 +2254,8 @@ class TournamentGameRoundConsumerTests(TestCase):
                 ready_data={
                     "message_type": MessageType.READY.value,
                     "round": "3",
-                    "1p": self.room_1_user1_id,
-                    "2p": self.room_1_user3_id,
+                    "1p": self.room_1_user1_id + self.suffix,
+                    "2p": self.room_1_user3_id + self.suffix,
                 },
             )
         )

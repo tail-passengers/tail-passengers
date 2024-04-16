@@ -23,14 +23,14 @@ class Round(GeneralGame):
 
     def build_end_json(self) -> json:
         self.winner = (
-            self.player1.get_intra_id()
+            self.player1.get_nickname()
             if self.score1 > self.score2
-            else self.player2.get_intra_id()
+            else self.player2.get_nickname()
         )
         self.loser = (
-            self.player2.get_intra_id()
+            self.player2.get_nickname()
             if self.score1 > self.score2
-            else self.player1.get_intra_id()
+            else self.player1.get_nickname()
         )
         return json.dumps(
             {
@@ -43,14 +43,14 @@ class Round(GeneralGame):
 
     def build_stay_json(self) -> json:
         self.winner = (
-            self.player1.get_intra_id()
+            self.player1.get_nickname()
             if self.score1 > self.score2
-            else self.player2.get_intra_id()
+            else self.player2.get_nickname()
         )
         self.loser = (
-            self.player2.get_intra_id()
+            self.player2.get_nickname()
             if self.score1 > self.score2
-            else self.player1.get_intra_id()
+            else self.player1.get_nickname()
         )
         return json.dumps(
             {
@@ -74,6 +74,9 @@ class Round(GeneralGame):
 
     def get_winner(self) -> str:
         return self.winner
+
+    def get_nicknames(self) -> tuple[str, str]:
+        return self.player1.get_nickname(), self.player2.get_nickname()
 
     def get_is_closed(self) -> bool:
         return self.is_closed

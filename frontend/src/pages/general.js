@@ -2,28 +2,30 @@ import { $ } from "../utils/querySelector.js";
 import { navigate } from "../utils/navigate.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 
 
 function General({ $app, initialState }) {
-	let playerNum = 0, data, intraId, versusId, gameSocket, scoreElement, state = "playing",
-		noticeElement, animationFrameId, gameIdValue, gameMode;
-	let navBarHeight = $(".navigation-bar").clientHeight;
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	let footerHeight = $(".tp-footer-container").clientHeight;
+	let navBarHeight = $(".navigation-bar").clientHeight;
+	let playerNum = 0, data, nickname, versusNickname = "", gameSocket, scoreElement, infoElement, state = "playing",
+		noticeElement, animationFrameId, gameIdValue, gameMode, ballMaterials, ballCustom = 0;
+
 	$("#nav-bar").hidden = true;
 
 
-	// TODO 소켓끊는 함수 다른 소켓연결에 모두 적용하기, 토너먼트에서 페이지 이동할 때 제너럴로 이동하기.
-	// 토너먼트 주소랑 라운드를 스토리지에 저장해서 활용하기, 끝날 때 게임유형 판단하고 결과페이지, 대기 결정하기
-	//소켓 끊는 함수
+	// TODO 제너럴 레디 후 토너먼트 가면 소켓 안끊는 문제
 
 	function clearThreeJs() {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
 		if (state == "playing") {
 			gameSocket.close();
-			console.log("socket close");
 			gameSocket = null;
-			$("#nav-bar").hidden = false;
 		}
+		$("#nav-bar").hidden = false;
 		removeScoreElement();
 		cancelAnimationFrame(animationFrameId);
 		document.removeEventListener('keydown', handleKeyPress);
@@ -39,7 +41,6 @@ function General({ $app, initialState }) {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 
 			gameSocket.onopen = () => {
-				console.log('WebSocket connected:', `wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 				resolve(gameSocket);
 			};
 
@@ -60,11 +61,9 @@ function General({ $app, initialState }) {
 			if (gameMode == "tournament_game") {
 				data = sessionStorage.getItem('Data');
 				playerNum = sessionStorage.getItem('playerNum');
-				intraId = sessionStorage.getItem('intraId');
+				nickname = sessionStorage.getItem('nickname');
 				gameSocket.send(data);
-				console.log("전송함: ", data);
 			}
-			console.log(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
 			gameSocket.addEventListener('message', this.onGame);
 		}
 		catch (error) {
@@ -74,46 +73,44 @@ function General({ $app, initialState }) {
 
 	this.onGame = (event) => {
 		data = JSON.parse(event.data);
-		// console.log("Received data:", data);
 		if (data.message_type == "ready") {
-			console.log(data.message_type);
 			// 플레이어 정보 초기화
-			intraId = data.intra_id;
+			nickname = data.nickname;
 			playerNum = data.number;
 			gameSocket.send(event.data);
 		}
 		else if (data.message_type == "start") {
-			console.log(data.message_type);
-			if (data["1p"] != intraId) {
-				versusId = data["1p"];
+			if (data["1p"] != nickname) {
+				versusNickname = data["1p"];
 			}
 			else {
-				versusId = data["2p"]
+				versusNickname = data["2p"]
 			}
-			console.log("player info: " + intraId + " " + playerNum + ", " + versusId);
 			this.$element.innerHTML = '';
 			this.initThreeJs(this.$element);
 			this.initEventListeners();
 			setTimeout(() => {
 				this.startRender();
+				updateScore();
 			}, 1000);
 		}
 		else if (data.message_type == "score") {
-			console.log(data.message_type);
 			score.player1 = data.player1_score;
 			score.player2 = data.player2_score;
+			updateScore();
+			ballReset();
 		}
 		else if (data.message_type == "end") {
-			console.log(data.message_type);
 			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
 			state = "end";
 			clearThreeJs();
+			sessionStorage.setItem('winner', data.winner);
+			sessionStorage.setItem('loser', data.loser);
 			gameSocket.send(event.data);
 
 			//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
 			if (gameMode == "tournament_game") {
 				if (data.round == "3") {
-					console.log("set result");
 					sessionStorage.setItem('winner', data.winner);
 					sessionStorage.setItem('loser', data.loser);
 				}
@@ -122,13 +119,12 @@ function General({ $app, initialState }) {
 					state = "lose";
 					this.$element.innerHTML = endMsg();
 					gameSocket.close();
-					console.log("socket close");
+					gameSocket = null;
 					$("#nav-bar").hidden = false;
 				}
 			}
 		}
 		else if (data.message_type == "stay") {
-			console.log(data.message_type);
 			state = "stay";
 			clearThreeJs();
 			if (data.round == "3") {
@@ -138,10 +134,11 @@ function General({ $app, initialState }) {
 			}
 			else {
 				gameSocket.send(event.data);
+				$("#nav-bar").hidden = true;
 				// 이겼으면 새 소켓 연결 후 대기,
 				state = "win";
 				this.$element.innerHTML = `
-					<div class='text-center h1 text-left tp-color-secondary'>Waiting other player...</div>
+					<div class='text-center h1 text-left tp-color-secondary'>${locale.general.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>1 / 2</div>
 					<div class="text-center">
 					</div>
@@ -151,41 +148,45 @@ function General({ $app, initialState }) {
 				gameSocket.removeEventListener('message', this.onGame);
 				gameSocket.addEventListener('message', this.finalGame);
 				gameSocket.send(event.data);
-				console.log("Received 대기중 data:", data);
 			}
 		}
 		else if (data.message_type == "error") {
-			console.log(data.message_type);
 			clearThreeJs();
+			if (gameSocket != null) {
+				gameSocket.close();
+				gameSocket = null;
+			}
 			this.$element.innerHTML = errorMsg();
 		}
 		else if (data.message_type == "complete") {
-			console.log(data.message_type);
+			sessionStorage.setItem('p1', data.player1);
+			sessionStorage.setItem('p2', data.player2);
+			if (gameMode == "tournament_game") {
+				sessionStorage.setItem('p3', data.player3);
+				sessionStorage.setItem('p4', data.player4);
+			}
 			gameSocket.close();
-			console.log("socket close");
+			gameSocket = null;
 			$("#nav-bar").hidden = false;
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
 
 		}
 	}
-
+	// final waiting중일 때 뒤로가기 누르면 
 	this.finalGame = (event) => {
 		data = JSON.parse(event.data);
 		if (data.message_type == "ready") {
-			console.log("Final " + data.message_type);
 			// this.renderPlaying(data);
-			console.log('ready');
 			// 1p, 2p 나랑 versus 저장
-			if (data["1p"] == intraId) {
+			if (data["1p"] == nickname) {
 				playerNum = "player1"
-				versusId = data["2p"];
+				versusNickname = data["2p"];
 			}
 			else {
 				playerNum = "player2"
-				versusId = data["1p"];
+				versusNickname = data["1p"];
 			}
-			console.log("내 인트라 : " + intraId + ", 상대 인트라 :" + versusId);
 			sessionStorage.setItem('playerNum', playerNum);
 			sessionStorage.setItem('Data', JSON.stringify(data));
 			const tournamentName = sessionStorage.getItem('tournamentName');
@@ -193,7 +194,7 @@ function General({ $app, initialState }) {
 			sessionStorage.setItem('idValue', tournamentURL);
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
 			gameSocket.close();
-			console.log("socket close");
+			gameSocket = null;
 			navigate(targetURL);
 			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 		}
@@ -226,8 +227,8 @@ function General({ $app, initialState }) {
 	};
 
 
-	let WIDTH = window.innerWidth,                                 //canvas.css에서 반응형으로 처리
-		HEIGHT = window.innerHeight - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
+	let WIDTH = /*window.innerWidth,*/ 1920,                                 //canvas.css에서 반응형으로 처리
+		HEIGHT = /*window.innerHeight*/ 1080 - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
 		VIEW_ANGLE = 45,
 		ASPECT = WIDTH / HEIGHT,
 		NEAR = 1,
@@ -258,29 +259,7 @@ function General({ $app, initialState }) {
 	const wandLoader1 = new GLTFLoader();
 	const wandLoader2 = new GLTFLoader();
 
-	// Initialize the Three.js scene, camera, and renderer
-	function resizeRenderer(renderer) {
-		const canvas = renderer.domElement;
-		const width = window.innerWidth;
-		const height = window.innerHeight - (navBarHeight + footerHeight);
-		const needResize = canvas.width !== width || canvas.height !== height;
-		if (needResize) {
-			renderer.setSize(width, height, false);
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
-		}
-		return needResize;
-	}
-
-
-
 	this.render = () => {
-		// if (resizeRenderer(renderer)) {
-		// 	const canvas = renderer.domElement;
-		// 	camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		// 	camera.updateProjectionMatrix();
-		// 	renderer.render(scene, camera);
-		// }
 		if (running) {
 			animationFrameId = requestAnimationFrame(() => {
 				this.render();
@@ -296,7 +275,6 @@ function General({ $app, initialState }) {
 			else if (playerNum == "player2") {
 				camera.position.x = paddle2.position.x;
 			}
-			updateScore();
 			// camera2.position.x = paddle2.position.x;
 			ball.position.x = data.ball_x;
 			ball.position.y = data.ball_y;
@@ -472,18 +450,23 @@ function General({ $app, initialState }) {
 
 		// ball 
 		const ballGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
-		const ballMaterial = new THREE.MeshLambertMaterial({
-			color: 0xFF9900,
-			emissive: 0xFF9900
-		});
+		ballMaterials = [
+			new THREE.MeshLambertMaterial({ color: 0xFF9900, emissive: 0xFF9900 }),
+			new THREE.MeshLambertMaterial({ color: 0x00FF99, emissive: 0x00FF99 }),
+			new THREE.MeshLambertMaterial({ color: 0x9900FF, emissive: 0x9900FF }),
+			new THREE.MeshLambertMaterial({ color: 0x99FF00, emissive: 0x99FF00 }),
+			new THREE.MeshLambertMaterial({ color: 0x0099FF, emissive: 0x0099FF }),
+			new THREE.MeshLambertMaterial({ color: 0xFF0099, emissive: 0xFF0099 })
+		];
 
-		ball = new THREE.Mesh(ballGeometry, ballMaterial);
+
+		ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
 		scene.add(ball);
-
 		ball.$velocity = {
 			x: 0,
 			z: direction * 10
 		};
+
 
 		// paddle 
 		paddle1 = addPaddle(0xFFFFFF, 0.7);
@@ -502,9 +485,11 @@ function General({ $app, initialState }) {
 		renderer.domElement.style.cursor = 'none';
 		renderer.domElement.style.zIndex = '0';
 
+
+
 		scoreElement = document.createElement('div');
 		scoreElement.textContent = '';
-		scoreElement.style.fontSize = '120%';
+		scoreElement.style.fontSize = '170%';
 		scoreElement.style.position = 'absolute';
 		scoreElement.style.top = '10px';
 		scoreElement.style.left = '10px';
@@ -513,11 +498,23 @@ function General({ $app, initialState }) {
 		const canvasRect = renderer.domElement.getBoundingClientRect();
 		scoreElement.style.top = `${canvasRect.top + 10}px`;
 		scoreElement.style.left = `${canvasRect.left + 10}px`;
+
+		infoElement = document.createElement('div');
+		infoElement.textContent = '';
+		infoElement.style.fontSize = '120%';
+		infoElement.style.position = 'absolute';
+		infoElement.style.top = '10px';
+		infoElement.style.left = '10px';
+		infoElement.style.color = '#ffffff';
+		infoElement.style.zIndex = '1';
+		infoElement.style.top = `${canvasRect.top + 70}px`;
+		infoElement.style.left = `${canvasRect.left + 10}px`;
 		document.body.appendChild(scoreElement);
+		document.body.appendChild(infoElement);
 
 
 		noticeElement = document.createElement('div');
-		noticeElement.textContent = `${intraId} vs ${versusId}\nGet ready to protego spell!`;
+		noticeElement.textContent = `${nickname} vs ${versusNickname} ${locale.general.getReady}`;
 		noticeElement.style.fontSize = '200%';
 		// noticeElement.style.position = 'absolute';
 		noticeElement.style.top = '50%';
@@ -544,28 +541,36 @@ function General({ $app, initialState }) {
 		document.body.appendChild(noticeElement);
 
 	}
+	function ballReset() {
+		ball.material = ballMaterials[ballCustom];
+	}
+
 	// 스코어 업데이트 함수
 	function updateScore() {
 		if (noticeElement.parentNode) {
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
 		if (playerNum == "player1") {
-			scoreElement.textContent = `${intraId} ${score.player1}:${score.player2} ${versusId}`;
+			scoreElement.textContent = `${nickname} ${score.player1} : ${score.player2} ${versusNickname}`;
 		}
 		else if (playerNum == "player2") {
-			scoreElement.textContent = `${intraId} ${score.player2}:${score.player1} ${versusId}`;
+			scoreElement.textContent = `${nickname} ${score.player2} : ${score.player1} ${versusNickname}`;
 		}
+		infoElement.textContent = `B - ${locale.general.ballChange}`;
 	}
+
 	function removeScoreElement() {
 		if (scoreElement.parentNode) {
-			console.log("score removed");
 			scoreElement.parentNode.removeChild(scoreElement);
 		}
 		if (noticeElement.parentNode) {
-			console.log("notice removed");
 			noticeElement.parentNode.removeChild(noticeElement);
 		}
+		if (infoElement.parentNode) {
+			infoElement.parentNode.removeChild(infoElement);
+		}
 	}
+
 
 
 	// 완드 회전 애니메이션
@@ -577,25 +582,6 @@ function General({ $app, initialState }) {
 	this.setState = (content) => {
 		this.state = content;
 	};
-
-	// bot 모드 paddle 이동
-	function processCpuPaddle() {
-		let ballPos = ball.position,
-			cpuPos = paddle2.position;
-		camera2.position.x = paddle2.position.x;
-
-		if (cpuPos.x - 100 > ballPos.x) {
-			cpuPos.x -= Math.min(cpuPos.x - ballPos.x + randomOffset, 12);
-		} else if (cpuPos.x - 100 < ballPos.x) {
-			cpuPos.x += Math.min(ballPos.x - cpuPos.x + randomOffset, 12);
-		}
-	}
-	function updateRandomOffset() {
-		// -25에서 25 사이의 랜덤한 값
-		randomOffset = Math.random() * 205 - 95;
-		// CPU 패들의 위치에 랜덤값을 더하여 업데이트
-		paddle2.position.x += randomOffset;
-	}
 
 	function reset() {
 		ball.position.set(0, 0, 0);
@@ -627,6 +613,10 @@ function General({ $app, initialState }) {
 
 	// 키 입력 동작
 	function handleKeyPress(event) {
+		if (event.code == "KeyB") {
+			ballCustom = (ballCustom + 1) % 6;
+			ballReset();
+		}
 		keyState[event.code] = true;
 		let keyPressSend = {
 			number: playerNum,
@@ -659,8 +649,14 @@ function General({ $app, initialState }) {
 	}
 
 
-
-
+	function sendMaxima() {
+		let maxima = {
+			number: playerNum,
+			input: "protego_maxima",
+			message_type: "playing"
+		}
+		gameSocket.send(JSON.stringify(maxima));
+	}
 	// 맥시마 키액션
 	function keyAction(code) {
 		const currentTime = new Date().getTime();
@@ -669,8 +665,8 @@ function General({ $app, initialState }) {
 		}
 		if (code === 'ArrowUp') {
 			if (shouldPerformAction(code) && !isKeyPressed) {
-				console.log("Critical!");
 				// 맥시마 받았을 때도 발동하기
+				sendMaxima();
 				blinkEffect();
 				if (ball && ball.$velocity) {
 					if (ball.$velocity.z < 0) {
@@ -695,10 +691,7 @@ function General({ $app, initialState }) {
 	function blinkEffect() {
 		// 초기값 저장
 		let initialEmissive = ball.material.emissive.getHex();
-		console.log(initialEmissive);
-		if (initialEmissive > 0xFF0900) {
-			initialEmissive -= 0x001000;
-		}
+		initialEmissive -= 0x001000;
 
 		// 반짝임 효과를 위한 애니메이션
 		const blinkDuration = 400; // 반짝임 지속 시간 (밀리초)
@@ -789,6 +782,13 @@ function General({ $app, initialState }) {
 		}
 		this.makeGame();
 	};
+
+	window.addEventListener(
+		"languageChange",
+		function () {
+			this.render();
+		}.bind(this)
+	);
 
 	this.init();
 }

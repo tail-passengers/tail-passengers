@@ -16,15 +16,23 @@ from .Round import Round
 
 
 class Tournament:
-    def __init__(self, tournament_name: str, create_user_intra_id: str):
+    def __init__(
+        self,
+        tournament_name: str,
+        create_user_intra_id: str,
+        create_user_nickname: str,
+    ):
         self.tournament_name: str = tournament_name
         self.round_list: list[Round or None] = [None, None, None]
         self.player_list: list[Player or None] = [
-            Player(number=1, intra_id=create_user_intra_id),
+            Player(
+                number=1, intra_id=create_user_intra_id, nickname=create_user_nickname
+            ),
             None,
             None,
             None,
         ]
+        self.nickname_list: list[str] = ["", "", "", ""]
         self.player_total_cnt: int = 1
         self.status: TournamentStatus = TournamentStatus.WAIT
 
@@ -34,11 +42,13 @@ class Tournament:
             "wait_num": str(self.player_total_cnt),
         }
 
-    def _join_tournament_with_intra_id(self, intra_id: str) -> PlayerNumber:
+    def _join_tournament_with_intra_id(
+        self, intra_id: str, nickname: str
+    ) -> PlayerNumber:
         for idx, player in enumerate(self.player_list):
             if player is None:
                 self.player_list[idx] = Player(
-                    number=2 if idx % 2 else 1, intra_id=intra_id
+                    number=2 if idx % 2 else 1, intra_id=intra_id, nickname=nickname
                 )
                 self.player_total_cnt += 1
                 if self.player_total_cnt == TOURNAMENT_PLAYER_MAX_CNT:
@@ -47,12 +57,16 @@ class Tournament:
             elif player.get_intra_id() == intra_id:
                 return PlayerNumber.PLAYER_1
 
-    def build_tournament_wait_detail_json(self, intra_id: str) -> tuple[str, json]:
-        player_number = self._join_tournament_with_intra_id(intra_id=intra_id).value
+    def build_tournament_wait_detail_json(
+        self, intra_id: str, nickname: str
+    ) -> tuple[str, json]:
+        player_number = self._join_tournament_with_intra_id(
+            intra_id=intra_id, nickname=nickname
+        ).value
         return player_number, json.dumps(
             {
                 "message_type": MessageType.WAIT.value,
-                "intra_id": intra_id,
+                "nickname": nickname,
                 "total": self.player_total_cnt,
                 "number": player_number,
             }
@@ -61,8 +75,8 @@ class Tournament:
     def build_tournament_ready_json(
         self,
         team_name: TournamentGroupName,
-        player1_intra_id: str = None,
-        player2_intra_id: str = None,
+        player1_nickname: str = None,
+        player2_nickname: str = None,
     ) -> json:
         if team_name == TournamentGroupName.A_TEAM:
             self.round_list[0] = Round(
@@ -72,8 +86,8 @@ class Tournament:
                 {
                     "message_type": MessageType.READY.value,
                     "round": RoundNumber.ROUND_1.value,
-                    "1p": self.player_list[0].get_intra_id(),
-                    "2p": self.player_list[1].get_intra_id(),
+                    "1p": self.player_list[0].get_nickname(),
+                    "2p": self.player_list[1].get_nickname(),
                 }
             )
         elif team_name == TournamentGroupName.B_TEAM:
@@ -84,16 +98,16 @@ class Tournament:
                 {
                     "message_type": MessageType.READY.value,
                     "round": RoundNumber.ROUND_2.value,
-                    "1p": self.player_list[2].get_intra_id(),
-                    "2p": self.player_list[3].get_intra_id(),
+                    "1p": self.player_list[2].get_nickname(),
+                    "2p": self.player_list[3].get_nickname(),
                 }
             )
         elif team_name == TournamentGroupName.FINAL_TEAM:
             player1, player2 = None, None
             for idx, player in enumerate(self.player_list):
-                if player.get_intra_id() == player1_intra_id:
+                if player.get_nickname() == player1_nickname:
                     player1 = player
-                elif player.get_intra_id() == player2_intra_id:
+                elif player.get_nickname() == player2_nickname:
                     player2 = player
             player1.set_status(PlayerStatus.READY)
             player2.set_status(PlayerStatus.READY)
@@ -104,18 +118,31 @@ class Tournament:
                 {
                     "message_type": MessageType.READY.value,
                     "round": RoundNumber.ROUND_3.value,
-                    "1p": player1_intra_id,
-                    "2p": player2_intra_id,
+                    "1p": player1_nickname,
+                    "2p": player2_nickname,
                 }
             )
 
-    def disconnect_tournament(self, intra_id: str) -> json:
+    def build_tournament_complete_json(self, is_error=False) -> json:
+        return json.dumps(
+            {
+                "message_type": (
+                    MessageType.ERROR.value if is_error else MessageType.COMPLETE.value
+                ),
+                "player1": self.nickname_list[0],
+                "player2": self.nickname_list[1],
+                "player3": self.nickname_list[2],
+                "player4": self.nickname_list[3],
+            }
+        )
+
+    def disconnect_tournament(self, nickname: str) -> json:
         data = {"message_type": MessageType.WAIT.value}
         for idx, player in enumerate(self.player_list):
-            if player is not None and player.get_intra_id() == intra_id:
+            if player is not None and player.get_nickname() == nickname:
                 self.player_list[idx] = None
                 self.player_total_cnt -= 1
-                data["intra_id"] = intra_id
+                data["nickname"] = nickname
                 data["total"] = self.player_total_cnt
                 data["number"] = list(PlayerNumber)[idx].value
         return json.dumps(data)
@@ -126,7 +153,7 @@ class Tournament:
                 return False
             if player.get_status() != PlayerStatus.READY:
                 return False
-
+        self.nickname_list = [player.get_nickname() for player in self.player_list]
         return True
 
     def is_all_round_ready(self):
@@ -156,12 +183,12 @@ class Tournament:
     def set_status(self, status: TournamentStatus) -> None:
         self.status = status
 
-    def try_set_ready(self, player_number: str, intra_id: str) -> bool:
+    def try_set_ready(self, player_number: str, nickname: str) -> bool:
         player_numbers = [player.value for player in PlayerNumber]
         idx = player_numbers.index(player_number)
         if (
             self.player_list[idx] is None
-            or self.player_list[idx].get_intra_id() != intra_id
+            or self.player_list[idx].get_nickname() != nickname
         ):
             return False
         self.player_list[idx].set_status(PlayerStatus.READY)

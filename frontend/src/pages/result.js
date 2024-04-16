@@ -2,6 +2,7 @@ import { $ } from "../utils/querySelector.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { fetchUsers } from "../utils/fetches.js";
+import { replaceHttpWithHttps } from "../utils/imageUpload.js";
 
 function GameResult({ initialState }) {
 	this.state = initialState;
@@ -26,8 +27,8 @@ function GameResult({ initialState }) {
 
 	const renderPlayers = async () => {
 		// const data = await getGameResult(); //TODO - 게임 종료 후 받아오기(소켓? 폴링?)
-		// const wineer = letsessionStorage.getItem('winner');
-		// const loser = sessionStorage.getItem('loser');
+		const wineer = letsessionStorage.getItem('winner');
+		const loser = sessionStorage.getItem('loser');
 		const gameMode = sessionStorage.getItem('gameMode');
 		let gameName;
 		if (gameMode == 'general_game') {
@@ -40,6 +41,9 @@ function GameResult({ initialState }) {
 		// 1st와 2nd에 해당 등수 인트라 아이디 저장됨.
 		const data = await fetchUsers();
 		if (data) {
+			data.forEach(player => (
+				player.profile_image = replaceHttpWithHttps(player.profile_image)
+			));
 			const playersCard = data
 				.map(
 					(data, index) => `
@@ -52,7 +56,7 @@ function GameResult({ initialState }) {
                                     <img class="tp-pf-photo-thumnail tp-rs-photo-thumnail" src="${data.profile_image}" />
                                 </div>
                                 <div class="card-title tp-rs-card-title default-container col">
-                                    ${data.intra_id}
+                                    ${data.nickname}
                                 </div>
                             </div>
                         </div>

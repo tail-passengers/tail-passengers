@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.contrib.sessions.models import Session
 from django.utils.timezone import make_aware
 from datetime import datetime
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from .models import UserStatusEnum
+from .models import UserStatusEnum, Users
 
 
 class UsersViewSetTest(APITestCase):
@@ -316,3 +317,61 @@ class LoginLogoutUserStatusTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.user.refresh_from_db()
         self.assertEqual(self.user.status, UserStatusEnum.ONLINE)
+
+
+class DuplicateLoginTest(APITestCase):
+    def setUp(self):
+        """
+        test 유저 생성
+        """
+        self.user = get_user_model().objects.create_user(
+            intra_id="123", is_test_user=True
+        )
+        self.login_url = reverse(
+            "test_user_login", kwargs={"intra_id": self.user.intra_id}
+        )
+        self.logout_url = reverse("logout")
+
+    def test_login_creates_new_session(self):
+        """
+        로그인시 유저 세션이 생기는지 확인
+        """
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        user = Users.objects.get(intra_id="123")
+        self.assertIsNotNone(user.session_key)
+        self.assertTrue(Session.objects.filter(session_key=user.session_key).exists())
+
+    def test_logout_deletes_session(self):
+        # 먼저 로그인을 수행
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        user = Users.objects.get(intra_id="123")
+        session_key_before_logout = user.session_key
+
+        # 로그아웃 수행
+        response = self.client.get(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        user.refresh_from_db()
+        self.assertIsNone(user.session_key)
+        self.assertFalse(
+            Session.objects.filter(session_key=session_key_before_logout).exists()
+        )
+
+    def test_duplicate_login(self):
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        user = Users.objects.get(intra_id="123")
+        old_session_key = user.session_key
+
+        # 새로운 클라이언트 생성
+        new_client = self.client_class()
+        response = new_client.get(self.login_url)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        user = Users.objects.get(intra_id="123")
+        new_session_key = user.session_key
+
+        self.assertNotEqual(old_session_key, new_session_key)
+        self.assertFalse(Session.objects.filter(session_key=old_session_key).exists())
+        self.assertTrue(Session.objects.filter(session_key=new_session_key).exists())
+        self.assertTrue(response)

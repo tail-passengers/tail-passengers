@@ -24,12 +24,24 @@ const jaLocale = {
 		tournamentMode: "トーナメントモード",
 		tournamentModeDesc: "4人で対戦するトーナメントモード"
 	},
+	general: {
+		waiting: "他の選手を待つ...",
+		error: "エラーが発生した.",
+		getReady: "プロテゴの呪文に備えよう！",
+		ballChange: "Change ball color",
+		comMode: "Computer mode on"
+	},
 	tournament: {
 		mainText: "トーナメント表",
 		mainTextDesc: "トーナメントを作ることも、参加することもできる。",
 		list: "トーナメント名",
 		createBtn: "新しいトーナメントを作る",
-		refresh: "リフレッシュ"
+		refresh: "リフレッシュ",
+		noGame: "参加できる試合はない",
+		waiting: "他の選手を待っている...",
+		goBack: "リストに戻る",
+		createFail: "既存のタイトルや20文字以上のタイトルは作成できません。",
+		noticePrompt: "新しいトーナメントの名前を入力します：:"
 	},
 	result: {
 		mainText: "結果"

@@ -4,19 +4,27 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
 function SelectMode({ initialState }) {
-	let gameIdValue, initSocket, targetURL;
+	let gameIdValue, initSocket = null, targetURL;
 	this.state = initialState;
 	this.$element = document.createElement("div");
 	this.$element.className = "content default-container tp-sl-card-content";
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 
 	this.setState = (content) => {
 		this.state = content;
 		this.render();
 	};
 
+	function closeSocket() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		if (initSocket && initSocket.readyState <= 1) {
+			initSocket.close();
+			window.removeEventListener("popstate", closeSocket);
+		}
+	}
+
 	this.render = () => {
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
 
 		this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
@@ -60,11 +68,12 @@ function SelectMode({ initialState }) {
 		const singleBtn = $(".tp-sl-single-btn");
 		const multiBtn = $(".tp-sl-multi-btn");
 		const tournamentBtn = $(".tp-sl-tournament-btn");
+		window.addEventListener("popstate", closeSocket);
+
 		if (singleBtn) {
 			singleBtn.addEventListener("click", function (event) {
 				event.preventDefault();
 				targetURL = `https://${process.env.BASE_IP}/${this.value}`;
-				console.log("targetURL", targetURL);
 				navigate(targetURL);
 			});
 		}
@@ -72,7 +81,6 @@ function SelectMode({ initialState }) {
 			tournamentBtn.addEventListener("click", function (event) {
 				event.preventDefault();
 				targetURL = `https://${process.env.BASE_IP}/${this.value}`;
-				console.log("targetURL", targetURL);
 				navigate(targetURL);
 			});
 		}
@@ -81,7 +89,11 @@ function SelectMode({ initialState }) {
 			multiBtn.addEventListener("click", function (event) {
 				event.preventDefault();
 				const multiTextElement = document.querySelector(".tp-sl-multi-btn .tp-sl-card-text");
-				multiTextElement.textContent = "Waiting for other players...";
+				multiTextElement.textContent = `${locale.tournament.waiting}`;
+				if (initSocket != null) {
+					initSocket.close();
+					initSocket = null;
+				}
 				initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
 				initSocket.addEventListener('message', idSocketConnect);
 			});
@@ -89,7 +101,6 @@ function SelectMode({ initialState }) {
 	};
 
 	const idSocketConnect = (event) => {
-		console.log('Message from server ', event.data);
 		initSocket.close();
 		let data = JSON.parse(event.data);
 		gameIdValue = data.game_id;

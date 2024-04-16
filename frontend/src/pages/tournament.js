@@ -5,14 +5,21 @@ import locales from "../utils/locales/locales.js";
 
 function Tournament({ $app, initialState }) {
 
-	let gameSocket, tournamentName, round, playerNum = 0, data, intraId = "", versusId;
+	let gameSocket, tournamentName, round, playerNum = 0, data, nickname = "", versusNickname;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 
+	function closeSocket() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		if (gameSocket && gameSocket.readyState <= 1) {
+			gameSocket.close();
+			window.removeEventListener("popstate", closeSocket);
+		}
+	}
 	//초기 토너먼트 테이블 렌더
 	this.render = () => {
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
 		this.$element.innerHTML = `
 					<div class="content default-container">
 							<div class="container">
@@ -52,11 +59,7 @@ function Tournament({ $app, initialState }) {
 		// Create New Tournament 버튼 클릭 이벤트 핸들러 등록
 		const createTournamentBtn = this.$element.querySelector("#createTournamentBtn");
 		createTournamentBtn.addEventListener("click", () => {
-			tournamentName = prompt("Enter the name of the new tournament:");
-			// if (/[\uac00-\ud7a3]/.test(tournamentName)) {
-			// 	alert("Available in English only. ");
-			// }
-			// else {
+			tournamentName = prompt(`${locale.tournament.noticePrompt}`);
 			const message = {
 				"message_type": "create",
 				"tournament_name": tournamentName
@@ -79,7 +82,6 @@ function Tournament({ $app, initialState }) {
 			await this.connectWebSocket("wait");
 			gameSocket.addEventListener('message', (event) => {
 				const data = JSON.parse(event.data);
-				console.log("Received data:", data);
 				if (data.game_list) {
 					// 토너먼트 리스트를 받은 경우
 					this.fillTable(data.game_list);
@@ -89,7 +91,7 @@ function Tournament({ $app, initialState }) {
 						this.renderWaiting();
 					} else if (data.result === "fail") {
 						// 방 생성 실패 시 처리
-						alert("You cannot create existing titles or titles longer than 20 characters.");
+						alert(`${locale.tournament.createFail}`);
 						this.render();
 					}
 				}
@@ -125,13 +127,12 @@ function Tournament({ $app, initialState }) {
 				text.addEventListener("click", () => {
 					// 선택된 토너먼트 이름을 전역 변수 tournamentName에 할당
 					tournamentName = text.textContent;
-					console.log(tournamentName);
 					// 선택된 토너먼트로 renderWaiting 호출하여 소켓 연결 시도
 					this.renderWaiting();
 				});
 			});
 		} else {
-			tableBody.innerHTML = "<tr><td colspan='3' class='text-left'>No games available</td></tr>";
+			tableBody.innerHTML = `<tr><td colspan='3' class='text-left'>${locale.tournament.noGame}</td></tr>`;
 		}
 	};
 
@@ -142,22 +143,20 @@ function Tournament({ $app, initialState }) {
 			gameSocket.addEventListener('message', (event) => {
 				data = JSON.parse(event.data);
 				if (data.message_type == "wait") {
-					if (intraId == "" || intraId == data.intra_id) {
-						intraId = data.intra_id;
+					if (nickname == "" || nickname == data.nickname) {
+						nickname = data.nickname;
 						playerNum = data.number;
-						sessionStorage.setItem('intraId', data.intra_id);
+						sessionStorage.setItem('nickname', data.nickname);
 					}
 
-					console.log("I am : " + playerNum + " " + intraId);
 					gameSocket.send(event.data);
 
 
-					console.log("Received 대기중 data:", data);
 					this.$element.innerHTML = `
-					<div class='text-center h1 text-left tp-color-secondary'>Waiting other players...</div>
+					<div class='text-center h1 text-left tp-color-secondary'>${locale.tournament.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>${data.total} / 4</div>
 					<div class="text-center">
-							<button id="goBackToListBtn" class="btn tp-btn-primary">Go back to list</button>
+							<button id="goBackToListBtn" class="btn tp-btn-primary">${locale.tournament.goBack}</button>
 					</div>
 			`;
 					// "Go back to list" 버튼 클릭 이벤트 핸들러 등록
@@ -166,22 +165,21 @@ function Tournament({ $app, initialState }) {
 				}
 				else if (data.message_type == "ready") {
 					// this.renderPlaying(data);
-					console.log('ready');
 					// round 저장, 1p, 2p 나랑 versus 저장
 					round = data.round;
-					console.log('round = ', round);
-					if (data["1p"] == intraId) {
+					if (data["1p"] == nickname) {
 						playerNum = "player1"
-						versusId = data["2p"];
+						versusNickname = data["2p"];
 					}
 					else {
 						playerNum = "player2"
-						versusId = data["1p"];
+						versusNickname = data["1p"];
 					}
 					sessionStorage.setItem('playerNum', playerNum);
 					sessionStorage.setItem('Data', JSON.stringify(data));
 					sessionStorage.setItem('gameMode', 'tournament_game');
 					sessionStorage.setItem('tournamentName', tournamentName);
+					sessionStorage.setItem('versusNickname', versusNickname);
 					let tournamentURL = `${tournamentName}/${round}`;
 					sessionStorage.setItem('idValue', tournamentURL);
 					let targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
@@ -208,9 +206,8 @@ function Tournament({ $app, initialState }) {
 	this.connectWebSocket = async (url) => {
 		return new Promise((resolve, reject) => {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/tournament_game/${url}/`);
-
+			window.addEventListener("popstate", closeSocket);
 			gameSocket.onopen = () => {
-				console.log('WebSocket connected');
 				resolve(gameSocket);
 			};
 
