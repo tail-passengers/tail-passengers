@@ -115,7 +115,9 @@ export function addProfileModalEventListener(profileModal, flag) {
 				renderMyInfoForm(myInfo[0], formContainer);
 			} else if (flag === "FRIENDS") {
 				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
-				renderFriendList(friendsList, formContainer);
+				deleteIntervalId();
+				const intervalId = renderFriendList(friendsList, formContainer);
+				localStorage.setItem('intervalId', intervalId);
 			}
 	};
 
@@ -210,5 +212,12 @@ export function addProfileModalEventListener(profileModal, flag) {
 			const updataMyInfo = await fetchModifyMyInfoRequest(myData);
 			closeProfileModal(profileModal);
 		});
+	}
+}
+
+export const deleteIntervalId = () => {
+	if (localStorage.getItem('intervalId')) {
+			clearInterval(localStorage.getItem('intervalId'));
+			localStorage.removeItem('intervalId');
 	}
 }
