@@ -475,7 +475,10 @@ function General({ $app, initialState }) {
 
 		ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
 		scene.add(ball);
-
+		ball.$velocity = {
+			x: 0,
+			z: direction * 10
+		};
 
 
 		// paddle 
