@@ -129,7 +129,9 @@
 
 ```json
 {
-  "message_type": "complete"
+  "message_type": "complete",
+  "player1": "{nickname}",
+  "player2": "{nickname}"
 }
 ```
 
@@ -137,6 +139,8 @@
 
 ```json
 {
-  "message_type": "error"
+  "message_type": "error",
+  "player1": "{nickname}",
+  "player2": "{nickname}"
 }
 ```

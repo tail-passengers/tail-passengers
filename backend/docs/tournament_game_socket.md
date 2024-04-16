@@ -243,7 +243,11 @@
 
 ```json
 {
-  "message_type": "complete"
+  "message_type": "complete",
+  "player1": "{nickname}",
+  "player2": "{nickname}",
+  "player3": "{nickname}",
+  "player4": "{nickname}"
 }
 ```
 
@@ -251,6 +255,10 @@
 
 ```json
 {
-  "message_type": "error"
+  "message_type": "error",
+  "player1": "{nickname}",
+  "player2": "{nickname}",
+  "player3": "{nickname}",
+  "player4": "{nickname}"
 }
 ```
