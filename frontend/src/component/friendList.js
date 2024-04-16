@@ -133,5 +133,5 @@ export default function renderFriendList(content, parentElement) {
             renderFriendListField(content, parentElement);
         }
     };
-    pollingFetches(intervalRenderFriends, 3000);
+    return pollingFetches(intervalRenderFriends, 3000);
 }
