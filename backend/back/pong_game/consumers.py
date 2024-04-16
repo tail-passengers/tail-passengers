@@ -144,10 +144,10 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
                     await self.channel_layer.group_send(
                         self.game_group_name, {"type": "game.message", "message": data}
                     )
-                self.game_loop_task.cancel()
                 try:  # cancel() 동작이 끝날 때까지 대기
+                    self.game_loop_task.cancel()
                     await self.game_loop_task
-                except asyncio.CancelledError:
+                except:
                     pass  # task가 이미 취소된 경우
             await self.channel_layer.group_discard(
                 self.game_group_name, self.channel_name
@@ -316,7 +316,6 @@ class TournamentGameWaitConsumer(AsyncWebsocketConsumer):
         else:
             result = ResultType.SUCCESS.value
             self.isProcessingComplete = True
-            # TODO test 필요
             ACTIVE_TOURNAMENTS[tournament_name] = Tournament(
                 tournament_name=tournament_name,
                 create_user_intra_id=self.user.intra_id,
@@ -344,7 +343,6 @@ class TournamentGameConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
         await self.send(text_data=message)
 
-    # TODO accept 위치 테스트 터지면 보기
     async def connect(self) -> None:
         self.user = self.scope["user"]
         if self.user.is_authenticated:
@@ -487,7 +485,6 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
             self.tournament_broadcast = hashlib.md5(
                 (self.tournament_name + "_broadcast").encode("utf-8")
             ).hexdigest()
-            # TODO if 문 간소화 by myko
             if (
                 self.tournament is not None
                 and (
@@ -517,8 +514,10 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
         if not self.user.is_authenticated:
             return
 
-        # 게임이 비정상 종료 되었을 때
-        if self.round.get_status() != GameStatus.END:
+        # 게임이 비정상 종료 되었을 때(3라운드 진출자가 대기 중에 나갔을 때도 포함)
+        if self.round.get_status() != GameStatus.END or (
+            self.round_number != RoundNumber.FINAL_NUMBER and self.winner_group
+        ):
             self.tournament.set_status(TournamentStatus.ERROR)
             data = self.round.build_error_json(self.user.nickname)
             await self.channel_layer.group_send(
@@ -535,12 +534,11 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
                 and self.tournament_name in ACTIVE_TOURNAMENTS.keys()
             ):
                 ACTIVE_TOURNAMENTS.pop(self.tournament_name)
-            if self.game_loop_task is not None:
+            try:  # cancel() 동작이 끝날 때까지 대기
                 self.game_loop_task.cancel()
-                try:  # cancel() 동작이 끝날 때까지 대기
-                    await self.game_loop_task
-                except asyncio.CancelledError:
-                    pass  # task가 이미 취소된 경우
+                await self.game_loop_task
+            except:
+                pass  # task가 이미 취소된 경우
         await self.channel_layer.group_discard(
             self.tournament_broadcast, self.channel_name
         )
@@ -552,7 +550,6 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         data = json.loads(text_data)
         message_type = data.get("message_type")
-        # TODO if문 간소화 하기
         if (
             message_type == MessageType.READY.value
             and self.tournament.get_status() == TournamentStatus.READY
