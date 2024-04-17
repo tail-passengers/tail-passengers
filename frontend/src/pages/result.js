@@ -73,15 +73,13 @@ function GameResult({ initialState }) {
 							</div>
 					</div>
 			`;
-
-			// Refresh 버튼 클릭 이벤트 핸들러 등록
-			const homeBtn = this.$element.querySelector("#homeBtn");
-			homeBtn.addEventListener("click", () => {
-				$("#nav-bar").hidden = false;
-				let targetURL = `https://${process.env.BASE_IP}`;
-				navigate(targetURL);
-			});
 		}
+		const homeBtn = this.$element.querySelector("#homeBtn");
+		homeBtn.addEventListener("click", () => {
+			$("#nav-bar").hidden = false;
+			let targetURL = `https://${process.env.BASE_IP}`;
+			navigate(targetURL);
+		});
 	};
 
 	this.init = () => {
@@ -98,13 +96,6 @@ function GameResult({ initialState }) {
 		}
 		this.render();
 	};
-
-	window.addEventListener(
-		"languageChange",
-		function () {
-			this.render();
-		}.bind(this)
-	);
 
 	this.init();
 }

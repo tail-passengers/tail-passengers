@@ -12,10 +12,7 @@ function General({ $app, initialState }) {
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let playerNum = 0, data, nickname, versusNickname = "", gameSocket, scoreElement, infoElement, state = "playing",
-		noticeElement, animationFrameId, gameIdValue, gameMode, ballMaterials, ballCustom = 0;
-
-	$("#nav-bar").hidden = true;
-
+		noticeElement, animationFrameId, blinkAniId, gameIdValue, gameMode, ballMaterials, ballCustom = 0;
 
 	// TODO 제너럴 레디 후 토너먼트 가면 소켓 안끊는 문제
 
@@ -28,6 +25,7 @@ function General({ $app, initialState }) {
 		$("#nav-bar").hidden = false;
 		removeScoreElement();
 		cancelAnimationFrame(animationFrameId);
+		cancelAnimationFrame(blinkAniId);
 		document.removeEventListener('keydown', handleKeyPress);
 		document.removeEventListener('keyup', handleKeyRelease);
 		window.removeEventListener("popstate", clearThreeJs);
@@ -86,6 +84,7 @@ function General({ $app, initialState }) {
 			else {
 				versusNickname = data["2p"]
 			}
+			$("#nav-bar").hidden = true;
 			this.$element.innerHTML = '';
 			this.initThreeJs(this.$element);
 			this.initEventListeners();
@@ -159,10 +158,10 @@ function General({ $app, initialState }) {
 			}
 			gameSocket.close();
 			gameSocket = null;
-			$("#nav-bar").hidden = false;
+
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
-
+			running = false;
 		}
 	}
 	// final waiting중일 때 뒤로가기 누르면 
@@ -252,6 +251,7 @@ function General({ $app, initialState }) {
 	const wandLoader2 = new GLTFLoader();
 
 	this.render = () => {
+		console.log("r");
 		if (running) {
 			animationFrameId = requestAnimationFrame(() => {
 				this.render();
@@ -640,7 +640,6 @@ function General({ $app, initialState }) {
 		gameSocket.send(JSON.stringify(keyPressSend));
 	}
 
-
 	function sendMaxima() {
 		let maxima = {
 			number: playerNum,
@@ -706,7 +705,7 @@ function General({ $app, initialState }) {
 			if (elapsed < blinkDuration) {
 				ball.material.emissive.setHex(newEmissive);
 				//TODO 활성화
-				requestAnimationFrame(blink);
+				blinkAniId = requestAnimationFrame(blink);
 			} else {
 				// 반짝임이 완료되면 초기값으로 재설정
 				ball.material.emissive.setHex(initialEmissive);
@@ -714,7 +713,7 @@ function General({ $app, initialState }) {
 		}
 		//TODO 활성화
 		// 애니메이션 시작
-		requestAnimationFrame(blink);
+		blinkAniId = requestAnimationFrame(blink);
 	}
 
 	function shouldPerformAction(code) {
