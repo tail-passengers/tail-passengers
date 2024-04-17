@@ -97,7 +97,10 @@ const koLocale = {
 		hufflepuff: "후플푸프",
 		ravenclaw: "래번클로",
 		slytherin: "슬리데린"
-	}
+	},
+    loading: {
+        back: "선택 페이지로 돌아가기",
+    },
 };
 
 export default koLocale;

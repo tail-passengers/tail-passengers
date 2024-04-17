@@ -95,7 +95,10 @@ const enLocale = {
 		hufflepuff: "Hufflepuff",
 		ravenclaw: "Ravenclaw",
 		slytherin: "Slytherin"
-	}
+	},
+    loading: {
+        back: "Back to select page",
+    },
 };
 
 export default enLocale;
