@@ -4,29 +4,30 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
 function SelectMode({ initialState }) {
-	let gameIdValue, initSocket = null, targetURL;
-	this.state = initialState;
-	this.$element = document.createElement("div");
-	this.$element.className = "content default-container tp-sl-card-content";
-	const language = getCurrentLanguage();
-	const locale = locales[language] || locales.en;
+    let gameIdValue,
+        initSocket = null,
+        targetURL;
+    this.state = initialState;
+    this.$element = document.createElement("div");
+    this.$element.className = "content default-container tp-sl-card-content";
+    const language = getCurrentLanguage();
+    const locale = locales[language] || locales.en;
 
-	this.setState = (content) => {
-		this.state = content;
-		this.render();
-	};
+    this.setState = (content) => {
+        this.state = content;
+        this.render();
+    };
 
-	function closeSocket() {
-		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
-		if (initSocket && initSocket.readyState <= 1) {
-			initSocket.close();
-			window.removeEventListener("popstate", closeSocket);
-		}
-	}
+    function closeSocket() {
+        //게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+        if (initSocket && initSocket.readyState <= 1) {
+            initSocket.close();
+            window.removeEventListener("popstate", closeSocket);
+        }
+    }
 
-	this.render = () => {
-
-		this.$element.innerHTML = `
+    this.render = () => {
+        this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
         <div class="tp-sl-title-container default-container text-center tp-color-secondary">
           <h1>${locale.selectMode.mainText}</h1>
@@ -65,77 +66,79 @@ function SelectMode({ initialState }) {
       </div>
 		`;
 
-		const singleBtn = $(".tp-sl-single-btn");
-		const multiBtn = $(".tp-sl-multi-btn");
-		const tournamentBtn = $(".tp-sl-tournament-btn");
-		window.addEventListener("popstate", closeSocket);
+        const singleBtn = $(".tp-sl-single-btn");
+        const multiBtn = $(".tp-sl-multi-btn");
+        const tournamentBtn = $(".tp-sl-tournament-btn");
+        window.addEventListener("popstate", closeSocket);
 
-		if (singleBtn) {
-			singleBtn.addEventListener("click", function (event) {
-				event.preventDefault();
-				targetURL = `https://${process.env.BASE_IP}/${this.value}`;
-				navigate(targetURL);
-			});
-		}
-		if (tournamentBtn) {
-			tournamentBtn.addEventListener("click", function (event) {
-				event.preventDefault();
-				targetURL = `https://${process.env.BASE_IP}/${this.value}`;
-				navigate(targetURL);
-			});
-		}
+        if (singleBtn) {
+            singleBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+                targetURL = `https://${process.env.BASE_IP}/${this.value}`;
+                navigate(targetURL);
+            });
+        }
+        if (tournamentBtn) {
+            tournamentBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+                targetURL = `https://${process.env.BASE_IP}/${this.value}`;
+                navigate(targetURL);
+            });
+        }
 
-		if (multiBtn) {
-			multiBtn.addEventListener("click", function (event) {
-				event.preventDefault();
-				const multiTextElement = document.querySelector(".tp-sl-multi-btn .tp-sl-card-text");
-				multiTextElement.textContent = `${locale.tournament.waiting}`;
-				if (initSocket != null) {
-					initSocket.close();
-					initSocket = null;
-				}
-				initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
-				initSocket.addEventListener('message', idSocketConnect);
-			});
-		}
-	};
+        if (multiBtn) {
+            multiBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+                targetURL = `https://${process.env.BASE_IP}/loading`;
+                navigate(targetURL);
+                // event.preventDefault();
+                // const multiTextElement = document.querySelector(".tp-sl-multi-btn .tp-sl-card-text");
+                // multiTextElement.textContent = `${locale.tournament.waiting}`;
+                // if (initSocket != null) {
+                // 	initSocket.close();
+                // 	initSocket = null;
+                // }
+                // initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
+                // initSocket.addEventListener('message', idSocketConnect);
+            });
+        }
+    };
 
-	const idSocketConnect = (event) => {
-		initSocket.close();
-		let data = JSON.parse(event.data);
-		gameIdValue = data.game_id;
-		// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
-		sessionStorage.setItem('idValue', gameIdValue);
-		sessionStorage.setItem('gameMode', "general_game");
+    const idSocketConnect = (event) => {
+        initSocket.close();
+        let data = JSON.parse(event.data);
+        gameIdValue = data.game_id;
+        // 현재 연결된 소켓을 세션 스토리지에 저장합니다.
+        sessionStorage.setItem("idValue", gameIdValue);
+        sessionStorage.setItem("gameMode", "general_game");
 
+        targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
+        navigate(targetURL);
+    };
 
-		targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
-		navigate(targetURL);
-	}
+    this.init = () => {
+        let parent = $("#app");
+        const child = $(".content");
+        if (child) {
+            parent.removeChild(child);
+            parent.appendChild(this.$element);
+        }
+        let body = $("body");
+        const canvas = $("canvas");
+        if (canvas) {
+            body.removeChild(canvas);
+        }
+        this.render();
+    };
 
-	this.init = () => {
-		let parent = $("#app");
-		const child = $(".content");
-		if (child) {
-			parent.removeChild(child);
-			parent.appendChild(this.$element);
-		}
-		let body = $("body");
-		const canvas = $("canvas");
-		if (canvas) {
-			body.removeChild(canvas);
-		}
-		this.render();
-	};
+    window.addEventListener(
+        "languageChange",
+        function () {
+            this.render();
+        }.bind(this)
+    );
 
-	window.addEventListener(
-		"languageChange",
-		function () {
-			this.render();
-		}.bind(this)
-	);
-
-	this.init();
+    this.init();
 }
 
 export default SelectMode;

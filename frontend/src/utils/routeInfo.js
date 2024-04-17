@@ -8,16 +8,18 @@ import General from "../pages/general.js";
 import RecordsSearch from "../pages/recordsSearch.js";
 import Tournament from "../pages/tournament.js";
 import GameResult from "../pages/result.js";
+import Loading from "../pages/gameLoading.js";
 export const routes = [
-	{ path: /^\/$/, element: Home },
-	{ path: /^\/game$/, element: Game },
-	{ path: /^\/rank$/, element: Rank },
-	{ path: /^\/records$/, element: RecordsSearch },
-	{ path: /^\/selectmode$/, element: SelectMode },
-	{ path: /^\/profile$/, element: Profile },
-	{ path: /^\/general_game\/(.+)$/, element: General },
-	{ path: /^\/tournament_game\/(.+)$/, element: General },
-	{ path: /^\/tournament$/, element: Tournament },
-	{ path: /^\/result\/(.+)$/, element: GameResult },
-	{ path: /.*/, element: NotFound },
+    { path: /^\/$/, element: Home },
+    { path: /^\/game$/, element: Game },
+    { path: /^\/rank$/, element: Rank },
+    { path: /^\/records$/, element: RecordsSearch },
+    { path: /^\/selectmode$/, element: SelectMode },
+    { path: /^\/profile$/, element: Profile },
+    { path: /^\/loading$/, element: Loading },
+    { path: /^\/general_game\/(.+)$/, element: General },
+    { path: /^\/tournament_game\/(.+)$/, element: General },
+    { path: /^\/tournament$/, element: Tournament },
+    { path: /^\/result\/(.+)$/, element: GameResult },
+    { path: /.*/, element: NotFound },
 ];
