@@ -98,7 +98,10 @@ const jaLocale = {
 		hufflepuff: "ハッフルパフ",
 		ravenclaw: "レイブンクロー",
 		slytherin: "スリザリン"
-	}
+	},
+    loading: {
+        back: "選択ページに戻る",
+    },
 };
 
 export default jaLocale;
