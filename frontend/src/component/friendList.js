@@ -130,6 +130,12 @@ export default function renderFriendList(content, parentElement) {
         if (csrfToken !== null) {
             const myIntraId = await fetchMyIntraId();
             const content = await fetchAllFriends(myIntraId);
+            const currentForm = parentElement.querySelector(
+                ".tp-pf-form-friends"
+            );
+            if (currentForm) {
+                parentElement.removeChild(currentForm);
+            }
             renderFriendListField(content, parentElement);
         }
     };
