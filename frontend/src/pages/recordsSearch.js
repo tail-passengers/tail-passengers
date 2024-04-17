@@ -1,3 +1,4 @@
+import { fetchGameLogs } from "../utils/fetches.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
@@ -35,21 +36,6 @@ function RecordsSearch({ initialState }) {
 
     window.dispatchEvent(new Event("resize"));
 
-    const fetchGameLogs = async () => {
-        try {
-            const response = await fetch(`${process.env.BASE_IP}/api/v1/general_game_logs/all`);
-            const data = await response.json();
-            return data;
-        } catch {
-            console.error("no data");
-            return [{
-                winner: "Winner",
-                loser: "Loser",
-                start_time: new Date().toISOString()
-            }];
-        }
-    }
-
     this.render = async () => {
         const language = getCurrentLanguage();
         const locale = locales[language] || locales.en;
@@ -62,7 +48,7 @@ function RecordsSearch({ initialState }) {
           <div class="record-row tp-btn-primary">
               <div class="record-user-box">
                   <div class="record-user-box-section record-win" data-text="WIN">
-                      <div class="h2">${log.winner}</div>
+                      <div class="h2">${log.player1.nickname}</div>
                   </div>
                   <img src="/public/assets/img/tmpProfile.png" />
               </div>
@@ -75,7 +61,7 @@ function RecordsSearch({ initialState }) {
               <div class="record-user-box">
                 <img src="/public/assets/img/tmpProfile.png" />
                   <div class="record-user-box-section record-lose" data-text="LOSE">
-                      <div class="h2">${log.loser}</div>
+                      <div class="h2">${log.player2.nickname}</div>
                   </div>
               </div>
           </div>
@@ -113,7 +99,7 @@ function RecordsSearch({ initialState }) {
     window.addEventListener("languageChange", () => {
         this.render();
     });
-      
+
     this.init();
 }
 

@@ -380,19 +380,32 @@ export const fetchChartData = async () => {
 
 export const fetchGameLogs = async () => {
     try {
-        const response = await fetch(
+        const response1 = await fetch(
             `https://${process.env.BASE_IP}/api/v1/general_game_logs/me/`
         );
+        const response2 = await fetch(
+            `https://${process.env.BASE_IP}/api/v1/tournament_game_logs/me/`
+        );
 
-        if (response.ok) {
-            const data = await response.json();
-            return data;
-        } else {
-            console.error("Error fetching chart data: ", response.statusText);
-            return {};
+        let data1 = [];
+        let data2 = [];
+
+        if (response1.ok) {
+            data1 = await response1.json();
         }
+        if (response2.ok) {
+            data2 = await response2.json();
+        }
+
+        const combinedData = [...data1, ...data2];
+
+        combinedData.sort(
+            (a, b) => new Date(a.start_time) - new Date(b.start_time)
+        );
+
+        return combinedData;
     } catch (error) {
-        console.error("Error fetching chart data:", error);
-        return {};
+        console.error("Error fetching game logs:", error);
+        return [];
     }
 };

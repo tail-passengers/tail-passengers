@@ -516,7 +516,9 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
 
         # 게임이 비정상 종료 되었을 때(3라운드 진출자가 대기 중에 나갔을 때도 포함)
         if self.round.get_status() != GameStatus.END or (
-            self.round_number != RoundNumber.FINAL_NUMBER and self.winner_group
+            self.tournament.get_round(2 if self.round_number == 1 else 1).get_status()
+            != GameStatus.END
+            and self.winner_group
         ):
             self.tournament.set_status(TournamentStatus.ERROR)
             data = self.round.build_error_json(self.user.nickname)

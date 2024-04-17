@@ -75,6 +75,9 @@ class Round(GeneralGame):
     def get_winner(self) -> str:
         return self.winner
 
+    def get_loser(self) -> str:
+        return self.loser
+
     def get_nicknames(self) -> tuple[str, str]:
         return self.player1.get_nickname(), self.player2.get_nickname()
 

@@ -44,7 +44,10 @@ const koLocale = {
 		comMode: "컴퓨터 모드 켜기"
 	},
 	result: {
-		mainText: "결과"
+		mainText: "게임 결과",
+		winner: "우승",
+		loser: "패배",
+		goHome: "처음으로",
 	},
 	rank: {
 		mainText: "최고 플레이어",
@@ -94,7 +97,10 @@ const koLocale = {
 		hufflepuff: "후플푸프",
 		ravenclaw: "래번클로",
 		slytherin: "슬리데린"
-	}
+	},
+	loading: {
+		back: "선택 페이지로 돌아가기",
+	},
 };
 
 export default koLocale;

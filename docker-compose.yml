@@ -66,3 +66,4 @@ networks:
 
 volumes:
   dist:
+    

@@ -3,6 +3,8 @@ import { fetchChartData, fetchGameLogs } from "../utils/fetches";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { getCSRFToken } from "../utils/cookie.js";
+import RecordsSearch from "./recordsSearch.js";
+import { navigate } from "../utils/navigate.js";
 
 function Home($container) {
     this.$container = $container;
@@ -50,10 +52,10 @@ function Home($container) {
     };
 
     this.renderRecords = (gameLogs) => {
+        const limitedGameLogs = gameLogs.slice(0, 5);
+
         const recordsList = document.getElementById("records-list");
         recordsList.innerHTML = "";
-
-        const limitedGameLogs = gameLogs.slice(0, 5);
 
         limitedGameLogs.forEach((log) => {
             const user1 = log.player1.nickname;
@@ -62,10 +64,26 @@ function Home($container) {
             const user2Score = log.player2_score;
 
             const li = document.createElement("li");
-            li.textContent = `${user1} [${user1Score}]\tvs\t[${user2Score})] ${user2}`;
+            li.textContent = `${user1} [${user1Score}] vs [${user2Score}] ${user2}`;
             li.style.color = "black";
             recordsList.appendChild(li);
         });
+
+        this.renderMoreButton(gameLogs);
+    };
+
+    this.renderMoreButton = (gameLogs) => {
+        const recordsList = document.getElementById("records-list");
+
+        if (gameLogs.length > 5) {
+            const moreButton = document.createElement("button");
+            moreButton.textContent = "더 보기";
+            moreButton.classList.add("more-button");
+            moreButton.addEventListener("click", () => {
+                navigate("/records");
+            });
+            recordsList.appendChild(moreButton);
+        }
     };
 
     this.renderChart = (houseRates, userRates, locale) => {
