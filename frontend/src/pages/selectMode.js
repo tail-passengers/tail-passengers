@@ -2,6 +2,7 @@ import { $ } from "../utils/querySelector.js";
 import { navigate } from "../utils/navigate.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
+import { fetchUser } from "../utils/fetches.js";
 
 function SelectMode({ initialState }) {
 	let gameIdValue, initSocket = null, targetURL;
@@ -24,8 +25,7 @@ function SelectMode({ initialState }) {
 		}
 	}
 
-	this.render = () => {
-
+	this.render =  () => {
 		this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
         <div class="tp-sl-title-container default-container text-center tp-color-secondary">
@@ -113,7 +113,7 @@ function SelectMode({ initialState }) {
 		navigate(targetURL);
 	}
 
-	this.init = () => {
+	this.init = async() => {
 		let parent = $("#app");
 		const child = $(".content");
 		if (child) {
@@ -125,6 +125,8 @@ function SelectMode({ initialState }) {
 		if (canvas) {
 			body.removeChild(canvas);
 		}
+
+		await fetchUser();
 		this.render();
 	};
 

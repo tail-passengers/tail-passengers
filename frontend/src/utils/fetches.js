@@ -73,10 +73,13 @@ export const fetchUser = async () => {
             return data;
         } else {
             deleteCSRFToken();
+            navigate("/");
             window.location.reload();
+
         }
     } catch (error) {
         deleteCSRFToken();
+        navigate("/");
         window.location.reload();
         return false;
     }
