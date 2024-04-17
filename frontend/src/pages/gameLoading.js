@@ -44,6 +44,7 @@ function Loading($container) {
 		}
 		initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
 		initSocket.addEventListener('message', idSocketConnect);
+		window.addEventListener("popstate", closeSocket);
 	}
 
 	function closeSocket() {
@@ -57,14 +58,13 @@ function Loading($container) {
 	}
 
 	const idSocketConnect = (event) => {
-		window.addEventListener("popstate", closeSocket);
-		initSocket.close();
 		let data = JSON.parse(event.data);
 		gameIdValue = data.game_id;
 		// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
 		sessionStorage.setItem("idValue", gameIdValue);
 		sessionStorage.setItem("gameMode", "general_game");
 
+		initSocket.close();
 		const targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
 		navigate(targetURL);
 	}
