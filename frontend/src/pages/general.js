@@ -127,7 +127,7 @@ function General({ $app, initialState }) {
 				gameSocket.send(event.data);
 				$("#nav-bar").hidden = true;
 				// 이겼으면 새 소켓 연결 후 대기,
-				state = "win";
+				state = "playing";
 				this.$element.innerHTML = `
 					<div class='text-center h1 text-left tp-color-secondary'>${locale.general.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>1 / 2</div>

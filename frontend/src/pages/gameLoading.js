@@ -34,6 +34,7 @@ function Loading($container) {
 				initSocket.close();
 				initSocket = null;
 			}
+			$("#nav-bar").hidden = false;
 			history.back();
 		});
 
@@ -50,9 +51,8 @@ function Loading($container) {
 		if (initSocket && initSocket.readyState <= 1) {
 			initSocket.close();
 			console.log("closed socket");
-			$("#nav-bar").hidden = false;
-			window.removeEventListener("popstate", closeSocket);
 		}
+		window.removeEventListener("popstate", closeSocket);
 	}
 
 	const idSocketConnect = (event) => {
