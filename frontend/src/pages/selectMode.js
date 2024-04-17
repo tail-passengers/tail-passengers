@@ -2,15 +2,12 @@ import { $ } from "../utils/querySelector.js";
 import { navigate } from "../utils/navigate.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
-import { fetchUser } from "../utils/fetches.js";
 
 function SelectMode({ initialState }) {
     let targetURL;
     this.state = initialState;
     this.$element = document.createElement("div");
     this.$element.className = "content default-container tp-sl-card-content";
-    const language = getCurrentLanguage();
-    const locale = locales[language] || locales.en;
 
     this.setState = (content) => {
         this.state = content;
@@ -18,6 +15,9 @@ function SelectMode({ initialState }) {
     };
 
     this.render = () => {
+        const language = getCurrentLanguage();
+        const locale = locales[language] || locales.en;
+
         this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
         <div class="tp-sl-title-container default-container text-center tp-color-secondary">
@@ -81,9 +81,12 @@ function SelectMode({ initialState }) {
                 event.preventDefault();
                 targetURL = `https://${process.env.BASE_IP}/loading`;
                 navigate(targetURL);
+                
             });
         }
     };
+
+    
 
     this.init = () => {
         let parent = $("#app");

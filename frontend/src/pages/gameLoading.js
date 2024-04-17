@@ -1,3 +1,4 @@
+import { $ } from "../utils/querySelector.js";
 import { getCurrentLanguage } from "../utils/languageUtils";
 import { navigate } from "../utils/navigate.js";
 import locales from "../utils/locales/locales";
@@ -11,6 +12,7 @@ function Loading($container) {
 	};
 
 	this.render = () => {
+		$("#nav-bar").hidden = true;
 		const language = getCurrentLanguage();
 		const locale = locales[language] || locales.en;
 
@@ -48,6 +50,7 @@ function Loading($container) {
 		if (initSocket && initSocket.readyState <= 1) {
 			initSocket.close();
 			console.log("closed socket");
+			$("#nav-bar").hidden = false;
 			window.removeEventListener("popstate", closeSocket);
 		}
 	}
@@ -63,9 +66,7 @@ function Loading($container) {
 
 		const targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
 		navigate(targetURL);
-
 	}
-
 
 	this.render();
 }
