@@ -19,7 +19,7 @@ function Example({ $app, initialState }) {
 		window.removeEventListener("popstate", clearThreeJs);
 		scene = null;
 		camera = null;
-		console.log("game end");
+		renderer = null;
 		$("#nav-bar").hidden = false;
 	}
 
@@ -383,15 +383,12 @@ function Example({ $app, initialState }) {
 
 	function removeScoreElement() {
 		if (scoreElement.parentNode) {
-			console.log("score removed");
 			scoreElement.parentNode.removeChild(scoreElement);
 		}
 		if (infoElement.parentNode) {
-			console.log("info removed");
 			infoElement.parentNode.removeChild(infoElement);
 		}
 		if (modeElement.parentNode) {
-			console.log("info removed");
 			modeElement.parentNode.removeChild(modeElement);
 		}
 	}
@@ -432,7 +429,6 @@ function Example({ $app, initialState }) {
 
 	function addPoint(playerName) {
 		score[playerName]++;
-		console.log(score);
 	}
 
 	function startRender() {
@@ -560,12 +556,10 @@ function Example({ $app, initialState }) {
 
 	function handleKeyDown(event) {
 		if (event.code == 'KeyB') {
-			console.log("ballcustom");
 			ballCustom = (ballCustom + 1) % 6;
 			ballReset();
 		}
 		if (event.code == 'KeyM') {
-			console.log("cpu on");
 			if (modeChange == false) {
 				modeChange = true;
 			}
@@ -582,7 +576,6 @@ function Example({ $app, initialState }) {
 		}
 		if (event.code === 'KeyW' || event.code === 'ArrowUp') {
 			if (shouldPerformAction(event.code) && !isSpaceBarPressed && !isPastPaddle1() && !isPastPaddle2()) {
-				console.log("Critical!");
 				blinkEffect();
 				if (ball && ball.$velocity) {
 					if (ball.$velocity.z < 0) {
@@ -641,12 +634,9 @@ function Example({ $app, initialState }) {
 	function blinkEffect() {
 		// 초기값 저장
 		let initialEmissive = ball.material.emissive.getHex();
-		console.log(initialEmissive);
 		if (initialEmissive > 0xFF0900) {
 			initialEmissive -= 0x001000;
 		}
-
-		// console.log(initialEmissive);
 
 		// 반짝임 효과를 위한 애니메이션
 		const blinkDuration = 400; // 반짝임 지속 시간 (밀리초)
@@ -753,12 +743,6 @@ function Example({ $app, initialState }) {
 		initEventListeners();
 
 	};
-	window.addEventListener(
-		"languageChange",
-		function () {
-			this.render();
-		}.bind(this)
-	);
 
 	this.init();
 }

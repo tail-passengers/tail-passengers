@@ -2,7 +2,6 @@ import { $ } from "../utils/querySelector.js";
 import { navigate } from "../utils/navigate.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
-import { fetchUser } from "../utils/fetches.js";
 
 function SelectMode({ initialState }) {
     let targetURL;
@@ -81,9 +80,12 @@ function SelectMode({ initialState }) {
                 event.preventDefault();
                 targetURL = `https://${process.env.BASE_IP}/loading`;
                 navigate(targetURL);
+                
             });
         }
     };
+
+    
 
     this.init = () => {
         let parent = $("#app");
