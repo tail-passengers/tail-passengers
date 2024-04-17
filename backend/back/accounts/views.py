@@ -37,32 +37,6 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class: UsersSerializer = UsersSerializer
     http_method_names = ["get"]
 
-    # debug용 post
-    # http_method_names = ["get", "post"]
-    #
-    # def create(self, request, *args, **kwargs) -> Response:
-    #     """
-    #     디버그용 post
-    #     """
-    #     intra_id: str | None = request.data.get("intra_id")
-    #     if not intra_id:
-    #         return Response(
-    #             {"error": "intra_id is required"}, status=status.HTTP_400_BAD_REQUEST
-    #         )
-    #
-    #     # intra_id 중복 검사
-    #     if Users.objects.filter(intra_id=intra_id).exists():
-    #         return Response(
-    #             {"error": "User with this intra_id already exists"},
-    #             status=status.HTTP_400_BAD_REQUEST,
-    #         )
-    #
-    #     # 새로운 사용자 생성
-    #     user = Users.objects.create_user(intra_id=intra_id)
-    #     serializer = self.get_serializer(user)
-    #
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 class MeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -166,6 +140,14 @@ class Login42APIView(APIView):
 
 # https://soyoung-new-challenge.tistory.com/92
 class CallbackAPIView(APIView):
+    def _generate_unique_nickname(self, nickname) -> str:
+        original_nickname = nickname
+        count = 0
+        while Users.objects.filter(nickname=nickname).exists():
+            count += 1
+            nickname = f"{original_nickname}_{count}"
+        return nickname
+
     def get(self, request, *args, **kwargs) -> redirect:
         if request.user.is_authenticated:
             return redirect(BASE_FULL_IP)
@@ -197,8 +179,9 @@ class CallbackAPIView(APIView):
             house = HOUSE[coalition_info[0]["name"]]
         except:
             return redirect(BASE_FULL_IP)
+        nickname = self._generate_unique_nickname(login_id)
         user_instance, created = Users.objects.get_or_create(
-            intra_id=login_id, defaults={"nickname": login_id, "house": house}
+            intra_id=login_id, defaults={"nickname": nickname, "house": house}
         )
 
         if created:
