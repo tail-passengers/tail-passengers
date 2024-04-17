@@ -153,9 +153,10 @@ function General({ $app, initialState }) {
 			sessionStorage.setItem('winner', data.winner);
 			sessionStorage.setItem('loser', data.loser);
 			if (gameMode == "tournament_game") {
-				sessionStorage.setItem('p3', data.etc1);
-				sessionStorage.setItem('p4', data.etc2);
+				sessionStorage.setItem('etc1', data.etc1);
+				sessionStorage.setItem('etc2', data.etc2);
 			}
+			console.log(data);
 			gameSocket.close();
 			gameSocket = null;
 
@@ -251,11 +252,13 @@ function General({ $app, initialState }) {
 	const wandLoader2 = new GLTFLoader();
 
 	this.render = () => {
-		console.log("r");
 		if (running) {
 			animationFrameId = requestAnimationFrame(() => {
 				this.render();
 			});
+			if (noticeElement.parentNode) {
+				noticeElement.parentNode.removeChild(noticeElement);
+			}
 			ball.rotation.y += 0.03;
 			ball.rotation.x += rotationSpeed;
 
@@ -539,9 +542,6 @@ function General({ $app, initialState }) {
 
 	// 스코어 업데이트 함수
 	function updateScore() {
-		if (noticeElement.parentNode) {
-			noticeElement.parentNode.removeChild(noticeElement);
-		}
 		if (playerNum == "player1") {
 			scoreElement.textContent = `${nickname} ${score.player1} : ${score.player2} ${versusNickname}`;
 		}

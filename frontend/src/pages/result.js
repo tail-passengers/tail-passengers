@@ -30,6 +30,7 @@ function GameResult({ initialState }) {
 										<div class="h3 text-center tp-color-secondary">${locale.result.winner}</div>
 										<div class="h2 text-center tp-color-secondary">${winner}</div>
 										<div class="my-3"></div>
+										<div class="h4 text-center tp-color-secondary">${locale.result.loser}</div>
 										<div class="h4 text-center tp-color-secondary">${loser}</div>
 									</div>
 									<div class="my-3"></div>
@@ -60,6 +61,7 @@ function GameResult({ initialState }) {
 										<div class="h3 text-center tp-color-secondary">${locale.result.winner}</div>
 										<div class="h2 text-center tp-color-secondary">${winner}</div>
 										<div class="my-3"></div>
+										<div class="h4 text-center tp-color-secondary">${locale.result.loser}</div>
 										<div class="h4 text-center tp-color-secondary">${loser} ${etc1} ${etc2}</div>
 									</div>
 									<div class="my-3"></div>

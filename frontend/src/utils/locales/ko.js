@@ -45,7 +45,8 @@ const koLocale = {
 	},
 	result: {
 		mainText: "게임 결과",
-		winner: "우승자",
+		winner: "우승",
+		loser: "패배",
 		goHome: "처음으로",
 	},
 	rank: {

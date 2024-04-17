@@ -47,6 +47,7 @@ const jaLocale = {
 	result: {
 		mainText: "試合結果",
 		winner: "優勝者",
+		loser: "敗者",
 		goHome: "帰る",
 	},
 	rank: {
