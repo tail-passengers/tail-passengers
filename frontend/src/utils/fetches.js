@@ -2,37 +2,37 @@ import { deleteCSRFToken, getCSRFToken } from "./cookie.js";
 import { navigate } from "./navigate.js";
 
 export const fetchGenenralGameResult = async (gameName) => {
-    try {
-        const response = await fetch(
-            `https://${process.env.BASE_IP}/api/v1/general_game_logs/${gameName}/`,
-            {
-                credentials: "include",
-            }
-        );
+	try {
+		const response = await fetch(
+			`https://${process.env.BASE_IP}/api/v1/general_game_logs/${gameName}/`,
+			{
+				credentials: "include",
+			}
+		);
 
-        const data = await response.json();
-        console.log("fetchGenenralGameResult", data);
-        // return data[0].intra_id;
-    } catch (error) {
-        console.error("Error fetching user data:", error);
-    }
+		const data = await response.json();
+		console.log("fetchGenenralGameResult", data);
+		// return data[0].intra_id;
+	} catch (error) {
+		console.error("Error fetching user data:", error);
+	}
 };
 
 export const fetchTournamentGameResult = async (gameName) => {
-    try {
-        const response = await fetch(
-            `https://${process.env.BASE_IP}/api/v1/tournament_game_logs/tournament/${gameName}/`,
-            {
-                credentials: "include",
-            }
-        );
+	try {
+		const response = await fetch(
+			`https://${process.env.BASE_IP}/api/v1/tournament_game_logs/tournament/${gameName}/`,
+			{
+				credentials: "include",
+			}
+		);
 
-        const data = await response.json();
-        console.log("fetchTournamentGameResult", data);
-        // return data[0].intra_id;
-    } catch (error) {
-        console.error("Error fetching user data:", error);
-    }
+		const data = await response.json();
+		console.log("fetchTournamentGameResult", data);
+		// return data[0].intra_id;
+	} catch (error) {
+		console.error("Error fetching user data:", error);
+	}
 };
 
 /**
@@ -40,19 +40,19 @@ export const fetchTournamentGameResult = async (gameName) => {
  * @returns 나의 intraId
  */
 export const fetchMyIntraId = async () => {
-    try {
-        const response = await fetch(
-            `https://${process.env.BASE_IP}/api/v1/me/`,
-            {
-                credentials: "include",
-            }
-        );
+	try {
+		const response = await fetch(
+			`https://${process.env.BASE_IP}/api/v1/me/`,
+			{
+				credentials: "include",
+			}
+		);
 
-        const data = await response.json();
-        return data[0].intra_id;
-    } catch (error) {
-        console.error("Error fetching user data:", error);
-    }
+		const data = await response.json();
+		return data[0].intra_id;
+	} catch (error) {
+		console.error("Error fetching user data:", error);
+	}
 };
 
 /**
@@ -60,23 +60,26 @@ export const fetchMyIntraId = async () => {
  * @returns 나의 회원 정보
  */
 export const fetchUser = async () => {
-    try {
-        const response = await fetch(
-            `https://${process.env.BASE_IP}/api/v1/me/`,
-            {
-                credentials: "include",
-            }
-        );
+	try {
+		const response = await fetch(
+			`https://${process.env.BASE_IP}/api/v1/me/`,
+			{
+				credentials: "include",
+			}
+		);
 
         if (response.status === 200) {
             const data = await response.json();
             return data;
         } else {
             deleteCSRFToken();
+            navigate("/");
             window.location.reload();
+
         }
     } catch (error) {
         deleteCSRFToken();
+        navigate("/");
         window.location.reload();
         return false;
     }
@@ -274,9 +277,14 @@ export const fetchRequestFriend = async (requestUserId, responseUserId) => {
                 }),
             }
         );
-
-        const data = await response.json();
-        return data;
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        }
+        else if (response.status == 400) {
+            alert("This user is already a friend or requested friend");
+        }
+        return null;
     } catch (error) {
         console.error("Error fetchRequestFriend data:", error);
     }

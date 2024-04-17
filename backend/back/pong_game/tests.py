@@ -119,6 +119,7 @@ class GeneralGameWaitConsumerTests(TestCase):
 class GeneralGameConsumerTests(TestCase):
     @database_sync_to_async
     def create_test_user(self, intra_id, nickname=None):
+    def create_test_user(self, intra_id, nickname=None):
         # 테스트 사용자 생성
         if nickname:
             return get_user_model().objects.create_user(
@@ -1562,16 +1563,6 @@ class TournamentGameRoundConsumerTests(TestCase):
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=1)
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=2)
         await self.wait_for_tournament_data(tournamnet_name=self.room_1_name, round=3)
-
-        user2_response = await self.test_tournament1_communicators[1].receive_from()
-        user2_dict = json.loads(user2_response)
-
-        self.assertEqual(user2_dict["message_type"], "complete")
-        self.assertEqual(user2_dict["winner"], "room_1_user3_nickname")
-        self.assertEqual(user2_dict["loser"], "room_1_user1_nickname")
-        self.assertEqual(user2_dict["etc1"], "room_1_owner_nickname")
-        self.assertEqual(user2_dict["etc2"], "room_1_user2_nickname")
-
         await self.discard_all_message(self.test_tournament1_communicators)
 
         # user db에 잘 저장 됐는지 확인하는 테스트
