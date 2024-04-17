@@ -58,6 +58,7 @@ const enLocale = {
 	result: {
 		mainText: "GAME RESULT",
 		winner: "WINNER",
+		winner: "LOSER",
 		goHome: "Go back home",
 	},
 	records: {
@@ -96,9 +97,9 @@ const enLocale = {
 		ravenclaw: "Ravenclaw",
 		slytherin: "Slytherin"
 	},
-    loading: {
-        back: "Back to select page",
-    },
+	loading: {
+		back: "Back to select page",
+	},
 };
 
 export default enLocale;
