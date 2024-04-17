@@ -58,7 +58,7 @@ const enLocale = {
 	result: {
 		mainText: "GAME RESULT",
 		winner: "WINNER",
-		winner: "LOSER",
+		loser: "LOSER",
 		goHome: "Go back home",
 	},
 	records: {
