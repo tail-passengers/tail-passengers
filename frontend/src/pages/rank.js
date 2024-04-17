@@ -1,37 +1,22 @@
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
-import { 
-    fetchMyIntraId, 
+import {
+    fetchMyIntraId,
     fetchRequestFriend,
     fetchAllFriends,
+    fetchUsers,
 } from "../utils/fetches.js";
-import { replaceHttpWithHttps } from "../utils/imageUpload.js"
+import { replaceHttpWithHttps } from "../utils/imageUpload.js";
 
 function Rank({ initialState }) {
     this.state = initialState;
     this.$element = document.createElement("div");
     this.$element.className = "content";
 
-    this.fetchUsers = async (locale) => {
-        try {
-            const response = await fetch(`https://${process.env.BASE_IP}/api/v1/users/`, {
-                credentials: 'include'
-            });
-            const data = await response.json();
-            data.sort((a, b) => {
-                return (
-                    b.win_count - b.lose_count - (a.win_count - a.lose_count)
-                );
-            });
-            this.setState(data, locale);
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        }
-    };
-
-    this.renderUsers = async (users, locale) => {
-        users.forEach(user => {
+    this.renderUsers = async (locale) => {
+        const users = await fetchUsers();
+        users.forEach((user) => {
             if (user.profile_image) {
                 user.profile_image = replaceHttpWithHttps(user.profile_image);
             }
@@ -65,7 +50,9 @@ function Rank({ initialState }) {
                             <div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
                                 <div class="tp-sl-btn-parent default-container">
                                     <button type="submit" class="btn tp-sl-btn-primary tp-pf-btn tp-fl-request-btn card default-container h-100 tp-fl-btn" value="REQUEST" 
-                                        data-bs-toggle="tooltip" title="${locale.rank.tooltipRequest}"> 
+                                        data-bs-toggle="tooltip" title="${
+                                            locale.rank.tooltipRequest
+                                        }"> 
                                         <div class="card-body default-container">
                                         <h5 class="tp-pf-card-title default-container tp-fl-btn-letter">✚</h5>
                                         </div>
@@ -82,16 +69,22 @@ function Rank({ initialState }) {
         const tableBody = this.$element.querySelector("tbody");
         tableBody.innerHTML = tableRows;
 
-        const requestButtons = this.$element.querySelectorAll('.tp-fl-request-btn');
+        const requestButtons =
+            this.$element.querySelectorAll(".tp-fl-request-btn");
         const requestUserId = await fetchMyIntraId();
         const friendList = await fetchAllFriends(requestUserId);
-        requestButtons.forEach(button => {
-            const userElem = button.closest("tr").querySelector(".user_intra_id");
+        requestButtons.forEach((button) => {
+            const userElem = button
+                .closest("tr")
+                .querySelector(".user_intra_id");
             const responseUserId = userElem.textContent.trim();
 
             /** 이미 친구인 유저의 친구 신청 버튼 비활성화 */
-            friendList.forEach(friend => {
-                if (friend.request_intra_id === responseUserId || friend.response_intra_id === responseUserId) {
+            friendList.forEach((friend) => {
+                if (
+                    friend.request_intra_id === responseUserId ||
+                    friend.response_intra_id === responseUserId
+                ) {
                     button.classList.add("visually-hidden");
                 }
             });
@@ -110,7 +103,7 @@ function Rank({ initialState }) {
 
     this.setState = (content, locale) => {
         this.state = content;
-        this.renderUsers(content, locale);
+        this.renderUsers(locale);
     };
 
     this.render = () => {
@@ -137,9 +130,10 @@ function Rank({ initialState }) {
                                             <th class="tp-bgc-secondary">${locale.rank.thLoses}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thRankPoint}</th>
                                             <th class="tp-bgc-secondary">${locale.rank.thFriendRequestBtn}</th>
-                                         </tr>
+                                        </tr>
                                     </thead>
                                     <tbody>
+                                        <!-- 여기에 테이블 행이 들어갈 것입니다 -->
                                     </tbody>
                                 </table>
                             </div>
@@ -148,7 +142,7 @@ function Rank({ initialState }) {
                 </div>
             </div>
         `;
-        this.fetchUsers(locale);
+        this.renderUsers(locale);
     };
 
     this.init = () => {
@@ -166,9 +160,12 @@ function Rank({ initialState }) {
         this.render();
     };
 
-    window.addEventListener("languageChange", function() {
-        this.render();
-    }.bind(this));
+    window.addEventListener(
+        "languageChange",
+        function () {
+            this.render();
+        }.bind(this)
+    );
 
     this.init();
 }
