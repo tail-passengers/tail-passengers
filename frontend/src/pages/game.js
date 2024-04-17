@@ -743,12 +743,6 @@ function Example({ $app, initialState }) {
 		initEventListeners();
 
 	};
-	window.addEventListener(
-		"languageChange",
-		function () {
-			this.render();
-		}.bind(this)
-	);
 
 	this.init();
 }

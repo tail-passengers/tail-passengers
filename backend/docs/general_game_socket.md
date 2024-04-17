@@ -130,8 +130,8 @@
 ```json
 {
   "message_type": "complete",
-  "player1": "{nickname}",
-  "player2": "{nickname}"
+  "winner": "{nickname}",
+  "loser": "{nickname}"
 }
 ```
 
@@ -140,7 +140,7 @@
 ```json
 {
   "message_type": "error",
-  "player1": "{nickname}",
-  "player2": "{nickname}"
+  "winner": "{nickname}",
+  "loser": "{nickname}"
 }
 ```

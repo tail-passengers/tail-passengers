@@ -4,11 +4,6 @@ from . import views
 
 urlpatterns = [
     path(
-        "general_game_logs/",
-        views.GeneralGameLogsViewSet.as_view({"post": "create"}),
-        name="general_game_logs",
-    ),
-    path(
         "general_game_logs/all/",
         views.GeneralGameLogsListViewSet.as_view({"get": "list"}),
         name="general_game_all_logs",
@@ -22,11 +17,6 @@ urlpatterns = [
         "general_game_logs/users/<str:intra_id>/",
         views.GeneralGameLogsListViewSet.as_view({"get": "list"}),
         name="general_game_user_logs",
-    ),
-    path(
-        "tournament_game_logs/",
-        views.TournamentGameLogsViewSet.as_view({"post": "create"}),
-        name="create_tournament_game_logs",
     ),
     path(
         "tournament_game_logs/all/",

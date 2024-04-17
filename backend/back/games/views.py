@@ -65,26 +65,6 @@ def create_with_intra_id_convert_to_user_id(self, request) -> Response:
     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class GeneralGameLogsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = GeneralGameLogs.objects.all()
-    serializer_class: GeneralGameLogsSerializer = GeneralGameLogsSerializer
-    http_method_names = ["post"]
-
-    # general game logs 생성 시 join general game 생성하는 오버라이딩 에러 발생
-    # fk는 uuid가 아닌 인스턴스를 요구해서 생긴 에러인듯
-    def create(self, request, *args, **kwargs) -> Response:
-        try:
-            return create_with_intra_id_convert_to_user_id(self, request)
-
-        except IntegrityError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except DatabaseError as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-
 class GeneralGameLogsListViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = GeneralGameLogs.objects.all()
@@ -121,24 +101,6 @@ class GeneralGameLogsListMeViewSet(viewsets.ModelViewSet):
         )
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
-
-
-class TournamentGameLogsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = TournamentGameLogs.objects.all()
-    serializer_class: TournamentGameLogsSerializer = TournamentGameLogsSerializer
-    http_method_names = ["post"]
-
-    def create(self, request, *args, **kwargs) -> Response:
-        try:
-            return create_with_intra_id_convert_to_user_id(self, request)
-
-        except IntegrityError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except DatabaseError as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
 
 
 class TournamentGameLogsListViewSet(viewsets.ModelViewSet):
