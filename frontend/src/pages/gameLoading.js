@@ -52,6 +52,7 @@ function Loading($container) {
 			initSocket.close();
 			console.log("closed socket");
 		}
+		$("#nav-bar").hidden = false;
 		window.removeEventListener("popstate", closeSocket);
 	}
 
