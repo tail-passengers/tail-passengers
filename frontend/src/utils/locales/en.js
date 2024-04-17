@@ -39,8 +39,8 @@ const enLocale = {
 		waiting: "Waiting for other players...",
 		error: "error occured.",
 		getReady: "Get ready to protego spell!!",
-		ballChange: "ボールの色を変える",
-		comMode: "コンピュータモード オン"
+		ballChange: "Change ball color",
+		comMode: "Computer mode on"
 	},
 	rank: {
 		mainText: "Top Player",
@@ -56,7 +56,8 @@ const enLocale = {
 		tooltipRequest: "Request"
 	},
 	result: {
-		mainText: "RESULT"
+		mainText: "Game Result",
+		goHome: "Go home",
 	},
 	records: {
 		mainText: "Records",

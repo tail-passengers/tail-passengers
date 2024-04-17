@@ -1,81 +1,74 @@
 import { $ } from "../utils/querySelector.js";
+import { navigate } from "../utils/navigate.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
-import { fetchUsers } from "../utils/fetches.js";
-import { replaceHttpWithHttps } from "../utils/imageUpload.js";
+
 
 function GameResult({ initialState }) {
 	this.state = initialState;
 	this.$element = document.createElement("div");
-	this.$element.className =
-		"content default-container tp-sl-card-content tp-pf-content";
 
 	this.render = () => {
 		const language = getCurrentLanguage();
 		const locale = locales[language] || locales.en;
 
-		this.$element.innerHTML = `
-            <div class="tp-color-secondary default-container">
-                <p class="tp-rs-title">${locale.result.mainText}</p>
-            </div>
-            <div class="tp-pf-ht-blank"></div>
-            <div class="tp-pf-ht-blank"></div>
-            <div class="tp-rs-card-container default-container text-center"></div>
-        `;
-		renderPlayers();
-	};
-
-	const renderPlayers = async () => {
-		// const data = await getGameResult(); //TODO - 게임 종료 후 받아오기(소켓? 폴링?)
-		const wineer = letsessionStorage.getItem('winner');
-		const loser = sessionStorage.getItem('loser');
 		const gameMode = sessionStorage.getItem('gameMode');
-		let gameName;
-		if (gameMode == 'general_game') {
-			gameName = sessionStorage.getItem('idValue');
+		const winner = sessionStorage.getItem('winner');
+		const loser = sessionStorage.getItem('loser');
+
+		if (gameMode == "general_game") {
+			this.$element.innerHTML = `
+					<div class="content default-container">
+							<div class="container">
+									<div class="mb-3 mt-3">
+											<div class="h1 text-center tp-color-secondary">${locale.mainText.mainText}</div>
+											<div class="h4 text-center tp-color-secondary">${locale.mainText.mainTextDesc}</div>
+									</div>
+									<div class="row justify-content-center default-container">
+										<div class="h2 text-center tp-color-secondary">${locale.result.winner}게임 결과</div>
+										<div class="h2 text-center tp-color-secondary">${winner}1등</div>
+										<div class="h2 text-center tp-color-secondary">${locale.mainText.result}우승자</div>
+										<div class="h2 text-center tp-color-secondary">${loser}2등</div>
+									</div>
+									<div class="tp-sl-btn-parent col">
+											<button id="refreshBtn" class="tp-btn-primary ">${locale.result.goHome}
+											</button>
+									</div>
+								</div>
+							</div>
+					</div>
+			`;
+
 		}
-		else if (gameMode == 'tournament_game') {
-			gameName = sessionStorage.getItem('torunamentName');
-		}
+		else if (gameMode == "tournament_game") {
+			const etc1 = sessionStorage.getItem('etc1');
+			const etc2 = sessionStorage.getItem('etc2');
+			this.$element.innerHTML = `
+		<div class="tp-sl-card-content-child">
+				<div>
+						<div class="loadingMsg default-container text-center tp-color-secondary">
+								<div class="h2">${locale.result.result}게임 결과</div>
+								<div class="h2">${locale.result.result}우승자</div>
+								<div class="h2">${winner}1등</div>
+								<div class="h2">${loser}2등</div>
+								<div class="h2">${locale.result.result}쩌리1 쩌리2</div>
+						</div>
+				</div>
+				<div class="tp-sl-btn-parent col">
+					<button id="refreshBtn" class="tp-btn-primary ">${locale.tournament.refresh}
+					</button>
+				</div>
+		</div>
+`;
 
-		// 1st와 2nd에 해당 등수 인트라 아이디 저장됨.
-		const data = await fetchUsers();
-		if (data) {
-			data.forEach(player => (
-				player.profile_image = replaceHttpWithHttps(player.profile_image)
-			));
-			const playersCard = data
-				.map(
-					(data, index) => `
-                        <div class="card tp-rs-card tp-rs-btn-primary" data-text="WINNER">
-                            <div class="card-body tp-rs-card-body row">
-                                <div class="card-title tp-rs-card-title default-container tp-rs-rank col">
-                                    ${index + 1}
-                                </div>
-                                <div class="card-title tp-rs-card-title default-container col">
-                                    <img class="tp-pf-photo-thumnail tp-rs-photo-thumnail" src="${data.profile_image}" />
-                                </div>
-                                <div class="card-title tp-rs-card-title default-container col">
-                                    ${data.nickname}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tp-pf-ht-blank"></div>
-                    `
-				).join("");
-
-			const cardBody = this.$element.querySelector(".tp-rs-card-container");
-			cardBody.innerHTML = playersCard;
-
-			const ranks = this.$element.querySelectorAll(".tp-rs-rank");
-			ranks.forEach(rank => {
-				if (rank.textContent.trim() === "1") {
-					rank.parentElement.parentElement.classList.add("record-user-box-section", "record-win", "tp-rs-record-win", "tp-rs-winner");
-				}
+			// Refresh 버튼 클릭 이벤트 핸들러 등록
+			const homeBtn = this.$element.querySelector("#homeBtn");
+			homeBtn.addEventListener("click", () => {
+				let targetURL = `https://${process.env.BASE_IP}`;
+				navigate(targetURL);
 			});
 		}
 	};
-
 
 	this.init = () => {
 		let parent = $("#app");

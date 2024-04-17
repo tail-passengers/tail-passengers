@@ -104,17 +104,11 @@ function General({ $app, initialState }) {
 			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
 			state = "end";
 			clearThreeJs();
-			sessionStorage.setItem('winner', data.winner);
-			sessionStorage.setItem('loser', data.loser);
 			gameSocket.send(event.data);
 
 			//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
 			if (gameMode == "tournament_game") {
-				if (data.round == "3") {
-					sessionStorage.setItem('winner', data.winner);
-					sessionStorage.setItem('loser', data.loser);
-				}
-				else {
+				if (data.round != "3") {
 					// 졌으면 소켓 끊고 종료
 					state = "lose";
 					this.$element.innerHTML = endMsg();
@@ -128,8 +122,6 @@ function General({ $app, initialState }) {
 			state = "stay";
 			clearThreeJs();
 			if (data.round == "3") {
-				sessionStorage.setItem('winner', data.winner);
-				sessionStorage.setItem('loser', data.loser);
 				gameSocket.send(event.data);
 			}
 			else {
@@ -159,11 +151,11 @@ function General({ $app, initialState }) {
 			this.$element.innerHTML = errorMsg();
 		}
 		else if (data.message_type == "complete") {
-			sessionStorage.setItem('p1', data.player1);
-			sessionStorage.setItem('p2', data.player2);
+			sessionStorage.setItem('winner', data.winner);
+			sessionStorage.setItem('loser', data.loser);
 			if (gameMode == "tournament_game") {
-				sessionStorage.setItem('p3', data.player3);
-				sessionStorage.setItem('p4', data.player4);
+				sessionStorage.setItem('p3', data.etc1);
+				sessionStorage.setItem('p4', data.etc2);
 			}
 			gameSocket.close();
 			gameSocket = null;

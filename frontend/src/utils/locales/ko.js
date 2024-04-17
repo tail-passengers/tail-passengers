@@ -44,7 +44,8 @@ const koLocale = {
 		comMode: "컴퓨터 모드 켜기"
 	},
 	result: {
-		mainText: "결과"
+		mainText: "게임 결과",
+		goHome: "처음으로",
 	},
 	rank: {
 		mainText: "최고 플레이어",

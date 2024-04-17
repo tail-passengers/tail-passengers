@@ -28,8 +28,9 @@ const jaLocale = {
 		waiting: "他の選手を待つ...",
 		error: "エラーが発生した.",
 		getReady: "プロテゴの呪文に備えよう！",
-		ballChange: "Change ball color",
-		comMode: "Computer mode on"
+		ballChange: "ボールの色を変える",
+		comMode: "コンピュータモード オン"
+
 	},
 	tournament: {
 		mainText: "トーナメント表",
@@ -44,7 +45,8 @@ const jaLocale = {
 		noticePrompt: "新しいトーナメントの名前を入力します：:"
 	},
 	result: {
-		mainText: "結果"
+		mainText: "Game Result",
+		goHome: "帰る",
 	},
 	rank: {
 		mainText: "トッププレイヤー",

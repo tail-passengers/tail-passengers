@@ -244,10 +244,17 @@
 ```json
 {
   "message_type": "complete",
+<<<<<<< Updated upstream
   "winner": "{최종 승자의 nickname}",
   "loser": "{준우승자의 nickname}",
   "etc1": "{round 1 패배자의 nickname}",
   "etc2": "{round 2 패배자의 nickname}"
+=======
+  "winner": "{nickname}",
+  "loser": "{nickname}",
+  "etc1": "{nickname}",
+  "etc2": "{nickname}"
+>>>>>>> Stashed changes
 }
 ```
 
@@ -256,9 +263,9 @@
 ```json
 {
   "message_type": "error",
-  "player1": "{nickname}",
-  "player2": "{nickname}",
-  "player3": "{nickname}",
-  "player4": "{nickname}"
+  "winner": "{nickname}",
+  "loser": "{nickname}",
+  "etc1": "{nickname}",
+  "etc2": "{nickname}"
 }
 ```

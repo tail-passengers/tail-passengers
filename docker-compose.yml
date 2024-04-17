@@ -66,3 +66,7 @@ networks:
 
 volumes:
   dist:
+    driver_opts:
+      type: none
+      device: $PWD/frontend/dist
+      o: bind
