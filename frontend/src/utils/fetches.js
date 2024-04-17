@@ -73,10 +73,13 @@ export const fetchUser = async () => {
             return data;
         } else {
             deleteCSRFToken();
+            navigate("/");
             window.location.reload();
+
         }
     } catch (error) {
         deleteCSRFToken();
+        navigate("/");
         window.location.reload();
         return false;
     }
@@ -274,9 +277,14 @@ export const fetchRequestFriend = async (requestUserId, responseUserId) => {
                 }),
             }
         );
-
-        const data = await response.json();
-        return data;
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        }
+        else if (response.status == 400) {
+            alert("This user is already a friend or requested friend");
+        }
+        return null;
     } catch (error) {
         console.error("Error fetchRequestFriend data:", error);
     }
