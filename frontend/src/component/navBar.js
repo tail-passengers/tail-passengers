@@ -1,12 +1,15 @@
 import { getCurrentLanguage, changeLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
-import { fetchUser } from "../utils/fetches.js";
+import { fetchLogoutRequest, fetchUser } from "../utils/fetches.js";
 import { getCSRFToken } from "../utils/cookie.js";
 
 export function renderPage() {
     const navBarContainer = document.querySelector("#nav-bar");
     navBarContainer.innerHTML = renderNavBar();
     renderProgressBar();
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        fetchLogoutRequest();
+    });
 }
 
 export default function renderNavBar() {
@@ -79,11 +82,13 @@ async function renderProgressBar() {
                 progressBar.innerHTML = result + "%";
                 progressBar.style.width = result + "%";
             } else {
-                console.log("addNavBarLoadListener():: Can't find progressBar!");
+                console.log(
+                    "addNavBarLoadListener():: Can't find progressBar!"
+                );
             }
         }
     };
-    
+
     const setState = (content) => {
         renderUserBar(content);
     };

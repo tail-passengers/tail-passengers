@@ -8,8 +8,6 @@ function SelectMode({ initialState }) {
     this.state = initialState;
     this.$element = document.createElement("div");
     this.$element.className = "content default-container tp-sl-card-content";
-    const language = getCurrentLanguage();
-    const locale = locales[language] || locales.en;
 
     this.setState = (content) => {
         this.state = content;
@@ -17,6 +15,9 @@ function SelectMode({ initialState }) {
     };
 
     this.render = () => {
+        const language = getCurrentLanguage();
+        const locale = locales[language] || locales.en;
+
         this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
         <div class="tp-sl-title-container default-container text-center tp-color-secondary">
