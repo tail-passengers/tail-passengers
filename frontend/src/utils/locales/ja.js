@@ -45,7 +45,8 @@ const jaLocale = {
 		noticePrompt: "新しいトーナメントの名前を入力します：:"
 	},
 	result: {
-		mainText: "Game Result",
+		mainText: "試合結果",
+		winner: "優勝者",
 		goHome: "帰る",
 	},
 	rank: {

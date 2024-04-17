@@ -56,8 +56,9 @@ const enLocale = {
 		tooltipRequest: "Request"
 	},
 	result: {
-		mainText: "Game Result",
-		goHome: "Go home",
+		mainText: "GAME RESULT",
+		winner: "WINNER",
+		goHome: "Go back home",
 	},
 	records: {
 		mainText: "Records",
