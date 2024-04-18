@@ -7,7 +7,8 @@ import locales from "../utils/locales/locales.js";
 function GameResult({ initialState }) {
 	this.state = initialState;
 	this.$element = document.createElement("div");
-
+	this.$element.className = "content";
+	
 	this.render = () => {
 		$("#nav-bar").hidden = true;
 		const language = getCurrentLanguage();
@@ -19,7 +20,6 @@ function GameResult({ initialState }) {
 
 		if (gameMode == "general_game") {
 			this.$element.innerHTML = `
-					<div class="content default-container">
 							<div class="container">
 									<div class="mb-3 mt-3">
 									<div class="my-3"></div>										

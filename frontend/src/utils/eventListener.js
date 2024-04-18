@@ -64,9 +64,11 @@ window.addEventListener("beforeunload", async (event) => {
 window.addEventListener("keydown", (event) => {
     if (event.key === "F5") {
         deleteCSRFToken();
+				navigate("/");
     }
 
     if (event.key === "r" && event.metaKey) {
         deleteCSRFToken();
+				navigate("/");
     }
 });
