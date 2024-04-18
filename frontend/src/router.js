@@ -47,7 +47,8 @@ function Router($container) {
             const currentPagePath = location.pathname;
             const isGeneralGamePage = currentPagePath.includes("/general_game");
             const isLoadingPage = currentPagePath.includes("/loading");
-            if (isGeneralGamePage || isLoadingPage) {
+            const isTournamentPage = currentPagePath.includes("/tournament_game");
+            if (isGeneralGamePage || isLoadingPage || isTournamentPage) {
                 if (
                     confirm("잘못된 접근입니다. 홈 페이지로 이동하시겠습니까?")
                 ) {
@@ -57,7 +58,7 @@ function Router($container) {
                     history.go(-1);
                 }
             } else {
-                // 이동할 페이지가 /general_game이나 /loading이 아닌 경우에는 그냥 route() 함수 호출
+                // 이동할 페이지가 /general_game이나 /tournament_game 또는 /loading이 아닌 경우에는 그냥 route() 함수 호출
                 route();
             }
         });

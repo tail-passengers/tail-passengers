@@ -44,8 +44,6 @@ function RecordsSearch({ initialState }) {
         const locale = locales[language] || locales.en;
 
         const gameLogs = await fetchGameLogs();
-
-        console.log("time", gameLogs[0].start_time);
         const gameElements = gameLogs
             .map(
                 (log) => `

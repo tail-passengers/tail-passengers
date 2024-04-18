@@ -156,7 +156,6 @@ function General({ $app, initialState }) {
 				sessionStorage.setItem('etc1', data.etc1);
 				sessionStorage.setItem('etc2', data.etc2);
 			}
-			console.log(data);
 			gameSocket.close();
 			gameSocket = null;
 
