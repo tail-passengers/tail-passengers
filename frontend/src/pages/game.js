@@ -267,7 +267,7 @@ function Example({ $app, initialState }) {
 			infoElement.style.left = `${canvasRect.left + 10}px`;
 
 			modeElement = document.createElement('div');
-			modeElement.textContent = `M - ${locale.general.comMode}`;
+			modeElement.textContent = `M - ${locale.general.comMode} on/off`;
 			modeElement.style.fontSize = '90%';
 			modeElement.style.position = 'absolute';
 			modeElement.style.top = '10px';
@@ -319,6 +319,10 @@ function Example({ $app, initialState }) {
 			cpuPos.x -= Math.min(cpuPos.x - ballPos.x + randomOffset, 12);
 		} else if (cpuPos.x - 100 < ballPos.x) {
 			cpuPos.x += Math.min(ballPos.x - cpuPos.x + randomOffset, 12);
+		}
+		const side = Math.max(-FIELD_WIDTH / 2 + PADDLE_WIDTH / 2, Math.min(FIELD_WIDTH / 2 - PADDLE_WIDTH / 2, newPaddleX));
+		if (side > cpuPos.x || side < cpuPos.x) {
+			cpuPos.x = side;
 		}
 	}
 
@@ -545,28 +549,17 @@ function Example({ $app, initialState }) {
 	// }
 	//////////
 	function handleMultipleKeys() {
-		// 여러 키를 동시에 처리하는 로직 작성
 		if (keyState.KeyA) {
-			// A 키가 눌려 있을 때의 동작
-			// paddle1과 camera를 이동시킴
 			movePaddle1WithKeyboard(-1);
 		} if (keyState.KeyD) {
-			// D 키가 눌려 있을 때의 동작
-			// paddle1과 camera를 이동시킴
 			movePaddle1WithKeyboard(1);
-			if (modeChange == true) {
-			} if (keyState.ArrowLeft) {
-				// 왼쪽 화살표가 눌려 있을 때의 동작
-				// paddle2와 camera2를 이동시킴
+		} if (keyState.ArrowLeft) {
+			if (modeChange == false)
 				movePaddle2WithKeyboard(1);
-			} if (keyState.ArrowRight) {
-				// 오른쪽 화살표가 눌려 있을 때의 동작
-				// paddle2와 camera2를 이동시킴
+		} if (keyState.ArrowRight) {
+			if (modeChange == false)
 				movePaddle2WithKeyboard(-1);
-			}
 		}
-
-		// 다른 여러 키를 처리하는 로직 추가
 	}
 
 
