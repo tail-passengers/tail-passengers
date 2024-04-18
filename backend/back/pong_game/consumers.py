@@ -176,7 +176,10 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         data = json.loads(text_data)
-        game = ACTIVE_GENERAL_GAMES[self.game_id]
+        game = ACTIVE_GENERAL_GAMES.get(self.game_id)
+        if not game:
+            print(f"{self.user.nickname}: game is None")
+            return
         if (
             data["message_type"] == MessageType.READY.value
             and game.get_status() == GameStatus.WAIT
