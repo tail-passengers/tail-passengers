@@ -863,13 +863,6 @@ function General({ $app, initialState }) {
 		this.makeGame();
 	};
 
-	window.addEventListener(
-		"languageChange",
-		function () {
-			this.render();
-		}.bind(this)
-	);
-
 	this.init();
 }
 

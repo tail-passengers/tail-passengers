@@ -1,3 +1,5 @@
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 import { addProfileModalEventListener } from "../utils/profileEventListener.js";
 
 export default function renderRequestModal(selectBtn, parentElement, requestId) {
