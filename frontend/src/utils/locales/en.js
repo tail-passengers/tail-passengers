@@ -16,15 +16,6 @@ const enLocale = {
 	footer: {
 		brand: "Tail Passenger",
 	},
-	selectMode: {
-		mainText: "Select game mode",
-		singleMode: "Single mode",
-		singleModeDesc: "Single mode against computer",
-		multiMode: "Multi mode",
-		multiModeDesc: "Multi mode against other users",
-		tournamentMode: "Tournament mode",
-		tournamentModeDesc: "Tournament mode with 4 users",
-	},
 	tournament: {
 		mainText: "Tournament List",
 		mainTextDesc: "You can create or join a tournament.",

@@ -17,15 +17,6 @@ const koLocale = {
 	footer: {
 		brand: "테일 패신저",
 	},
-	selectMode: {
-		mainText: "게임 모드를 선택하세요",
-		singleMode: "싱글 모드",
-		singleModeDesc: "컴퓨터와 대결하는 싱글 모드",
-		multiMode: "멀티 모드",
-		multiModeDesc: "다른 유저와 대결하는 멀티 모드",
-		tournamentMode: "토너먼트 모드",
-		tournamentModeDesc: "4명과 대결하는 토너먼트 모드",
-	},
 	tournament: {
 		mainText: "토너먼트 목록",
 		mainTextDesc: "새 토너먼트를 생성하거나 참가할 수 있습니다.",

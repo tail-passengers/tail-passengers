@@ -17,15 +17,6 @@ const jaLocale = {
 	footer: {
 		brand: "テイル パッセンジャー",
 	},
-	selectMode: {
-		mainText: "ゲームモードを選択",
-		singleMode: "シングルモード",
-		singleModeDesc: "コンピューターと対戦するシングルモード",
-		multiMode: "マルチモード",
-		multiModeDesc: "他のユーザーと対戦するマルチモード",
-		tournamentMode: "トーナメントモード",
-		tournamentModeDesc: "4人で対戦するトーナメントモード",
-	},
 	general: {
 		waiting: "他の選手を待つ...",
 		error: "エラーが発生した.",
