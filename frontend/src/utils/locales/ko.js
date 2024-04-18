@@ -1,4 +1,5 @@
 const koLocale = {
+    chartTitle: "차트",
     navBar: {
         brand: "테일 패신저",
         pongGame: "퐁 게임",

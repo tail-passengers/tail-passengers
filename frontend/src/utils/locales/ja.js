@@ -1,4 +1,5 @@
 const jaLocale = {
+    chartTitle: "チャート",
     navBar: {
         brand: "テイル パッセンジャー",
         pongGame: "ポンゲーム",

@@ -1,4 +1,5 @@
 const enLocale = {
+    chartTitle: "Chart",
     navBar: {
         brand: "TAIL PASSENGER",
         pongGame: "PONG GAME",

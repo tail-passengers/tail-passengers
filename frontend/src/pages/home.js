@@ -4,19 +4,20 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { getCSRFToken } from "../utils/cookie.js";
 import { navigate } from "../utils/navigate.js";
+import { $ } from "../utils/querySelector.js";
 
 function Home($container) {
     this.$container = $container;
     this.$chartCanvas = null;
     this.myChart = null;
-    const language = getCurrentLanguage();
-    const locale = locales[language] || locales.en;
 
     this.setState = () => {
         this.render();
     };
 
     this.render = async () => {
+        const language = getCurrentLanguage();
+        const locale = locales[language] || locales.en;
         this.$container.innerHTML = `
             <div class="content default-container">
                 <div class="sized-box"></div>
@@ -42,11 +43,11 @@ function Home($container) {
             const userRates = apiResponse.rate;
 
             this.renderChart(houseRates, userRates, locale);
-            this.renderRecords(gameLogs);
+            this.renderRecords(gameLogs, locale);
         }
     };
 
-    this.renderRecords = (gameLogs) => {
+    this.renderRecords = (gameLogs, locale) => {
         const limitedGameLogs = gameLogs.slice(0, 5);
 
         const recordsList = document.getElementById("records-list");
@@ -64,10 +65,10 @@ function Home($container) {
             recordsList.appendChild(li);
         });
 
-        this.renderMoreButton(gameLogs);
+        this.renderMoreButton(gameLogs, locale);
     };
 
-    this.renderMoreButton = (gameLogs) => {
+    this.renderMoreButton = (gameLogs, locale) => {
         const recordsList = document.getElementById("records-list");
 
         if (gameLogs.length > 0) {
@@ -166,6 +167,19 @@ function Home($container) {
             );
         }
     };
+
+    window.addEventListener(
+        "languageChange",
+        () => {
+            this.myChart = null;
+            let parent = $("#app");
+            const child = $(".content");
+            if (parent && child) {
+                parent.removeChild(child);
+            }
+            this.render();
+        }
+    );
 
     this.render();
 }
