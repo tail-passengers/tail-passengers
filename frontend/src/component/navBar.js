@@ -77,7 +77,7 @@ async function renderProgressBar() {
     const renderUserBar = (user) => {
         if (user) {
             const progressBar = $(".tp-progress-bar")[0];
-            const result = (user.win_count / 100) * 100; //TODO - 분모값 추후 변경 가능성 있음
+            const result = (user.win_count / 100) * (user.win_count + user.lose_count); //TODO - 분모값 추후 변경 가능성 있음
             if (progressBar) {
                 progressBar.innerHTML = result + "%";
                 progressBar.style.width = result + "%";
