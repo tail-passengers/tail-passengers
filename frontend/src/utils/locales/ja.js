@@ -34,6 +34,7 @@ const jaLocale = {
 	general: {
 		waiting: "他のプレイヤーを待つ...",
 		error: "エラーが発生した.",
+		end: "ゲーム終了.",
 		getReady: "プロテゴの呪文に備えよう！",
 		ballChange: "ボールの色を変える",
 		comMode: "コンピュータモード オン",

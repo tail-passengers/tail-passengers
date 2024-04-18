@@ -193,7 +193,7 @@ function General({ $app, initialState }) {
 								<div class="sized-box"></div>
 								<div class="sized-box"></div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
-                    <div class="h2">End game!</div>
+                    <div class="h2">${locale.general.end}</div>
                 </div>
 								<div class="sized-box"></div>
 								<div class="sized-box"></div>
@@ -214,7 +214,7 @@ function General({ $app, initialState }) {
 								<div class="sized-box"></div>
 								<div class="sized-box"></div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
-                    <div class="h2">Error game!</div>
+                    <div class="h2">${locale.general.error}</div>
                 </div>
 								<div class="sized-box"></div>
 								<div class="sized-box"></div>

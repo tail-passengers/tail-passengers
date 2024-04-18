@@ -45,7 +45,8 @@ const koLocale = {
 	},
 	general: {
 		waiting: "상대방을 기다리는 중...",
-		error: "문제가 발생했습니다.",
+		error: "문제가 발생했습니다",
+		end: "게임 종료",
 		getReady: "프로테고 주문을 준비하세요!",
 		ballChange: "볼 색상 변경",
 		comMode: "컴퓨터 모드 켜기",

@@ -46,6 +46,7 @@ const enLocale = {
 	general: {
 		waiting: "Waiting for other players...",
 		error: "error occured.",
+		end: "Game End",
 		getReady: "Get ready to protego spell!!",
 		ballChange: "Change ball color",
 		comMode: "Computer mode on",
