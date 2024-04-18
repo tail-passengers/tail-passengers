@@ -9,10 +9,13 @@ import RecordsSearch from "../pages/recordsSearch.js";
 import Tournament from "../pages/tournament.js";
 import GameResult from "../pages/result.js";
 import Loading from "../pages/gameLoading.js";
+import Dashboard from "../pages/dashboard.js";
+
 export const routes = [
     { path: /^\/$/, element: Home },
     { path: /^\/game$/, element: Game },
     { path: /^\/rank$/, element: Rank },
+    { path: /^\/dashboard$/, element: Dashboard },
     { path: /^\/records$/, element: RecordsSearch },
     { path: /^\/selectmode$/, element: SelectMode },
     { path: /^\/profile$/, element: Profile },
