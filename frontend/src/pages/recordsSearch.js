@@ -1,4 +1,5 @@
 import { fetchGameLogs } from "../utils/fetches.js";
+import { replaceHttpWithHttps } from "../utils/imageUpload.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
@@ -14,16 +15,18 @@ function RecordsSearch({ initialState }) {
     };
 
     const formatDateTime = (isoDateTimeString) => {
-        const date = new Date(isoDateTimeString);
-        const year = date.getUTCFullYear();
-        const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-        const day = date.getUTCDate().toString().padStart(2, "0");
-        const hours = date.getUTCHours().toString().padStart(2, "0");
-        const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-
-        return `${year} ${month} ${day} ${hours}:${minutes}`;
-    };
-
+			const date = new Date(isoDateTimeString);
+			const options = {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+					hour: "2-digit",
+					minute: "2-digit",
+					hour12: false,
+					timeZone: "Asia/Seoul" // 한국 시간대를 지정합니다.
+			};
+			return date.toLocaleString("ko-KR", options);
+	};
     window.addEventListener("resize", function () {
         const windowWidth = window.innerWidth;
         const fontSize = windowWidth * 0.08;
@@ -41,16 +44,17 @@ function RecordsSearch({ initialState }) {
         const locale = locales[language] || locales.en;
 
         const gameLogs = await fetchGameLogs();
-
+				
+				console.log("time", gameLogs[0].start_time);
         const gameElements = gameLogs
-            .map(
-                (log) => `
+				.map(
+					(log) => `
           <div class="record-row tp-btn-primary">
               <div class="record-user-box">
                   <div class="record-user-box-section record-win" data-text="WIN">
                       <div class="h2">${log.player1.nickname}</div>
                   </div>
-                  <img src="/public/assets/img/tmpProfile.png" />
+                  <img src=${replaceHttpWithHttps(log.player1.profile_image)} style="width:80px; height:80px;"/>
               </div>
               <div class="sized-box">
                   <div class="h2">${locale.records.vs}</div>
@@ -59,7 +63,7 @@ function RecordsSearch({ initialState }) {
                   )}</div>
               </div>
               <div class="record-user-box">
-                <img src="/public/assets/img/tmpProfile.png" />
+                <img src=${replaceHttpWithHttps(log.player2.profile_image)} style="width:80px; height:80px;" />
                   <div class="record-user-box-section record-lose" data-text="LOSE">
                       <div class="h2">${log.player2.nickname}</div>
                   </div>
