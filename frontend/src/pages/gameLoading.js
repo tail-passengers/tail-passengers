@@ -30,7 +30,7 @@ function Loading($container) {
 		const backBtn = document.getElementById("backBtn");
 		backBtn.addEventListener("click", (event) => {
 			event.preventDefault();
-			if (initSocket != null) {
+			if (initSocket) {
 				initSocket.close();
 				initSocket = null;
 			}

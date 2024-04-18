@@ -73,13 +73,21 @@ class GeneralGameWaitConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def disconnect(self, close_code) -> None:
+        msg = "---------------------------------------\n"
         if self.user.is_authenticated:
+            msg += f"{self.user.nickname}: General Wait disconnect\n"
+            msg += f"wait list: {GeneralGameWaitConsumer.wait_list}\n"
+            msg += f"nickname list: {GeneralGameWaitConsumer.nickname_list}\n"
             if (
                 self in GeneralGameWaitConsumer.wait_list
                 and self.user.nickname in GeneralGameWaitConsumer.nickname_list
             ):
+                msg += f"{self.user.nickname}: remove in wait_list\n"
                 GeneralGameWaitConsumer.nickname_list.remove(self.user.nickname)
                 GeneralGameWaitConsumer.wait_list.remove(self)
+            msg += f"{self.user.nickname}: General Wait disconnect end\n"
+        msg += "---------------------------------------\n"
+        print(msg)
 
     @classmethod
     async def game_match(cls) -> None:
@@ -134,11 +142,15 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def disconnect(self, close_code) -> None:
+        msg = "---------------------------------------\n"
         if self.user.is_authenticated:
+            msg += f"{self.user.nickname}: General game disconnect\n"
             game = ACTIVE_GENERAL_GAMES.get(self.game_id)
             if game:
                 ACTIVE_GENERAL_GAMES.pop(self.game_id)
+                msg += f"{self.user.nickname}: {self.game_id} pop\n"
                 if game.get_status() != GameStatus.END:  # 게임 중간에 나갔을 경우
+                    msg += f"{self.user.nickname}: 비정상 종료\n"
                     game.set_status(GameStatus.ERROR)
                     data = game.build_error_json(self.user.nickname)
                     await self.channel_layer.group_send(
@@ -152,6 +164,9 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(
                 self.game_group_name, self.channel_name
             )
+        msg += f"{self.user.nickname}: disconnect end]\n"
+        msg += "---------------------------------------\n"
+        print(msg)
 
     async def game_message(self, event) -> None:
         message = event["message"]
@@ -161,7 +176,14 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         data = json.loads(text_data)
-        game = ACTIVE_GENERAL_GAMES[self.game_id]
+        game = ACTIVE_GENERAL_GAMES.get(self.game_id)
+        if not game:
+            msg = f"--------------------------------------------\n"
+            msg += f"{self.user.nickname}: game is None\n"
+            msg += f"data: {data}\n"
+            msg += f"--------------------------------------------\n"
+            print(msg)
+            return
         if (
             data["message_type"] == MessageType.READY.value
             and game.get_status() == GameStatus.WAIT
@@ -387,6 +409,8 @@ class TournamentGameConsumer(AsyncWebsocketConsumer):
         if not self.user.is_authenticated:
             return
 
+        msg = "---------------------------------------\n"
+        msg += f"{self.user.nickname}: touranament game disconnect\n"
         if self.tournament.get_status() == TournamentStatus.READY:
             return
 
@@ -406,7 +430,10 @@ class TournamentGameConsumer(AsyncWebsocketConsumer):
             },
         )
         if self.tournament.get_player_total_cnt() == 0:
+            msg += f"{self.user.nickname}: nobody\n"
             ACTIVE_TOURNAMENTS.pop(self.tournament_name)
+        msg += "---------------------------------------\n"
+        print(msg)
 
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         data = json.loads(text_data)
@@ -513,7 +540,8 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, code) -> None:
         if not self.user.is_authenticated:
             return
-
+        msg = "---------------------------------------\n"
+        msg += f"{self.user.nickname}: tournament round {self.round_number} disconenct"
         # 게임이 비정상 종료 되었을 때(3라운드 진출자가 대기 중에 나갔을 때도 포함)
         if self.round.get_status() != GameStatus.END or (
             self.tournament.get_round(2 if self.round_number == 1 else 1).get_status()
