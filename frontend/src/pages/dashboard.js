@@ -202,11 +202,6 @@ function Dashboard({ initialState }) {
 		this.render();
 	};
 
-	window.addEventListener("languageChange", async () => {
-		const gameLogs = await fetchGameLogs();
-		this.renderRecords(gameLogs);
-	});
-
 	this.init();
 }
 

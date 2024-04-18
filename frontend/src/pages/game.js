@@ -758,7 +758,6 @@ function Example({ $app, initialState }) {
 		startRender();
 		// Add event listeners or other initialization logic here
 		initEventListeners();
-
 	};
 
 	this.init();

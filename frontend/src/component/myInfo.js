@@ -82,11 +82,4 @@ export default function renderMyInfoForm(content, parentElement) {
 
 	renderMyInfoField(content, parentElement);
 
-	window.addEventListener("languageChange", function() {
-		const formBody = parentElement.querySelector(".tp-pf-form");
-		if (formBody) {
-			parentElement.removeChild(formBody);
-			renderMyInfoField(content, parentElement);
-		}
-	}.bind(this));
 }
