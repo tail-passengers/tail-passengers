@@ -23,7 +23,6 @@ function Dashboard({ initialState }) {
 	this.render = async () => {
 			const language = getCurrentLanguage();
 			const locale = locales[language] || locales.en;
-			// this.$container.innerHTML = `
 			this.$element.innerHTML = `
 					<div class="content default-container" style="width:100%;">
 							<div class="sized-box"></div>
