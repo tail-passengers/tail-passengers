@@ -320,10 +320,6 @@ function Example({ $app, initialState }) {
 		} else if (cpuPos.x - 100 < ballPos.x) {
 			cpuPos.x += Math.min(ballPos.x - cpuPos.x + randomOffset, 12);
 		}
-		const side = Math.max(-FIELD_WIDTH / 2 + PADDLE_WIDTH / 2, Math.min(FIELD_WIDTH / 2 - PADDLE_WIDTH / 2, newPaddleX));
-		if (side > cpuPos.x || side < cpuPos.x) {
-			cpuPos.x = side;
-		}
 	}
 
 	function processBallMovement() {
