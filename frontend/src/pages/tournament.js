@@ -13,8 +13,9 @@ function Tournament({ $app, initialState }) {
 		versusNickname;
 
 	function closeSocket() {
-		if (gameSocket && gameSocket.readyState <= 1) {
+		if (gameSocket) {
 			gameSocket.close();
+			gameSocket = 0;
 			window.removeEventListener("popstate", closeSocket);
 		}
 	}
