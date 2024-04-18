@@ -1,9 +1,9 @@
 import { $ } from "./querySelector.js";
-import { 
+import {
 	fetchMyIntraId,
 	fetchModifyMyInfoRequest,
 	fetchAcceptFriendRequest,
-  fetchRefuseFriendRequest,
+	fetchRefuseFriendRequest,
 	fetchImageFileRequest,
 	fetchUser,
 	fetchAllFriends
@@ -13,6 +13,8 @@ import renderModifyFormModal from "../component/myInfoModifyModal.js";
 import { setImageToInput } from "./imageUpload.js";
 import renderMyInfoForm from "../component/myInfo.js";
 import renderFriendList from "../component/friendList.js";
+import { getCurrentLanguage } from "../utils/languageUtils.js";
+import locales from "../utils/locales/locales.js";
 
 /**
  * 내 정보 관련 이벤트 함수
@@ -113,24 +115,25 @@ export async function addFriendListEventListener(locale) {
  * 프로필 페이지 모달창 관련 이벤트 함수(내 정보/친구 목록)
  */
 export function addProfileModalEventListener(profileModal, flag) {
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	const closeProfileModal = async (profileModal) => {
-			profileModal.style.display = "none";
-			const formContainer = $(".tp-pf-form-container");
-			const myInfo = await fetchUser();
-			if (flag === "MY") {
-				renderMyInfoForm(myInfo[0], formContainer);
-			} else if (flag === "FRIENDS") {
-				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
-				renderFriendList(friendsList, formContainer);
-			}
+		profileModal.style.display = "none";
+		const formContainer = $(".tp-pf-form-container");
+		const myInfo = await fetchUser();
+		if (flag === "MY") {
+			renderMyInfoForm(myInfo[0], formContainer);
+		} else if (flag === "FRIENDS") {
+			const friendsList = await fetchAllFriends(myInfo[0].intra_id);
+			renderFriendList(friendsList, formContainer);
+		}
 	};
 
 	const closeButtons = profileModal.querySelectorAll("#close-btn");
-	if (closeButtons)
-	{
+	if (closeButtons) {
 		closeButtons.forEach(button => {
 			button.addEventListener("click", () => {
-					closeProfileModal(profileModal);
+				closeProfileModal(profileModal);
 			});
 		});
 	}
@@ -175,15 +178,15 @@ export function addProfileModalEventListener(profileModal, flag) {
 				setImageToInput(originImagePath, imageInput);
 				return;
 			}
-			
+
 			if (file.size > maxSize) {
-				alert("Please select an image under 2MB");
+				alert(`${locale.myInfo.setImage}`);
 				setImageToInput(originImagePath, imageInput);
 				return;
 			}
 
 			if (!file.type.match("image/.*")) {
-				alert("Only image files can be uploaded");
+				alert(`${locale.myInfo.onlyImage}`);
 				setImageToInput(originImagePath, imageInput);
 				return;
 			}
@@ -202,14 +205,14 @@ export function addProfileModalEventListener(profileModal, flag) {
 	 */
 	const modifyForm = profileModal.querySelector(".tp-pf-form-myinfo-update");
 	if (modifyForm) {
-		modifyForm.addEventListener("submit", async(event) => {
+		modifyForm.addEventListener("submit", async (event) => {
 			event.preventDefault();
 			const nickname = modifyForm.nickname.value;
 			if (nickname) {
 				const regex = /^[\s\t\n\r]+|\s+$/g;
 				if (regex.test(nickname) || nickname.length >= 20) {
-						alert("Strings must not consist solely of whitespace or be longer than 20 characters.");
-						return;
+					alert(`${locale.myInfo.nickAlert}`);
+					return;
 				}
 			}
 			const myData = new FormData(modifyForm);

@@ -1,5 +1,8 @@
 import { deleteCSRFToken, getCSRFToken } from "./cookie.js";
 import { navigate } from "./navigate.js";
+import { deleteIntervalId } from "./profileEventListener.js";
+import { getCurrentLanguage } from "./languageUtils.js";
+import locales from "./locales/locales.js";
 
 /**
  *
@@ -55,6 +58,8 @@ export const fetchUser = async () => {
  * @returns 모든 유저들의 랭킹 정보
  */
 export const fetchUsers = async () => {
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	try {
 		const response = await fetch(
 			`https://${process.env.BASE_IP}/api/v1/users/`,
@@ -63,10 +68,10 @@ export const fetchUsers = async () => {
 			}
 		);
 		const data = await response.json();
-				data.sort((a, b) => {
-						return (b.win_count - b.lose_count) - (a.win_count - a.lose_count);
-				});
-				return data;
+		data.sort((a, b) => {
+			return (b.win_count - b.lose_count) - (a.win_count - a.lose_count);
+		});
+		return data;
 	} catch (error) {
 		console.error("Error fetching user data:", error);
 	}
@@ -78,6 +83,8 @@ export const fetchUsers = async () => {
  * @returns : DB에 저장된 내 회원 정보
  */
 export const fetchModifyMyInfoRequest = async (myData) => {
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	try {
 		const csrfToken = getCSRFToken();
 		const myIntraId = await fetchMyIntraId();
@@ -97,7 +104,7 @@ export const fetchModifyMyInfoRequest = async (myData) => {
 			}
 		);
 		if (response.status === 400) {
-			alert("duplicate nickname")
+			alert(`${locale.myInfo.duplicate}`);
 			return;
 		}
 
@@ -172,27 +179,27 @@ export const fetchAllFriends = async (intraId) => {
 	try {
 		const response = await fetch(
 			`https://${process.env.BASE_IP}/api/v1/friend_requests/` +
-				intraId +
-				"/all/",
+			intraId +
+			"/all/",
 			{
 				credentials: "include",
 			}
 		);
-				if (response.ok) {
-					const data = await response.json();
-					data.sort((a, b) => {
-							if (a.friend_status !== b.friend_status) {
-									return a.friend_status - b.friend_status;
-							} else {
-									return b.status - a.status;
-							}
-					});
-					return data;
-				} else if (response.status === 403) {
-					deleteCSRFToken();
-					navigate("/");
-					return;
+		if (response.ok) {
+			const data = await response.json();
+			data.sort((a, b) => {
+				if (a.friend_status !== b.friend_status) {
+					return a.friend_status - b.friend_status;
+				} else {
+					return b.status - a.status;
 				}
+			});
+			return data;
+		} else if (response.status === 403) {
+			deleteCSRFToken();
+			navigate("/");
+			return;
+		}
 	} catch (error) {
 		console.error("Error fetchAllFriends data:", error);
 	}
@@ -207,8 +214,8 @@ export const fetchAcceptedFriends = async (intraId) => {
 	try {
 		const response = await fetch(
 			`https://${process.env.BASE_IP}/api/v1/friend_requests/` +
-				intraId +
-				"/accepted/",
+			intraId +
+			"/accepted/",
 			{
 				credentials: "include",
 			}
@@ -235,6 +242,8 @@ export const fetchAcceptedFriends = async (intraId) => {
  * @returns 친구 요청 테이블에 생성된 튜플의 PK
  */
 export const fetchRequestFriend = async (requestUserId, responseUserId) => {
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	try {
 		const csrfToken = getCSRFToken();
 		const response = await fetch(
@@ -255,7 +264,7 @@ export const fetchRequestFriend = async (requestUserId, responseUserId) => {
 			const data = await response.json();
 			return data;
 		} else if (response.status == 400) {
-			alert("This user is already a friend or requested friend");
+			alert(`${locale.myInfo.alFriend}`);
 		}
 		return null;
 	} catch (error) {
@@ -273,8 +282,8 @@ export const fetchAcceptFriendRequest = async (requestPK, responseUserId) => {
 		const csrfToken = getCSRFToken();
 		const response = await fetch(
 			`https://${process.env.BASE_IP}/api/v1/friend_requests/` +
-				requestPK +
-				"/",
+			requestPK +
+			"/",
 			{
 				method: "PATCH",
 				headers: {
@@ -307,8 +316,8 @@ export const fetchRefuseFriendRequest = async (requestPK) => {
 		const csrfToken = getCSRFToken();
 		const response = await fetch(
 			`https://${process.env.BASE_IP}/api/v1/friend_requests/` +
-				requestPK +
-				"/",
+			requestPK +
+			"/",
 			{
 				method: "DELETE",
 				headers: {
@@ -374,7 +383,9 @@ export const fetchGameLogs = async () => {
 		}
 
 		const combinedData = [...data1, ...data2];
-
+		combinedData.sort(
+			(a, b) => new Date(b.start_time) - new Date(a.start_time)
+		);
 		combinedData.sort(
 			(a, b) => new Date(b.start_time) - new Date(a.start_time)
 		);
