@@ -111,9 +111,7 @@ function RecordsSearch({ initialState }) {
         }
         this.render();
     };
-    window.addEventListener("languageChange", () => {
-        this.render();
-    });
+
     this.init();
 }
 export default RecordsSearch;

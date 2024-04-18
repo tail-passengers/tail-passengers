@@ -1,5 +1,3 @@
-import { getCurrentLanguage } from "../utils/languageUtils.js";
-import locales from "../utils/locales/locales.js";
 
 function Home($container) {
     this.$container = $container;

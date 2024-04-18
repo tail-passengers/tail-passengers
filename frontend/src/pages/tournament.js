@@ -183,7 +183,6 @@ function Tournament({ $app, initialState }) {
 							<button id="goBackToListBtn" class="btn tp-btn-primary">${locale.tournament.goBack}</button>
 					</div>
 			`;
-					// "Go back to list" 버튼 클릭 이벤트 핸들러 등록
 					const goBackToListBtn =
 						this.$element.querySelector("#goBackToListBtn");
 					goBackToListBtn.addEventListener(
@@ -191,8 +190,6 @@ function Tournament({ $app, initialState }) {
 						this.goBackToList
 					);
 				} else if (data.message_type == "ready") {
-					// this.renderPlaying(data);
-					// round 저장, 1p, 2p 나랑 versus 저장
 					round = data.round;
 					if (data["1p"] == nickname) {
 						playerNum = "player1";
@@ -263,12 +260,6 @@ function Tournament({ $app, initialState }) {
 		}
 		this.render();
 	};
-	window.addEventListener(
-		"languageChange",
-		function () {
-			this.render();
-		}.bind(this)
-	);
 
 	this.init();
 }

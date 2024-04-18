@@ -113,14 +113,4 @@ export default function renderFriendList(content, parentElement) {
 
 	renderFriendListField(content, parentElement);
 
-	window.addEventListener(
-		"languageChange",
-		function () {
-			const formBody = parentElement.querySelector(".tp-pf-form");
-			if (formBody) {
-				parentElement.removeChild(formBody);
-				renderFriendListField(content, parentElement);
-			}
-		}.bind(this)
-	);
 }

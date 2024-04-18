@@ -1,10 +1,11 @@
 import { routes } from "./utils/routeInfo.js";
 import NotFound from "./pages/notFound.js";
-import Profile from "./pages/profile.js";
+
 import { closeSocket } from "./pages/general.js";
 import { fetchUser } from "./utils/fetches.js";
 import { deleteCSRFToken } from "./utils/cookie.js";
 import Dashboard from "./pages/dashboard.js";
+import Home from "./pages/home.js";
 
 function Router($container) {
     this.$container = $container;
@@ -17,6 +18,14 @@ function Router($container) {
         currentPage = null;
         const TargetPage = findMatchedRoute()?.element || NotFound;
         currentPage = new TargetPage(this.$container);
+				const navBar = document.getElementById("nav-bar");
+
+				if (!(currentPage instanceof Home)) {
+						navBar.querySelector(".lang-group").classList.add("visually-hidden");
+					} else {
+						navBar.querySelector(".lang-group").classList.remove("visually-hidden");
+						
+				}
 
 		if (!(currentPage instanceof Dashboard)) {
 			const chart = document.getElementById("bar-chart");
@@ -29,7 +38,10 @@ function Router($container) {
     const init = () => {
         window.addEventListener("historychange", ({ detail }) => {
             const { to, isReplace } = detail;
-
+						console.log(to);
+						if (to != "/") {
+							
+						}
             const data = fetchUser();
             if (data === false) {
                 deleteCSRFToken();
@@ -43,6 +55,7 @@ function Router($container) {
             route();
         });
 
+
         window.addEventListener("popstate", () => {
             const currentPagePath = location.pathname;
             const isGeneralGamePage = currentPagePath.includes("/general_game");
@@ -50,6 +63,10 @@ function Router($container) {
 						const isGamePage = currentPagePath.includes("/game");
             const isTournamentPage =
                 currentPagePath.includes("/tournament_game");
+						const isTournamentWaitPage = currentPagePath.includes("/tournament");
+						if (isTournamentWaitPage) {
+							closeSocket(); 
+						}
 						if (isGamePage) {
 							alert("This is invalid contact");
 							history.go(-1);

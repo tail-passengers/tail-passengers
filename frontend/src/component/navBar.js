@@ -44,7 +44,7 @@ export default function renderNavBar() {
                       }</a>
                   </li>
               </ul>
-              <div class="btn-group" role="group" aria-label="Language">
+              <div class="btn-group lang-group" role="group" aria-label="Language">
                   <button id="languageEN" type="button" class="btn btn-secondary ${
                       language === "en" ? "active" : ""
                   }">EN</button>

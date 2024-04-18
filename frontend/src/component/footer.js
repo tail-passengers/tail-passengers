@@ -34,6 +34,3 @@ export default function renderFooter() {
   `;
 }
 
-window.addEventListener("languageChange", function() {
-	renderFooterSection();
-}.bind(this));
