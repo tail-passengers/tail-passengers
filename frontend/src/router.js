@@ -50,6 +50,7 @@ function Router($container) {
             const isTournamentPage =
                 currentPagePath.includes("/tournament_game");
             if (isGeneralGamePage || isLoadingPage || isTournamentPage) {
+								closeSocket();
                 if (
                     confirm(
                         "Your approach seems to be incorrect. Would you like to navigate to the home page?\n\n\nOK -> Go to home\nCancel -> Go back to the previous page"
@@ -61,7 +62,6 @@ function Router($container) {
                     history.go(-1);
                 }
             } else {
-                closeSocket();
                 route();
             }
         });

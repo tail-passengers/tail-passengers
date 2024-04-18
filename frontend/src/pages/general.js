@@ -5,6 +5,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
+let gameSocket = 0;
+
 function General({ $app, initialState }) {
     const language = getCurrentLanguage();
     const locale = locales[language] || locales.en;
@@ -14,7 +16,6 @@ function General({ $app, initialState }) {
         data,
         nickname,
         versusNickname = "",
-        gameSocket = 0,
         scoreElement,
         infoElement,
         state = "playing",

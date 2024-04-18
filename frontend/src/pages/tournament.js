@@ -69,6 +69,7 @@ function Tournament({ $app, initialState }) {
 				const regex = /^[\uAC00-\uD7A3\u3040-\u30FF\u4E00-\u9FAF\u0030-\u0039\u0041-\u005A\u0061-\u007A]+$/;
 				return regex.test(segment);
 			}
+			if (tournamentName){
 			if (validateURLSegment(tournamentName) && tournamentName.length < 20) {
 				const message = {
 					message_type: "create",
@@ -78,6 +79,7 @@ function Tournament({ $app, initialState }) {
 			} else {
 				alert(`${locale.tournament.promptAlert}`);
 			}
+		}
 		});
 		const refreshBtn = this.$element.querySelector("#refreshBtn");
 		refreshBtn.addEventListener("click", () => {
@@ -226,6 +228,7 @@ function Tournament({ $app, initialState }) {
 	//소켓 연결시 사용
 	this.connectWebSocket = async (url) => {
 		return new Promise((resolve, reject) => {
+			closeSocket();
 			gameSocket = new WebSocket(
 				`wss://${process.env.BASE_IP}/ws/tournament_game/${url}/`
 			);
