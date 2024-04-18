@@ -54,6 +54,7 @@ export default function renderFriendList(content, parentElement) {
 								<td class="text-center align-middle col-1">
 									${index + 1}
 									<input type="hidden" class="tp-fl-request-id" value=${data.request_id}></input>
+									<input type="hidden" class="tp-fl-request-intra-id" value=${data.request_intra_id}></input>
 								</td>
 								<td class="text-center align-middle col-1">
 									<div class="tp-fl-profile">
@@ -61,7 +62,7 @@ export default function renderFriendList(content, parentElement) {
 									</div>
 								</td>
 								<td class="text-left align-middle tp-fl-display-intra-id col-2">
-                                    ${data.nickname}
+                    ${data.friend_requests.nickname}
 								</td>
 								<td class="text-center align-middle col-1 tp-onoff-status">
 									<div class="online-indicator">

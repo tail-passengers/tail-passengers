@@ -78,6 +78,7 @@ export function addFriendListEventListener(locale) {
 	const friendBtnGrps = document.querySelectorAll(".tp-fl-btn-group");
 	friendBtnGrps.forEach(async friendBtnGrp => {
 		const statusValue = friendBtnGrp.children[2].value;
+		const requestUserId = friendBtnGrp.closest("tr").querySelector(".tp-fl-request-intra-id").value;
 
 		const myIntraId = await fetchMyIntraId();
 		if (statusValue === "0" && myIntraId === requestUserId) { // "0" : pending, "1" : accepted
@@ -87,12 +88,6 @@ export function addFriendListEventListener(locale) {
 		else if (statusValue === "1") {
 			friendBtnGrp.children[0].classList = "visually-hidden";                 // 이미 친구인 경우 친구 수락 버튼이 안 보임
 			friendBtnGrp.parentElement.parentElement.classList.add("tp-fl-friend"); // 이미 친구인 경우 CSS 효과
-		}
-
-		if (myIntraId === requestUserId) {
-			displayIntraIdElem.innerText = responseUserId;
-		} else {
-			displayIntraIdElem.innerText = requestUserId;
 		}
 	});
 }
