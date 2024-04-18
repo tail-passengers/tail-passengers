@@ -2,6 +2,8 @@ import { routes } from "./utils/routeInfo.js";
 import NotFound from "./pages/notFound.js";
 import Profile from "./pages/profile.js";
 import General from "./pages/general.js";
+import { fetchUser } from "./utils/fetches.js";
+import { deleteCSRFToken } from "./utils/cookie.js";
 
 function Router($container) {
     this.$container = $container;
@@ -28,8 +30,12 @@ function Router($container) {
         window.addEventListener("historychange", ({ detail }) => {
             const { to, isReplace } = detail;
 
-            const target = to.split("/")[3];
-            if (isReplace || to === location.pathname) {
+						const data = fetchUser();
+						if (data === false) {
+							deleteCSRFToken();
+						}
+
+						if (isReplace || to === location.pathname) {
                 history.replaceState(null, "", to);
             } else {
                 history.pushState(null, "", to);
