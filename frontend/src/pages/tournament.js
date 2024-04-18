@@ -16,8 +16,9 @@ function Tournament({ $app, initialState }) {
 		if (gameSocket) {
 			gameSocket.close();
 			gameSocket = 0;
-			window.removeEventListener("popstate", closeSocket);
 		}
+		$("#nav-bar").hidden = false;
+		window.removeEventListener("popstate", closeSocket);
 	}
 	this.render = () => {
 		const language = getCurrentLanguage();
@@ -167,7 +168,7 @@ function Tournament({ $app, initialState }) {
 					}
 
 					gameSocket.send(event.data);
-
+					$("#nav-bar").hidden = true;
 					this.$element.innerHTML = `
 					<div class='text-center h1 text-left tp-color-secondary'>${locale.tournament.waiting}</div>
 					<div class='text-center h1 text-left tp-color-secondary'>${data.total} / 4</div>
@@ -216,6 +217,7 @@ function Tournament({ $app, initialState }) {
 			gameSocket.close();
 			gameSocket = null;
 		}
+		$("#nav-bar").hidden = false;
 		// 토너먼트 리스트를 다시 요청
 		this.render();
 	};
