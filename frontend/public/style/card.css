@@ -1,5 +1,5 @@
 .tp-sl-card-content {
-	padding: 3%;
+	padding: 2%;
 }
 
 .tp-sl-card-content-child {
@@ -10,19 +10,35 @@
 }
 
 .tp-sl-title-container {
-	font-size: 4rem;
+	font-size: 2.5rem;
 }
 
 .tp-sl-card-row-height {
-	height: 50vh;
+	height: 15vh;
+}
+
+.tp-sl-card-header {
+	margin-top: 20px;
 }
 
 .tp-sl-card-title {
-	font-size: 4rem;
+	font-size: 2.5rem;
 }
 
 .tp-sl-card-text {
-	font-size: 2rem;
+	font-size: 1rem;
+}
+
+.tp-sl-info-text {
+	line-height: 1.7;
+	/* 원하는 줄간격 설정 */
+}
+
+.tp-sl-info-text {
+	color: #fff !important;
+	font-size: 1.2rem !important;
+	font-weight: normal;
+	align-items: start;
 }
 
 .tp-sl-card-button-text {
