@@ -16,11 +16,16 @@ function General({ $app, initialState }) {
 
 	// TODO 제너럴 레디 후 토너먼트 가면 소켓 안끊는 문제
 
+	function closeSocket() {
+		if (gameSocket != null) {
+			gameSocket.close();
+			gameSocket = null;
+		}
+	}
 	function clearThreeJs() {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
 		if (state == "playing") {
-			gameSocket.close();
-			gameSocket = null;
+			closeSocket();
 		}
 		$("#nav-bar").hidden = false;
 		removeScoreElement();
@@ -37,11 +42,9 @@ function General({ $app, initialState }) {
 	this.connectWebSocket = async () => {
 		return new Promise((resolve, reject) => {
 			gameSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/${gameMode}/${gameIdValue}/`);
-
 			gameSocket.onopen = () => {
 				resolve(gameSocket);
 			};
-
 			gameSocket.onerror = (error) => {
 				reject(error);
 			};
@@ -109,10 +112,8 @@ function General({ $app, initialState }) {
 			if (gameMode == "tournament_game") {
 				if (data.round != "3") {
 					// 졌으면 소켓 끊고 종료
-					state = "lose";
+					closeSocket();
 					this.changeMsg("end");
-					gameSocket.close();
-					gameSocket = null;
 					$("#nav-bar").hidden = false;
 				}
 			}
@@ -126,7 +127,7 @@ function General({ $app, initialState }) {
 			else {
 				gameSocket.send(event.data);
 				$("#nav-bar").hidden = true;
-				// 이겼으면 새 소켓 연결 후 대기,
+				// 이겼으면 새 메세지리스너 등록 후 대기,
 				state = "playing";
 				this.$element.innerHTML = `
 					<div class='text-center h1 text-left tp-color-secondary'>${locale.general.waiting}</div>
@@ -143,10 +144,7 @@ function General({ $app, initialState }) {
 		}
 		else if (data.message_type == "error") {
 			clearThreeJs();
-			if (gameSocket != null) {
-				gameSocket.close();
-				gameSocket = null;
-			}
+			closeSocket();
 			this.changeMsg("error");
 		}
 		else if (data.message_type == "complete") {
@@ -156,9 +154,7 @@ function General({ $app, initialState }) {
 				sessionStorage.setItem('etc1', data.etc1);
 				sessionStorage.setItem('etc2', data.etc2);
 			}
-			gameSocket.close();
-			gameSocket = null;
-
+			closeSocket();
 			let targetURL = `https://${process.env.BASE_IP}/result/${gameIdValue}`;
 			navigate(targetURL);
 			running = false;
@@ -184,8 +180,7 @@ function General({ $app, initialState }) {
 			const tournamentURL = `${tournamentName}/3`;
 			sessionStorage.setItem('idValue', tournamentURL);
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
-			gameSocket.close();
-			gameSocket = null;
+			closeSocket();
 			navigate(targetURL);
 			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 		}
@@ -204,11 +199,11 @@ function General({ $app, initialState }) {
             </div>
         </div>
 				<div class="tp-sl-card-container default-container text-center">
-            					<div class="tp-sl-btn-parent col">
-                				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 
-                				</button>
-										</div>
-									</div>
+        		<div class="tp-sl-btn-parent col">
+        				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 
+        				</button>
+						</div>
+				</div>
     `;
 		}
 		else {
@@ -221,11 +216,11 @@ function General({ $app, initialState }) {
             </div>
         </div>
 				<div class="tp-sl-card-container default-container text-center">
-            					<div class="tp-sl-btn-parent col">
-                				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 
-                				</button>
-										</div>
-									</div>
+        		<div class="tp-sl-btn-parent col">
+        				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 
+        				</button>
+						</div>
+				</div>
     `;
 		};
 		const homeBtn = this.$element.querySelector("#homeBtn");
