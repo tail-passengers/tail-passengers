@@ -65,16 +65,18 @@ function Tournament({ $app, initialState }) {
 		createTournamentBtn.addEventListener("click", () => {
 			tournamentName = prompt(`${locale.tournament.noticePrompt}`);
 
-			const regex = /^[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣0-9\s]*$/;
-			if (!regex.test(tournamentName) || tournamentName.length > 20) {
-				alert("The string must not contain spaces, special characters, and must be 20 characters or less.");
+			function validateURLSegment(segment) {
+				const regex = /^[\uAC00-\uD7A3\u3040-\u30FF\u4E00-\u9FAF\u0030-\u0039\u0041-\u005A\u0061-\u007A]+$/;
+				return regex.test(segment);
 			}
-			else {
+			if (validateURLSegment(tournamentName) && tournamentName.length < 20) {
 				const message = {
 					message_type: "create",
 					tournament_name: tournamentName,
 				};
 				gameSocket.send(JSON.stringify(message));
+			}else {
+				alert("The string must not contain spaces, special characters, and must be 20 characters or less");
 			}
 		});
 		const refreshBtn = this.$element.querySelector("#refreshBtn");
