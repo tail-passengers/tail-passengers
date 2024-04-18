@@ -322,6 +322,14 @@ class TournamentGameWaitConsumer(AsyncWebsocketConsumer):
         else:
             await self.close()
 
+    # TODO 지울 것
+    async def disconnect(self, close_code) -> None:
+        super().disconnect()
+        msg = "-----------------------------------\n"
+        msg += f"{self.user.nickname}: Tournament Wait disconnect\n"
+        msg += "-----------------------------------\n"
+        print(msg)
+
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         if self.isProcessingComplete:
             return
@@ -554,6 +562,7 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
             != GameStatus.END
             and self.winner_group
         ):
+            msg += f"{self.user.nickname}: 비정상 종료\n"
             self.tournament.set_status(TournamentStatus.ERROR)
             data = self.round.build_error_json(self.user.nickname)
             await self.channel_layer.group_send(
@@ -563,12 +572,14 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
 
         # 각 라운드의 loop가 아직 취소되지 않은 경우
         if not self.round.get_is_closed():
+            msg += f"{self.user.nickname}: round is not closed\n"
             self.round.set_is_closed(True)
             # 토너먼트가 종료되었을 때
             if (
                 self.tournament.get_status() == TournamentStatus.END
                 and self.tournament_name in ACTIVE_TOURNAMENTS.keys()
             ):
+                msg += f"{self.user.nickname}: tournament is pop\n"
                 ACTIVE_TOURNAMENTS.pop(self.tournament_name)
             try:  # cancel() 동작이 끝날 때까지 대기
                 self.game_loop_task.cancel()
@@ -582,6 +593,9 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
         # 승자 그룹이 지정되어 채널에 들어가 있을 때
         if self.winner_group:
             await self.channel_layer.group_discard(self.winner_group, self.channel_name)
+        msg += f"{self.user.nickname}: disconnect end\n"
+        msg += "-------------------------------------------------\n"
+        print(msg)
 
     async def receive(self, text_data: json = None, bytes_data=None) -> None:
         data = json.loads(text_data)
