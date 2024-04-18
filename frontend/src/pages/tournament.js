@@ -64,15 +64,16 @@ function Tournament({ $app, initialState }) {
 		);
 		createTournamentBtn.addEventListener("click", () => {
 			tournamentName = prompt(`${locale.tournament.noticePrompt}`);
-			const message = {
-				message_type: "create",
-				tournament_name: tournamentName,
-			};
-			const regex = /^[`~!@#$%^&*()_+-={},./<>?;':"\s\t\n\r]+|\s+$/g;
-			if (regex.test(tournamentName) || tournamentName.length > 20) {
-				alert("Strings must not consist solely of whitespace or be longer than 20 characters.");
+
+			const regex = /^[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣0-9\s]*$/;
+			if (!regex.test(tournamentName) || tournamentName.length > 20) {
+				alert("The string must not contain spaces, special characters, and must be 20 characters or less.");
 			}
 			else {
+				const message = {
+					message_type: "create",
+					tournament_name: tournamentName,
+				};
 				gameSocket.send(JSON.stringify(message));
 			}
 		});
