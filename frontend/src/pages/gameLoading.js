@@ -38,18 +38,20 @@ function Loading($container) {
 			history.back();
 		});
 
-		if (initSocket != null) {
+		if (initSocket) {
 			initSocket.close();
 			initSocket = null;
 		}
 		initSocket = new WebSocket(`wss://${process.env.BASE_IP}/ws/general_game/wait/`);
 		initSocket.addEventListener('message', idSocketConnect);
+		window.addEventListener("popstate", closeSocket);
 	}
 
 	function closeSocket() {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
-		if (initSocket && initSocket.readyState <= 1) {
+		if (initSocket) {
 			initSocket.close();
+			initSocket = null;
 			console.log("closed socket");
 		}
 		$("#nav-bar").hidden = false;
@@ -58,13 +60,14 @@ function Loading($container) {
 
 	const idSocketConnect = (event) => {
 		window.addEventListener("popstate", closeSocket);
-		initSocket.close();
 		let data = JSON.parse(event.data);
 		gameIdValue = data.game_id;
 		// 현재 연결된 소켓을 세션 스토리지에 저장합니다.
 		sessionStorage.setItem("idValue", gameIdValue);
 		sessionStorage.setItem("gameMode", "general_game");
 
+		initSocket.close();
+		initSocket = null;
 		const targetURL = `https://${process.env.BASE_IP}/general_game/${gameIdValue}`;
 		navigate(targetURL);
 	}
