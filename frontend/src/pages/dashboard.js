@@ -4,11 +4,17 @@ import { fetchChartData, fetchGameLogs } from "../utils/fetches.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import Chart from "chart.js/auto";
+import { navigate } from "../utils/navigate.js";
+import { $ } from "../utils/querySelector.js";
 
-function Dashboard($container) {
-	this.$container = $container;
+function Dashboard({ initialState }) {
     this.$chartCanvas = null;
     this.myChart = null;
+
+		this.state = initialState;
+    this.$element = document.createElement("div");
+    this.$element.className = "content default-container tp-sl-card-content";
+
 
 		this.setState = () => {
 			this.render();
@@ -17,8 +23,9 @@ function Dashboard($container) {
 	this.render = async () => {
 			const language = getCurrentLanguage();
 			const locale = locales[language] || locales.en;
-			this.$container.innerHTML = `
-					<div class="content default-container">
+			// this.$container.innerHTML = `
+			this.$element.innerHTML = `
+					<div class="content default-container" style="width:100%;">
 							<div class="sized-box"></div>
 							<div class="sized-box"></div>
 							<div class="home-top-container">
@@ -110,13 +117,7 @@ function Dashboard($container) {
 			datasets.push(houseDataset);
 			datasets.push(rateDataset);
 
-			if (this.myChart) {
-					this.myChart.data.labels = labels;
-					this.myChart.data.datasets = datasets;
-					this.myChart.options.plugins.title.text = locale.chartTitle;
-					this.myChart.options.scales.y.ticks.stepSize = 20;
-					this.myChart.update();
-			} else {
+			
 					const ctx = this.$chartCanvas.getContext("2d");
 					this.myChart = new Chart(
 							ctx,
@@ -164,17 +165,31 @@ function Dashboard($container) {
 							},
 							500
 					);
-			}
+			
 	};
 	window.addEventListener(
 		"languageChange",
 		function () {
-				this.myChart = 0;
 				this.render();
 		}.bind(this)
 );
 
+this.init = () => {
+	let parent = $("#app");
+	const child = $(".content");
+	if (child) {
+			parent.removeChild(child);
+			parent.appendChild(this.$element);
+	}
+	let body = $("body");
+	const canvas = $("canvas");
+	if (canvas) {
+			body.removeChild(canvas);
+	}
 	this.render();
+};
+
+	this.init();
 }
 
 export default Dashboard;

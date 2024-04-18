@@ -10,13 +10,10 @@ function Home($container) {
         this.render();
     };
 
-    this.render = async () => {
-        const language = getCurrentLanguage();
-        const locale = locales[language] || locales.en;
+    this.render = () => {
         this.$container.innerHTML = `
-            <div class="content default-container">
-                <div class="sized-box"></div>
-                <div class="sized-box"></div>
+            <div class="content default-container" style="width:100%;">
+                <img src="/public/assets/img/home.png" style="width:100%;"></img>
             </div>
         `;
     };

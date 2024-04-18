@@ -8,7 +8,7 @@ function GameResult({ initialState }) {
 	this.state = initialState;
 	this.$element = document.createElement("div");
 	this.$element.className = "content";
-	
+
 	this.render = () => {
 		$("#nav-bar").hidden = true;
 		const language = getCurrentLanguage();
@@ -30,8 +30,8 @@ function GameResult({ initialState }) {
 										<div class="h3 text-center tp-color-secondary">${locale.result.winner}</div>
 										<div class="h2 text-center tp-color-secondary">${winner}</div>
 										<div class="my-3"></div>
-										<div class="h4 text-center tp-color-secondary">${locale.result.loser}</div>
-										<div class="h4 text-center tp-color-secondary">${loser}</div>
+										<div class="h3 text-center tp-color-secondary">${locale.result.loser}</div>
+										<div class="h2 text-center tp-color-secondary">${loser}</div>
 									</div>
 									<div class="my-3"></div>
 									<div class="tp-sl-card-container default-container text-center">
