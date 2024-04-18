@@ -105,7 +105,7 @@ export const fetchModifyMyInfoRequest = async (myData) => {
 		);
 		if (response.status === 400) {
 			alert(`${locale.myInfo.duplicate}`);
-			return;
+			return;	
 		}
 
 		const data = await response.json();

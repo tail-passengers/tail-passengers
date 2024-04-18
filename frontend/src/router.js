@@ -7,6 +7,7 @@ import { deleteCSRFToken } from "./utils/cookie.js";
 import Dashboard from "./pages/dashboard.js";
 import { getCurrentLanguage } from "./utils/languageUtils.js";
 import locales from "./utils/locales/locales.js";
+import Home from "./pages/home.js";
 
 function Router($container) {
 	this.$container = $container;
@@ -35,8 +36,7 @@ function Router($container) {
 	};
 
 	const init = () => {
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
+		
 		window.addEventListener("historychange", ({ detail }) => {
 			const { to, isReplace } = detail;
 
@@ -55,6 +55,9 @@ function Router($container) {
 
 
 		window.addEventListener("popstate", () => {
+			const language = getCurrentLanguage();
+			const locale = locales[language] || locales.en;
+			
 			const currentPagePath = location.pathname;
 			const isGeneralGamePage = currentPagePath.includes("/general_game");
 			const isLoadingPage = currentPagePath.includes("/loading");

@@ -22,18 +22,30 @@ function GameResult({ initialState }) {
 			this.$element.innerHTML = `
 							<div class="container">
 									<div class="mb-3 mt-3">
-									<div class="my-3"></div>										
+									<div class="my-3"></div>
+									<div class="sized-box"></div>
+									<div class="sized-box"></div>
+									<div class="sized-box"></div>
 											<div class="h1 text-center tp-color-secondary">${locale.result.mainText}</div>
 									</div>
+									<div class="sized-box"></div>
+									<div class="sized-box"></div>
 									<div class="my-3"></div>
 									<div class="row justify-content-center default-container">
+									<div class="sized-box"></div>
 										<div class="h3 text-center tp-color-secondary">${locale.result.winner}</div>
 										<div class="h2 text-center tp-color-secondary">${winner}</div>
+										<div class="sized-box"></div>
 										<div class="my-3"></div>
+										<div class="sized-box"></div>
 										<div class="h3 text-center tp-color-secondary">${locale.result.loser}</div>
 										<div class="h2 text-center tp-color-secondary">${loser}</div>
+										<div class="sized-box"></div>
 									</div>
 									<div class="my-3"></div>
+									<div class="sized-box"></div>
+									<div class="sized-box"></div>
+									<div class="sized-box"></div>
 									<div class="tp-sl-card-container default-container text-center">
             					<div class="tp-sl-btn-parent col">
                 				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 

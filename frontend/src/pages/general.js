@@ -189,9 +189,14 @@ function General({ $app, initialState }) {
 			this.$element.innerHTML = `
         <div class="tp-sl-card-content-child">
             <div>
+								<div class="sized-box"></div>
+								<div class="sized-box"></div>
+								<div class="sized-box"></div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
                     <div class="h2">End game!</div>
                 </div>
+								<div class="sized-box"></div>
+								<div class="sized-box"></div>
             </div>
         </div>
 				<div class="tp-sl-card-container default-container text-center">
@@ -205,9 +210,14 @@ function General({ $app, initialState }) {
 			this.$element.innerHTML = `
         <div class="tp-sl-card-content-child">
             <div>
+								<div class="sized-box"></div>
+								<div class="sized-box"></div>
+								<div class="sized-box"></div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
                     <div class="h2">Error game!</div>
                 </div>
+								<div class="sized-box"></div>
+								<div class="sized-box"></div>
             </div>
         </div>
 				<div class="tp-sl-card-container default-container text-center">
@@ -867,9 +877,9 @@ function General({ $app, initialState }) {
 }
 
 export function closeSocket() {
-	if (gameSocket != null) {
+	if (gameSocket != 0) {
 		gameSocket.close();
-		gameSocket = null;
+		gameSocket = 0;
 	}
 }
 

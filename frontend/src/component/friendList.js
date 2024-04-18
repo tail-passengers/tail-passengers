@@ -61,7 +61,7 @@ export default function renderFriendList(content, parentElement) {
 								</td>
 								<td class="text-center align-middle col-1">
 									<div class="tp-fl-profile">
-									<img style="width:80%;" src=${imagePath} onerror="this.onerror=null; this.src='../../public/assets/img/sharkcookie.png'"></img>
+									<img style="width:140px; height:140px;" src=${imagePath} onerror="this.onerror=null; this.src='../../public/assets/img/sharkcookie.png'" ></img>
 									</div>
 								</td>
 								<td class="text-left align-middle tp-fl-display-intra-id col-2">
