@@ -101,6 +101,9 @@ const jaLocale = {
     loading: {
         back: "選択ページに戻る",
     },
+    home: {
+        more: "もっと見る",
+    },
 };
 
 export default jaLocale;

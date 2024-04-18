@@ -3,7 +3,6 @@ import { fetchChartData, fetchGameLogs } from "../utils/fetches";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { getCSRFToken } from "../utils/cookie.js";
-import RecordsSearch from "./recordsSearch.js";
 import { navigate } from "../utils/navigate.js";
 
 function Home($container) {
@@ -30,10 +29,6 @@ function Home($container) {
                 </div>
                 <div class="sized-box"></div>
                 <div class="sized-box"></div>
-                <div class="home-bottom-container">
-                    <div></div>
-                    <div></div>
-                </div>
             </div>
         `;
 
@@ -77,7 +72,7 @@ function Home($container) {
 
         if (gameLogs.length > 0) {
             const moreButton = document.createElement("button");
-            moreButton.textContent = "더 보기";
+            moreButton.textContent = locale.home.more;
             moreButton.classList.add("more-button");
             moreButton.addEventListener("click", () => {
                 navigate("/records");
