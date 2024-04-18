@@ -75,7 +75,7 @@ function Home($container) {
     this.renderMoreButton = (gameLogs) => {
         const recordsList = document.getElementById("records-list");
 
-        if (gameLogs.length > 5) {
+        if (gameLogs.length > 0) {
             const moreButton = document.createElement("button");
             moreButton.textContent = "더 보기";
             moreButton.classList.add("more-button");

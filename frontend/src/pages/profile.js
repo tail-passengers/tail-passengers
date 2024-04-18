@@ -9,6 +9,7 @@ import {
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { deleteIntervalId } from "../utils/profileEventListener.js";
+import { navigate } from "../utils/navigate.js";
 
 
 function Profile({ initialState }) {
@@ -73,6 +74,12 @@ function Profile({ initialState }) {
 								};
 						} else if (tabTrigger.value === "friends") {
 								tabTrigger.renderForm = async function () {
+										const check = fetchUser();
+										if (check === false) {
+											deleteCSRFToken();
+											navigate("/");
+											deleteIntervalId();
+										}
 										const myIntraId = await fetchMyIntraId();
 										const data = await fetchAllFriends(myIntraId);
 										if (data) {
