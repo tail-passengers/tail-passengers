@@ -91,6 +91,7 @@ const enLocale = {
 		refuseConfirmMessage: "Do you Refuse the friend request?",
 		waitingMessage: "Waiting for accept",
 		refreshBtn: "REFRESH",
+		accessDenied: "Access Denied",
 	},
 	myInfo: {
 		myNickname: "NICKNAME",

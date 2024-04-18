@@ -91,6 +91,7 @@ const koLocale = {
 		refuseConfirmMessage: "친구 신청을 거절하시겠습니까?",
 		waitingMessage: "친구 수락 대기중",
 		refreshBtn: "새로고침",
+		accessDenied: "접근 거부됨",
 	},
 	myInfo: {
 		myNickname: "닉네임",

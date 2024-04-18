@@ -278,6 +278,8 @@ export const fetchRequestFriend = async (requestUserId, responseUserId) => {
  * @param {*} responseUserId 친구 요청 수신자(수신자만 accepted 처리가 가능)
  */
 export const fetchAcceptFriendRequest = async (requestPK, responseUserId) => {
+	const language = getCurrentLanguage();
+	const locale = locales[language] || locales.en;
 	try {
 		const csrfToken = getCSRFToken();
 		const response = await fetch(
@@ -299,7 +301,7 @@ export const fetchAcceptFriendRequest = async (requestPK, responseUserId) => {
 		if (response.ok) {
 			const data = await response.json();
 		} else if (response.status === 400) {
-			alert("Access Denied");
+			alert(`${locale.friendList.accessDenied}`);
 			return;
 		}
 	} catch (error) {
