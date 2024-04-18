@@ -57,8 +57,10 @@ function RecordsSearch({ initialState }) {
                   )} style="width:80px; height:80px;"/>
               </div>
               <div class="sized-box">
-                    <div>${log.tournament_name}</div>
-                    <div>${log.round}</div>
+									<div>${
+										log.tournament_name ? "TN : " + log.tournament_name : ""
+									}</div>
+									<div>${log.round ? log.round + "Round": ""}</div>
                   <div class="h2">${locale.records.vs}</div>
                   <div class="fs-6 tp-color-primary text-border">${formatDateTime(
                       log.start_time
