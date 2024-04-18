@@ -101,6 +101,9 @@ const enLocale = {
     loading: {
         back: "Back to select page",
     },
+    home: {
+        more: "More",
+    },
 };
 
 export default enLocale;
