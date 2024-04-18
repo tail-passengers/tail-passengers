@@ -22,7 +22,7 @@ const enLocale = {
 		info1: "To the Defence Against the Dark Arts! Today we'll be practicing the ultimate defensive spell, Protego Magic.",
 		info2: "Aim your wand at the flying Periculum magic and bounce it off!",
 		info3: "Casting a well-timed spell will trigger a stronger Protego Maxima.",
-		info4: "Movement - Arrow Left, Right       Trigger Maxima - Arrow Up (Single Mode A,D,W)",
+		info4: "Movement - Arrow Left, Right / Trigger Maxima - Arrow Up (Single Mode A,D,W)",
 		singleMode: "Single mode",
 		singleModeDesc: "Single mode against computer",
 		multiMode: "Multi mode",
