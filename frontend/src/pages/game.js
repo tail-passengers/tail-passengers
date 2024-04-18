@@ -119,173 +119,174 @@ function Example({ $app, initialState }) {
 	}
 
 	function initThreeJs(contentDiv) {
-		scene = new THREE.Scene();
-		camera = new THREE.PerspectiveCamera(VIEW_ANGLE / 2, ASPECT / 2, NEAR, FAR);
-		camera.position.set(0, 100, (FIELD_LENGTH / 2) + 1000);
-		scene.add(camera);
+		return new Promise((resolve, reject) => {
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera(VIEW_ANGLE / 2, ASPECT / 2, NEAR, FAR);
+			camera.position.set(0, 100, (FIELD_LENGTH / 2) + 1000);
+			scene.add(camera);
 
-		camera2 = new THREE.PerspectiveCamera(VIEW_ANGLE / 2, ASPECT / 2, NEAR, FAR);
-		camera2.position.set(0, 100, (FIELD_LENGTH / 2) - 4000);
-		camera2.rotateY(Math.PI);
-		scene.add(camera2);
-
-
-		renderer = new THREE.WebGLRenderer();
-		renderer.setSize(WIDTH, HEIGHT);
-		renderer.setClearColor(0x000000, 1);
-		renderer.domElement.classList.add("tp-th-canvas");
-		if (contentDiv) {
-			contentDiv.appendChild(renderer.domElement);
-		}
+			camera2 = new THREE.PerspectiveCamera(VIEW_ANGLE / 2, ASPECT / 2, NEAR, FAR);
+			camera2.position.set(0, 100, (FIELD_LENGTH / 2) - 4000);
+			camera2.rotateY(Math.PI);
+			scene.add(camera2);
 
 
-		// field
-		let fieldGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 5, 1),
-			fieldMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 }); //color: 0x442200
-		field = new THREE.Mesh(fieldGeometry, fieldMaterial);
-		field.position.set(0, -120, 0);
-		scene.add(field);
-
-		// floor texture
-		const woodTextureLoader = new THREE.TextureLoader();
-		const woodTexture = woodTextureLoader.load('../../public/assets/img/carpet.png')
-		const floorMaterial = new THREE.MeshStandardMaterial({ map: woodTexture });
-
-		let floorGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 1, 1);
-		let floor = new THREE.Mesh(floorGeometry, floorMaterial);
-		floor.position.set(0, -120, 0);
-		scene.add(floor);
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(WIDTH, HEIGHT);
+			renderer.setClearColor(0x000000, 1);
+			renderer.domElement.classList.add("tp-th-canvas");
+			if (contentDiv) {
+				contentDiv.appendChild(renderer.domElement);
+			}
 
 
-		// wall texture
-		const wallTextureLoader = new THREE.TextureLoader();
-		let wallTexture = wallTextureLoader.load('../../public/assets/img/wall.png'); // 벽면 텍스쳐 파일 경로로 수정
+			// field
+			let fieldGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 5, 1),
+				fieldMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 }); //color: 0x442200
+			field = new THREE.Mesh(fieldGeometry, fieldMaterial);
+			field.position.set(0, -120, 0);
+			scene.add(field);
 
-		const wallMaterial = new THREE.MeshStandardMaterial({ map: wallTexture });
-		let wallGeometry = new THREE.BoxGeometry(5, HEIGHT, FIELD_LENGTH, 1, 1, 1);
+			// floor texture
+			const woodTextureLoader = new THREE.TextureLoader();
+			const woodTexture = woodTextureLoader.load('../../public/assets/img/carpet.png')
+			const floorMaterial = new THREE.MeshStandardMaterial({ map: woodTexture });
 
-		let leftWall = new THREE.Mesh(wallGeometry, wallMaterial);
-		leftWall.position.set(-FIELD_WIDTH / 2 - 2.5, 250, 0);
-		scene.add(leftWall);
-
-		let rightWall = new THREE.Mesh(wallGeometry, wallMaterial);
-		rightWall.position.set(FIELD_WIDTH / 2 + 2.5, 250, 0);
-		scene.add(rightWall);
-
-		// backwall
-		const backWallTextureLoader = new THREE.TextureLoader();
-		const backWallTexture = backWallTextureLoader.load('../../public/assets/img/backwall.png');
-
-		const backWallMaterial = new THREE.MeshStandardMaterial({ map: backWallTexture });
-		const backWallGeometry = new THREE.BoxGeometry(FIELD_WIDTH + 500, HEIGHT + 500, 5, 1, 1, 1);
-
-		const backWall = new THREE.Mesh(backWallGeometry, backWallMaterial);
-		backWall.position.set(0, 250, -2500);
-		scene.add(backWall);
-
-		//frontwall
-
-		const frontWallTextureLoader = new THREE.TextureLoader();
-		const frontWallTexture = frontWallTextureLoader.load('../../public/assets/img/backwall.png');
-
-		const frontWallMaterial = new THREE.MeshStandardMaterial({ map: frontWallTexture });
-		const frontWallGeometry = new THREE.BoxGeometry(FIELD_WIDTH + 500, HEIGHT + 500, 5, 1, 1, 1);
-
-		const frontWall = new THREE.Mesh(frontWallGeometry, frontWallMaterial);
-		frontWall.position.set(0, 250, 2500);
-		scene.add(frontWall);
+			let floorGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 1, 1);
+			let floor = new THREE.Mesh(floorGeometry, floorMaterial);
+			floor.position.set(0, -120, 0);
+			scene.add(floor);
 
 
-		// ceiling texture 
-		const ceilingTextureLoader = new THREE.TextureLoader();
-		const ceilingTexture = ceilingTextureLoader.load('../../public/assets/img/ceiling.jpeg'); // 천장 텍스처 파일 경로로 수정
+			// wall texture
+			const wallTextureLoader = new THREE.TextureLoader();
+			let wallTexture = wallTextureLoader.load('../../public/assets/img/wall.png'); // 벽면 텍스쳐 파일 경로로 수정
 
-		const ceilingMaterial = new THREE.MeshStandardMaterial({ map: ceilingTexture });
-		let ceilingGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 1, 1);
-		let ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
-		ceiling.position.set(0, 570, 0);
-		scene.add(ceiling);
+			const wallMaterial = new THREE.MeshStandardMaterial({ map: wallTexture });
+			let wallGeometry = new THREE.BoxGeometry(5, HEIGHT, FIELD_LENGTH, 1, 1, 1);
+
+			let leftWall = new THREE.Mesh(wallGeometry, wallMaterial);
+			leftWall.position.set(-FIELD_WIDTH / 2 - 2.5, 250, 0);
+			scene.add(leftWall);
+
+			let rightWall = new THREE.Mesh(wallGeometry, wallMaterial);
+			rightWall.position.set(FIELD_WIDTH / 2 + 2.5, 250, 0);
+			scene.add(rightWall);
+
+			// backwall
+			const backWallTextureLoader = new THREE.TextureLoader();
+			const backWallTexture = backWallTextureLoader.load('../../public/assets/img/backwall.png');
+
+			const backWallMaterial = new THREE.MeshStandardMaterial({ map: backWallTexture });
+			const backWallGeometry = new THREE.BoxGeometry(FIELD_WIDTH + 500, HEIGHT + 500, 5, 1, 1, 1);
+
+			const backWall = new THREE.Mesh(backWallGeometry, backWallMaterial);
+			backWall.position.set(0, 250, -2500);
+			scene.add(backWall);
+
+			//frontwall
+
+			const frontWallTextureLoader = new THREE.TextureLoader();
+			const frontWallTexture = frontWallTextureLoader.load('../../public/assets/img/backwall.png');
+
+			const frontWallMaterial = new THREE.MeshStandardMaterial({ map: frontWallTexture });
+			const frontWallGeometry = new THREE.BoxGeometry(FIELD_WIDTH + 500, HEIGHT + 500, 5, 1, 1, 1);
+
+			const frontWall = new THREE.Mesh(frontWallGeometry, frontWallMaterial);
+			frontWall.position.set(0, 250, 2500);
+			scene.add(frontWall);
 
 
-		// light 
-		mainLight = new THREE.HemisphereLight(0xFFFFFF, 0x444455); //빛 색, 그림자 색
-		scene.add(mainLight);
+			// ceiling texture 
+			const ceilingTextureLoader = new THREE.TextureLoader();
+			const ceilingTexture = ceilingTextureLoader.load('../../public/assets/img/ceiling.jpeg'); // 천장 텍스처 파일 경로로 수정
 
-		subLight = new THREE.PointLight(0xffffff, 1); // 빛 색, 밝기
-		subLight.position.set(0, 400, 0);
-		scene.add(subLight);
-
-
-		// ball 
-		const ballGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
-		ballMaterials = [
-			new THREE.MeshLambertMaterial({ color: 0xFF9900, emissive: 0xFF9900 }),
-			new THREE.MeshLambertMaterial({ color: 0x00FF99, emissive: 0x00FF99 }),
-			new THREE.MeshLambertMaterial({ color: 0x9900FF, emissive: 0x9900FF }),
-			new THREE.MeshLambertMaterial({ color: 0x99FF00, emissive: 0x99FF00 }),
-			new THREE.MeshLambertMaterial({ color: 0x0099FF, emissive: 0x0099FF }),
-			new THREE.MeshLambertMaterial({ color: 0xFF0099, emissive: 0xFF0099 })
-		];
+			const ceilingMaterial = new THREE.MeshStandardMaterial({ map: ceilingTexture });
+			let ceilingGeometry = new THREE.BoxGeometry(FIELD_WIDTH, 5, FIELD_LENGTH, 1, 1, 1);
+			let ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+			ceiling.position.set(0, 570, 0);
+			scene.add(ceiling);
 
 
-		ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
-		scene.add(ball);
+			// light 
+			mainLight = new THREE.HemisphereLight(0xFFFFFF, 0x444455); //빛 색, 그림자 색
+			scene.add(mainLight);
+
+			subLight = new THREE.PointLight(0xffffff, 1); // 빛 색, 밝기
+			subLight.position.set(0, 400, 0);
+			scene.add(subLight);
+
+
+			// ball 
+			const ballGeometry = new THREE.IcosahedronGeometry(BALL_RADIUS, 0);
+			ballMaterials = [
+				new THREE.MeshLambertMaterial({ color: 0xFF9900, emissive: 0xFF9900 }),
+				new THREE.MeshLambertMaterial({ color: 0x00FF99, emissive: 0x00FF99 }),
+				new THREE.MeshLambertMaterial({ color: 0x9900FF, emissive: 0x9900FF }),
+				new THREE.MeshLambertMaterial({ color: 0x99FF00, emissive: 0x99FF00 }),
+				new THREE.MeshLambertMaterial({ color: 0x0099FF, emissive: 0x0099FF }),
+				new THREE.MeshLambertMaterial({ color: 0xFF0099, emissive: 0xFF0099 })
+			];
+
+
+			ball = new THREE.Mesh(ballGeometry, ballMaterials[ballCustom]);
+			scene.add(ball);
 
 
 
-		// paddle 
-		paddle1 = addPaddle(0xFFFFFF, 0.7);
-		paddle1.position.z = FIELD_LENGTH / 2;
-		paddle1.position.x = 0;
-		paddle1.position.y = 0;
-		paddle2 = addPaddle(0xFFFFFF, 0.8);
-		paddle2.position.z = -FIELD_LENGTH / 2;
-		paddle2.position.x = 0;
-		paddle2.position.y = 0;
+			// paddle 
+			paddle1 = addPaddle(0xFFFFFF, 0.7);
+			paddle1.position.z = FIELD_LENGTH / 2;
+			paddle1.position.x = 0;
+			paddle1.position.y = 0;
+			paddle2 = addPaddle(0xFFFFFF, 0.8);
+			paddle2.position.z = -FIELD_LENGTH / 2;
+			paddle2.position.x = 0;
+			paddle2.position.y = 0;
 
-		//score
-		scoreElement = document.createElement('div');
-		scoreElement.textContent = '0 : 0';
-		scoreElement.style.fontSize = '170%';
-		scoreElement.style.position = 'absolute';
-		scoreElement.style.top = '10px';
-		scoreElement.style.left = '10px';
-		scoreElement.style.color = '#ffffff';
-		scoreElement.style.zIndex = '1';
-		const canvasRect = renderer.domElement.getBoundingClientRect();
-		scoreElement.style.top = `${canvasRect.top + 10}px`;
-		scoreElement.style.left = `${canvasRect.left + 10}px`;
-		infoElement = document.createElement('div');
-		infoElement.textContent = `B - ${locale.general.ballChange}`;
-		infoElement.style.fontSize = '90%';
-		infoElement.style.position = 'absolute';
-		infoElement.style.top = '10px';
-		infoElement.style.left = '10px';
-		infoElement.style.color = '#ffffff';
-		infoElement.style.zIndex = '1';
-		infoElement.style.top = `${canvasRect.top + 60}px`;
-		infoElement.style.left = `${canvasRect.left + 10}px`;
+			//score
+			scoreElement = document.createElement('div');
+			scoreElement.textContent = '';
+			scoreElement.style.fontSize = '170%';
+			scoreElement.style.position = 'absolute';
+			scoreElement.style.top = '10px';
+			scoreElement.style.left = '10px';
+			scoreElement.style.color = '#ffffff';
+			scoreElement.style.zIndex = '1';
+			const canvasRect = renderer.domElement.getBoundingClientRect();
+			scoreElement.style.top = `${canvasRect.top + 10}px`;
+			scoreElement.style.left = `${canvasRect.left + 10}px`;
+			infoElement = document.createElement('div');
+			infoElement.textContent = `B - ${locale.general.ballChange}`;
+			infoElement.style.fontSize = '90%';
+			infoElement.style.position = 'absolute';
+			infoElement.style.top = '10px';
+			infoElement.style.left = '10px';
+			infoElement.style.color = '#ffffff';
+			infoElement.style.zIndex = '1';
+			infoElement.style.top = `${canvasRect.top + 60}px`;
+			infoElement.style.left = `${canvasRect.left + 10}px`;
 
-		modeElement = document.createElement('div');
-		modeElement.textContent = `M - ${locale.general.comMode}`;
-		modeElement.style.fontSize = '90%';
-		modeElement.style.position = 'absolute';
-		modeElement.style.top = '10px';
-		modeElement.style.left = '10px';
-		modeElement.style.color = '#ffffff';
-		modeElement.style.zIndex = '1';
-		modeElement.style.top = `${canvasRect.top + 80}px`;
-		modeElement.style.left = `${canvasRect.left + 10}px`;
-		document.body.appendChild(scoreElement);
-		document.body.appendChild(infoElement);
-		document.body.appendChild(modeElement);
+			modeElement = document.createElement('div');
+			modeElement.textContent = `M - ${locale.general.comMode}`;
+			modeElement.style.fontSize = '90%';
+			modeElement.style.position = 'absolute';
+			modeElement.style.top = '10px';
+			modeElement.style.left = '10px';
+			modeElement.style.color = '#ffffff';
+			modeElement.style.zIndex = '1';
+			modeElement.style.top = `${canvasRect.top + 80}px`;
+			modeElement.style.left = `${canvasRect.left + 10}px`;
+			document.body.appendChild(scoreElement);
+			document.body.appendChild(infoElement);
+			document.body.appendChild(modeElement);
 
-		// renderer.domElement.addEventListener('mousemove', containerMouseMove);
-		renderer.domElement.style.cursor = 'none';
+			// renderer.domElement.addEventListener('mousemove', containerMouseMove);
+			renderer.domElement.style.cursor = 'none';
 
-		// wand
-		loadWanders(wandLoader1).then(() => loadWanders(wandLoader2)).then(() => {
-			startRender();
+			// wand
+			loadWanders(wandLoader1);
+			loadWanders(wandLoader2);
 		});
 	}
 
@@ -761,6 +762,7 @@ function Example({ $app, initialState }) {
 		$("#nav-bar").hidden = true;
 		window.addEventListener("popstate", clearThreeJs);
 		initThreeJs(this.$element);
+		startRender();
 		// Add event listeners or other initialization logic here
 		initEventListeners();
 
