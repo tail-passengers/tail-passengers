@@ -18,7 +18,7 @@ function Loading($container) {
 
 		this.$container.innerHTML = `
           <div class="content container tp-color-secondary">
-            <div class="default-container h2">${locale.selectMode.multiMode}</div>
+            <div class="default-container h2">${locale.general.waiting}</div>
 						<div class="tp-sl-card-container default-container text-center">
             					<div class="tp-sl-btn-parent col">
             <button id="backBtn" class="btn tp-btn-primary">${locale.loading.back}</button>
