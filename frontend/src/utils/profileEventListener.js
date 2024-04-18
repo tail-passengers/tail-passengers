@@ -114,7 +114,7 @@ export function addProfileModalEventListener(profileModal, flag) {
 			if (flag === "MY") {
 				renderMyInfoForm(myInfo[0], formContainer);
 			} else if (flag === "FRIENDS") {
-				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
+				const friendsList = await fetchAllFriends(myInfo[0].nickname);
 				deleteIntervalId();
 				const intervalId = renderFriendList(friendsList, formContainer);
 				localStorage.setItem('intervalId', intervalId);
