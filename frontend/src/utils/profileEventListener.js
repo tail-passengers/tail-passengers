@@ -41,7 +41,9 @@ export function addMyInfoEventListener(myInfo) {
 /**
  * 친구목록 관련 이벤트 함수
  */
-export function addFriendListEventListener(locale) {
+export async function addFriendListEventListener(locale) {
+
+	const myIntraId = await fetchMyIntraId();
 
 	// ACCEPT/REFUSE Confirm Modal
 	const profileModal = document.querySelector("#profile-modal");
@@ -80,7 +82,6 @@ export function addFriendListEventListener(locale) {
 		const statusValue = friendBtnGrp.children[2].value;
 		const requestUserId = friendBtnGrp.closest("tr").querySelector(".tp-fl-request-intra-id").value;
 
-		const myIntraId = await fetchMyIntraId();
 		if (statusValue === "0" && myIntraId === requestUserId) { // "0" : pending, "1" : accepted
 			friendBtnGrp.classList.add("visually-hidden");          // 친구 신청 발신자에게는 친구 신청 상태가 보임
 			friendBtnGrp.parentElement.innerText = locale.friendList.waitingMessage;
@@ -90,6 +91,20 @@ export function addFriendListEventListener(locale) {
 			friendBtnGrp.parentElement.parentElement.classList.add("tp-fl-friend"); // 이미 친구인 경우 CSS 효과
 		}
 	});
+
+	const refreshBtn = $(".tp-fl-refresh-btn");
+	if (refreshBtn) {
+		refreshBtn.addEventListener("click", async (event) => {
+			event.preventDefault();
+			const friendList = await fetchAllFriends(myIntraId);
+			if (friendList) {
+				const formContainer = $(".tp-pf-form-container");
+				const friendForm = formContainer.querySelector(".tp-pf-form-friends");
+				formContainer.removeChild(friendForm);
+				renderFriendList(friendList, formContainer);
+			}
+		});
+	}
 }
 
 
@@ -106,9 +121,7 @@ export function addProfileModalEventListener(profileModal, flag) {
 				renderMyInfoForm(myInfo[0], formContainer);
 			} else if (flag === "FRIENDS") {
 				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
-				deleteIntervalId();
-				const intervalId = renderFriendList(friendsList, formContainer);
-				localStorage.setItem('intervalId', intervalId);
+				renderFriendList(friendsList, formContainer);
 			}
 	};
 
@@ -204,12 +217,5 @@ export function addProfileModalEventListener(profileModal, flag) {
 			if (updataMyInfo !== undefined)
 				closeProfileModal(profileModal);
 		});
-	}
-}
-
-export const deleteIntervalId = () => {
-	if (localStorage.getItem('intervalId')) {
-			clearInterval(localStorage.getItem('intervalId'));
-			localStorage.removeItem('intervalId');
 	}
 }

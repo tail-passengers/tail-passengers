@@ -6,11 +6,14 @@ import { fetchMyIntraId, fetchAllFriends } from "../utils/fetches.js";
 import { getCSRFToken } from "../utils/cookie.js";
 
 export default function renderFriendList(content, parentElement) {
-    const renderFriendListField = (content, parentElement) => {
-        const language = getCurrentLanguage();
-        const locale = locales[language] || locales.en;
-        let contentHTML = `
+	const renderFriendListField = (content, parentElement) => {
+		const language = getCurrentLanguage();
+		const locale = locales[language] || locales.en;
+		let contentHTML = `
 			<form class="tp-pf-form tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
+				<div>
+					<button class="btn tp-btn-primary tp-fl-refresh-btn">${locale.friendList.refreshBtn}</button>
+				</div>
 				<table class="table table-dark table-hover">
 					<thead>
 						<tr class="tp-table-tr">
@@ -25,31 +28,31 @@ export default function renderFriendList(content, parentElement) {
 				</table>
 			</form>
 		`;
-        const prevForm = parentElement.querySelector(".tp-pf-form");
-        if (prevForm) {
-            parentElement.removeChild(prevForm);
-        }
-        parentElement.innerHTML = contentHTML;
-        renderFriends(content, locale);
-        addFriendListEventListener(locale);
-    };
+		const prevForm = parentElement.querySelector(".tp-pf-form");
+		if (prevForm) {
+			parentElement.removeChild(prevForm);
+		}
+		parentElement.innerHTML = contentHTML;
+		renderFriends(content, locale);
+		addFriendListEventListener(locale);
+	};
 
-    const renderFriends = (users, locale) => {
-        if ((users, locale)) {
-            let tableHTML = "";
-            if (users.length === 0) {
-                tableHTML += `
+	const renderFriends = (users, locale) => {
+		if ((users, locale)) {
+			let tableHTML = "";
+			if (users.length === 0) {
+				tableHTML += `
 					<tr>
 						<td colspan='5'>${locale.friendList.nofriends}</td>
 					</tr>
 					<tr style="height:3px;"></tr>
 				`;
-            } else {
-                const tableRows = users.map((data, index) => {
-                    const imagePath =
-                        `https://${process.env.BASE_IP}` +
-                        data.friend_requests.profile_image;
-                    let rowHTML = `
+			} else {
+				const tableRows = users.map((data, index) => {
+					const imagePath =
+						`https://${process.env.BASE_IP}` +
+						data.friend_requests.profile_image;
+					let rowHTML = `
 						<tr>
 								<td class="text-center align-middle col-1">
 									${index + 1}
@@ -62,14 +65,14 @@ export default function renderFriendList(content, parentElement) {
 									</div>
 								</td>
 								<td class="text-left align-middle tp-fl-display-intra-id col-2">
-                    ${data.friend_requests.nickname}
+									${data.friend_requests.nickname}
 								</td>
 								<td class="text-center align-middle col-1 tp-onoff-status">
 									<div class="online-indicator">
 										<span class="blink tp-online-indicator-blink"></span>
 										<input type="hidden" class="tp-online-indicator-value" value=${
-                                            data.friend_requests.status
-                                        }></input>
+											data.friend_requests.status
+										}></input>
 									</div>
 								</td> 
 								<td class="text-center align-middle col-1">
@@ -96,44 +99,28 @@ export default function renderFriendList(content, parentElement) {
 						</tr>
 						<tr style="height:3px;"></tr>
 					`;
-                    return rowHTML;
-                });
-                tableHTML += tableRows.join("");
-            }
+					return rowHTML;
+				});
+				tableHTML += tableRows.join("");
+			}
 
-            const tableBody = document.querySelector("tbody");
-            if (tableBody) {
-                tableBody.innerHTML = tableHTML;
-            }
-        }
-    };
+			const tableBody = document.querySelector("tbody");
+			if (tableBody) {
+				tableBody.innerHTML = tableHTML;
+			}
+		}
+	};
 
-    renderFriendListField(content, parentElement);
+	renderFriendListField(content, parentElement);
 
-    window.addEventListener(
-        "languageChange",
-        function () {
-            const formBody = parentElement.querySelector(".tp-pf-form");
-            if (formBody) {
-                parentElement.removeChild(formBody);
-                renderFriendListField(content, parentElement);
-            }
-        }.bind(this)
-    );
-
-    const intervalRenderFriends = async function () {
-        const csrfToken = getCSRFToken();
-        if (csrfToken !== null) {
-            const myIntraId = await fetchMyIntraId();
-            const content = await fetchAllFriends(myIntraId);
-            const currentForm = parentElement.querySelector(
-                ".tp-pf-form-friends"
-            );
-            if (currentForm) {
-                parentElement.removeChild(currentForm);
-            }
-            renderFriendListField(content, parentElement);
-        }
-    };
-    return pollingFetches(intervalRenderFriends, 3000);
+	window.addEventListener(
+		"languageChange",
+		function () {
+			const formBody = parentElement.querySelector(".tp-pf-form");
+			if (formBody) {
+				parentElement.removeChild(formBody);
+				renderFriendListField(content, parentElement);
+			}
+		}.bind(this)
+	);
 }

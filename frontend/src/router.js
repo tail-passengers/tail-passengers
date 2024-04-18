@@ -18,21 +18,12 @@ function Router($container) {
         const TargetPage = findMatchedRoute()?.element || NotFound;
         currentPage = new TargetPage(this.$container);
 
-        if (
-            !(currentPage instanceof Profile) &&
-            localStorage.getItem("intervalId")
-        ) {
-            clearInterval(localStorage.getItem("intervalId"));
-            localStorage.removeItem("intervalId");
-        }
-
-				if (!(currentPage instanceof Dashboard)) {
-					const chart = document.getElementById("bar-chart");
-					if (chart) {
-						document.removeChild(chart);
-						console.log("HELLO!");
-					}
-				}
+		if (!(currentPage instanceof Dashboard)) {
+			const chart = document.getElementById("bar-chart");
+			if (chart) {
+				document.removeChild(chart);
+			}
+		}
     };
 
     const init = () => {

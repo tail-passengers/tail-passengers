@@ -85,6 +85,7 @@ const enLocale = {
 		acceptConfirmMessage: "Do you accept the friend request?",
 		refuseConfirmMessage: "Do you Refuse the friend request?",
 		waitingMessage: "Waiting for accept",
+        refreshBtn: "REFRESH",
     },
     myInfo: {
         myNickname: "NICKNAME",
