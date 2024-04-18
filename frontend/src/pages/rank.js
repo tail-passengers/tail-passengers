@@ -16,11 +16,6 @@ function Rank({ initialState }) {
 
     this.renderUsers = async (locale) => {
         const users = await fetchUsers();
-        users.forEach((user) => {
-            if (user.profile_image) {
-                user.profile_image = replaceHttpWithHttps(user.profile_image);
-            }
-        });
         const tableRows = users
             .map(
                 (data, index) => `
@@ -29,7 +24,7 @@ function Rank({ initialState }) {
                             index + 1
                         }</td>
                         <td class="text-center align-middle col-2"><img style="width:100px; height:100px;" src="${
-                            data.profile_image
+														replaceHttpWithHttps(data.profile_image)
                         }"></img></td>
                         <td class="text-center align-middle col-2">${
                             data.nickname
