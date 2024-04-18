@@ -3,6 +3,7 @@ import { replaceHttpWithHttps } from "../utils/imageUpload.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { $ } from "../utils/querySelector.js";
+
 function RecordsSearch({ initialState }) {
     this.state = initialState;
     this.$element = document.createElement("div");
@@ -95,6 +96,7 @@ function RecordsSearch({ initialState }) {
         </div>
     `;
     };
+		
     this.init = () => {
         let parent = $("#app");
         const child = $(".content");

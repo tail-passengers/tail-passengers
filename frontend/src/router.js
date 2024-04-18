@@ -4,6 +4,7 @@ import Profile from "./pages/profile.js";
 import { closeSocket } from "./pages/general.js";
 import { fetchUser } from "./utils/fetches.js";
 import { deleteCSRFToken } from "./utils/cookie.js";
+import Dashboard from "./pages/dashboard.js";
 
 function Router($container) {
     this.$container = $container;
@@ -24,6 +25,14 @@ function Router($container) {
             clearInterval(localStorage.getItem("intervalId"));
             localStorage.removeItem("intervalId");
         }
+
+				if (!(currentPage instanceof Dashboard)) {
+					const chart = document.getElementById("bar-chart");
+					if (chart) {
+						document.removeChild(chart);
+						console.log("HELLO!");
+					}
+				}
     };
 
     const init = () => {
@@ -47,8 +56,13 @@ function Router($container) {
             const currentPagePath = location.pathname;
             const isGeneralGamePage = currentPagePath.includes("/general_game");
             const isLoadingPage = currentPagePath.includes("/loading");
+						const isGamePage = currentPagePath.includes("/game");
             const isTournamentPage =
                 currentPagePath.includes("/tournament_game");
+						if (isGamePage) {
+							alert("This is invalid contact");
+							history.go(-1);
+						}
             if (isGeneralGamePage || isLoadingPage || isTournamentPage) {
 								closeSocket();
                 if (
@@ -58,7 +72,6 @@ function Router($container) {
                 ) {
                     window.location.href = "/";
                 } else {
-                    // 사용자가 취소한 경우, 이전 페이지로 되돌리기
                     history.go(-1);
                 }
             } else {
