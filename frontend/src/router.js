@@ -1,7 +1,7 @@
 import { routes } from "./utils/routeInfo.js";
 import NotFound from "./pages/notFound.js";
 import Profile from "./pages/profile.js";
-import General from "./pages/general.js";
+import General, { closeSocket } from "./pages/general.js";
 import { fetchUser } from "./utils/fetches.js";
 import { deleteCSRFToken } from "./utils/cookie.js";
 
@@ -30,12 +30,12 @@ function Router($container) {
         window.addEventListener("historychange", ({ detail }) => {
             const { to, isReplace } = detail;
 
-						const data = fetchUser();
-						if (data === false) {
-							deleteCSRFToken();
-						}
+            const data = fetchUser();
+            if (data === false) {
+                deleteCSRFToken();
+            }
 
-						if (isReplace || to === location.pathname) {
+            if (isReplace || to === location.pathname) {
                 history.replaceState(null, "", to);
             } else {
                 history.pushState(null, "", to);
@@ -47,12 +47,14 @@ function Router($container) {
             const currentPagePath = location.pathname;
             const isGeneralGamePage = currentPagePath.includes("/general_game");
             const isLoadingPage = currentPagePath.includes("/loading");
-            const isTournamentPage = currentPagePath.includes("/tournament_game");
+            const isTournamentPage =
+                currentPagePath.includes("/tournament_game");
             if (isGeneralGamePage || isLoadingPage || isTournamentPage) {
+								closeSocket();
                 if (
-									confirm(
-										"Your approach seems to be incorrect. Would you like to navigate to the home page?\n\n\nOK -> Go to home\nCancel -> Go back to the previous page"
-									)
+                    confirm(
+                        "Your approach seems to be incorrect. Would you like to navigate to the home page?\n\n\nOK -> Go to home\nCancel -> Go back to the previous page"
+                    )
                 ) {
                     window.location.href = "/";
                 } else {
@@ -60,7 +62,6 @@ function Router($container) {
                     history.go(-1);
                 }
             } else {
-                // 이동할 페이지가 /general_game이나 /tournament_game 또는 /loading이 아닌 경우에는 그냥 route() 함수 호출
                 route();
             }
         });
