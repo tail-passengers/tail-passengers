@@ -91,6 +91,8 @@ function Tournament({ $app, initialState }) {
 
 	// 서버로 wait 소켓 연결하고 토너먼트 리스트 불러옴
 	this.getTournamentList = async () => {
+		const language = getCurrentLanguage();
+		const locale = locales[language] || locales.en;
 		try {
 			await this.connectWebSocket("wait");
 			gameSocket.addEventListener("message", (event) => {
