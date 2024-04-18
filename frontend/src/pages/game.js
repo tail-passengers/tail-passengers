@@ -8,8 +8,6 @@ function Example({ $app, initialState }) {
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
 
-
-
 	function clearThreeJs() {
 		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
 		removeScoreElement();

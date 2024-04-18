@@ -32,16 +32,28 @@ function Router($container) {
             if (isReplace || to === location.pathname) {
                 history.replaceState(null, "", to);
             } else {
-                if (target !== "general_game") {
-                    console.log(target);
-                    history.pushState(null, "", to);
-                }
+                history.pushState(null, "", to);
             }
             route();
         });
 
         window.addEventListener("popstate", () => {
-            route();
+            const currentPagePath = location.pathname;
+            const isGeneralGamePage = currentPagePath.includes("/general_game");
+            const isLoadingPage = currentPagePath.includes("/loading");
+            if (isGeneralGamePage || isLoadingPage) {
+                if (
+                    confirm("잘못된 접근입니다. 홈 페이지로 이동하시겠습니까?")
+                ) {
+                    window.location.href = "/";
+                } else {
+                    // 사용자가 취소한 경우, 이전 페이지로 되돌리기
+                    history.go(-1);
+                }
+            } else {
+                // 이동할 페이지가 /general_game이나 /loading이 아닌 경우에는 그냥 route() 함수 호출
+                route();
+            }
         });
     };
 
