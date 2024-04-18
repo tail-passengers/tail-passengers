@@ -164,7 +164,7 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(
                 self.game_group_name, self.channel_name
             )
-        msg += f"{self.user.disconnect}]\n"
+        msg += f"{self.user.nickname}: disconnect end]\n"
         msg += "---------------------------------------\n"
         print(msg)
 
