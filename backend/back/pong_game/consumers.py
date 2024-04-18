@@ -74,10 +74,10 @@ class GeneralGameWaitConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code) -> None:
         msg = "---------------------------------------\n"
-        msg += f"{self.user.nickname}: General Wait disconnect\n"
-        msg += f"wait list: {GeneralGameWaitConsumer.wait_list}\n"
-        msg += f"nickname list: {GeneralGameWaitConsumer.nickname_list}\n"
         if self.user.is_authenticated:
+            msg += f"{self.user.nickname}: General Wait disconnect\n"
+            msg += f"wait list: {GeneralGameWaitConsumer.wait_list}\n"
+            msg += f"nickname list: {GeneralGameWaitConsumer.nickname_list}\n"
             if (
                 self in GeneralGameWaitConsumer.wait_list
                 and self.user.nickname in GeneralGameWaitConsumer.nickname_list
@@ -143,8 +143,8 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code) -> None:
         msg = "---------------------------------------\n"
-        msg += f"{self.user.nickname}: General game disconnect\n"
         if self.user.is_authenticated:
+            msg += f"{self.user.nickname}: General game disconnect\n"
             game = ACTIVE_GENERAL_GAMES.get(self.game_id)
             if game:
                 ACTIVE_GENERAL_GAMES.pop(self.game_id)
@@ -178,7 +178,11 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         game = ACTIVE_GENERAL_GAMES.get(self.game_id)
         if not game:
-            print(f"{self.user.nickname}: game is None")
+            msg = f"--------------------------------------------\n"
+            msg += f"{self.user.nickname}: game is None\n"
+            msg += f"data: {data}\n"
+            msg += f"--------------------------------------------\n"
+            print(msg)
             return
         if (
             data["message_type"] == MessageType.READY.value
