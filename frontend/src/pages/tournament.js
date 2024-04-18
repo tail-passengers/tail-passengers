@@ -16,7 +16,6 @@ function Tournament({ $app, initialState }) {
 		if (gameSocket) {
 			gameSocket.close();
 			gameSocket = 0;
-			window.removeEventListener("popstate", closeSocket);
 		}
 		$("#nav-bar").hidden = false;
 		window.removeEventListener("popstate", closeSocket);
