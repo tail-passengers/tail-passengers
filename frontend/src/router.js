@@ -50,7 +50,9 @@ function Router($container) {
             const isTournamentPage = currentPagePath.includes("/tournament_game");
             if (isGeneralGamePage || isLoadingPage || isTournamentPage) {
                 if (
-                    confirm("잘못된 접근입니다. 홈 페이지로 이동하시겠습니까?")
+									confirm(
+										"Your approach seems to be incorrect. Would you like to navigate to the home page?\n\n\nOK -> Go to home\nCancel -> Go back to the previous page"
+									)
                 ) {
                     window.location.href = "/";
                 } else {

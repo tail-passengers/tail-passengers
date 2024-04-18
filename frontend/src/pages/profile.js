@@ -74,12 +74,6 @@ function Profile({ initialState }) {
 								};
 						} else if (tabTrigger.value === "friends") {
 								tabTrigger.renderForm = async function () {
-										const check = fetchUser();
-										if (check === false) {
-											deleteCSRFToken();
-											navigate("/");
-											deleteIntervalId();
-										}
 										const myIntraId = await fetchMyIntraId();
 										const data = await fetchAllFriends(myIntraId);
 										if (data) {

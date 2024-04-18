@@ -1,5 +1,6 @@
 import { deleteCSRFToken, getCSRFToken } from "./cookie.js";
 import { navigate } from "./navigate.js";
+import { deleteIntervalId } from "./profileEventListener.js";
 
 /**
  *
@@ -63,10 +64,10 @@ export const fetchUsers = async () => {
             }
         );
         const data = await response.json();
-        data.sort(
-            (a, b) => b.win_count - b.lose_count < a.win_count - a.lose_count
-        );
-        return data;
+				data.sort((a, b) => {
+						return (b.win_count - b.lose_count) - (a.win_count - a.lose_count);
+				});
+				return data;
     } catch (error) {
         console.error("Error fetching user data:", error);
     }
@@ -174,15 +175,22 @@ export const fetchAllFriends = async (intraId) => {
                 credentials: "include",
             }
         );
-        const data = await response.json();
-        data.sort((a, b) => {
-            if (a.friend_status !== b.friend_status) {
-                return a.friend_status - b.friend_status;
-            } else {
-                return b.status - a.status;
-            }
-        });
-        return data;
+				if (response.ok) {
+					const data = await response.json();
+					data.sort((a, b) => {
+							if (a.friend_status !== b.friend_status) {
+									return a.friend_status - b.friend_status;
+							} else {
+									return b.status - a.status;
+							}
+					});
+					return data;
+				} else if (response.status === 403) {
+					deleteCSRFToken();
+					deleteIntervalId();
+					navigate("/");
+					return;
+				}
     } catch (error) {
         console.error("Error fetchAllFriends data:", error);
     }
