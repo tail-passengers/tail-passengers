@@ -555,7 +555,9 @@ class TournamentGameRoundConsumer(AsyncWebsocketConsumer):
         if not self.user.is_authenticated:
             return
         msg = "---------------------------------------\n"
-        msg += f"{self.user.nickname}: tournament round {self.round_number} disconenct"
+        msg += (
+            f"{self.user.nickname}: tournament round {self.round_number} disconnect\n"
+        )
         # 게임이 비정상 종료 되었을 때(3라운드 진출자가 대기 중에 나갔을 때도 포함)
         if self.round.get_status() != GameStatus.END or (
             self.tournament.get_round(2 if self.round_number == 1 else 1).get_status()
