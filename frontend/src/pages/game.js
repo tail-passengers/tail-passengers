@@ -1,25 +1,13 @@
 import { $ } from "../utils/querySelector.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
+import { navigate } from "../utils/navigate.js";
 
 function Example({ $app, initialState }) {
 	let navBarHeight = $(".navigation-bar").clientHeight;
 	let footerHeight = $(".tp-footer-container").clientHeight;
 	const language = getCurrentLanguage();
 	const locale = locales[language] || locales.en;
-
-	function clearThreeJs() {
-		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
-		removeScoreElement();
-		cancelAnimationFrame(animationFrameId);
-		document.removeEventListener('keydown', handleKeyDown);
-		document.removeEventListener('keyup', handleKeyUp);
-		window.removeEventListener("popstate", clearThreeJs);
-		scene = null;
-		camera = null;
-		renderer = null;
-		$("#nav-bar").hidden = false;
-	}
 
 	let WIDTH = 1920,                                 //canvas.css에서 반응형으로 처리
 		HEIGHT = 1080 - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
@@ -35,10 +23,10 @@ function Example({ $app, initialState }) {
 
 		mainLight, subLight,
 		ball, ballCustom = 0, ballMaterials, paddle1, paddle2, field, running,
-		modeChange = false, animationFrameId,
+		modeChange = false, animationFrameId, blinkAniId,
 		randomOffset = 0,
 		rotationSpeed = 0.01,
-		scoreElement, infoElement, modeElement,
+		scoreElement, infoElement, modeElement, winner, loser,
 		score = {
 			player1: 0,
 			player2: 0
@@ -61,8 +49,42 @@ function Example({ $app, initialState }) {
 	this.$element = document.createElement("div");
 	this.$element.className = "content default-container";
 
-	// Initialize the Three.js scene, camera, and renderer
 
+	function gameEnd() {
+		$("#nav-bar").hidden = false;
+		if (score.player1 > score.player2) {
+			winner = "Left Player";
+			loser = "Right Player";
+		}
+		else {
+			winner = "Left Player";
+			loser = "Right Player";
+		}
+		sessionStorage.setItem("winner", winner);
+		sessionStorage.setItem("loser", loser);
+		sessionStorage.setItem("gameMode", "general_game");
+		let targetURL = `https://${process.env.BASE_IP}/result/local`;
+		navigate(targetURL);
+		setTimeout(() => {
+			running = false;
+			clearThreeJs();
+		}, 200);
+	}
+
+
+	function clearThreeJs() {
+		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
+		removeScoreElement();
+		cancelAnimationFrame(animationFrameId);
+		cancelAnimationFrame(blinkAniId);
+		document.removeEventListener('keydown', handleKeyDown);
+		document.removeEventListener('keyup', handleKeyUp);
+		window.removeEventListener("popstate", clearThreeJs);
+		$("#nav-bar").hidden = false;
+		scene = null;
+		camera = null;
+		renderer = null;
+	}
 
 	function render() {
 		if (running) {
@@ -258,7 +280,7 @@ function Example({ $app, initialState }) {
 		document.body.appendChild(infoElement);
 		document.body.appendChild(modeElement);
 
-		renderer.domElement.addEventListener('mousemove', containerMouseMove);
+		// renderer.domElement.addEventListener('mousemove', containerMouseMove);
 		renderer.domElement.style.cursor = 'none';
 
 		// wand
@@ -418,7 +440,7 @@ function Example({ $app, initialState }) {
 		addPoint(playerName);
 		updateScore();
 		stopBall();
-		setTimeout(reset, 2000);
+		setTimeout(reset, 1500);
 	}
 
 	function stopBall() {
@@ -427,6 +449,8 @@ function Example({ $app, initialState }) {
 
 	function addPoint(playerName) {
 		score[playerName]++;
+		if (score[playerName] == 3)
+			gameEnd();
 	}
 
 	function startRender() {
@@ -512,13 +536,13 @@ function Example({ $app, initialState }) {
 	}
 
 
-	function containerMouseMove(e) {
-		let mouseX = e.clientX;
-		let halfPaddleWidth = PADDLE_WIDTH / 2;
-		let maxX = FIELD_WIDTH / 2 - halfPaddleWidth;
-		let minX = -maxX;
-		camera.position.x = paddle1.position.x = Math.max(minX, Math.min(maxX, -((WIDTH - mouseX) / WIDTH * FIELD_WIDTH) + (FIELD_WIDTH / 2)));
-	}
+	// function containerMouseMove(e) {
+	// 	let mouseX = -e.clientX;
+	// 	let halfPaddleWidth = PADDLE_WIDTH / 2;
+	// 	let maxX = FIELD_WIDTH / 2 - halfPaddleWidth;
+	// 	let minX = -maxX;
+	// 	camera.position.x = paddle2.position.x = Math.max(minX, Math.min(maxX, -((WIDTH - mouseX) / WIDTH * FIELD_WIDTH) + (FIELD_WIDTH / 2)));
+	// }
 	//////////
 	function handleMultipleKeys() {
 		// 여러 키를 동시에 처리하는 로직 작성
@@ -656,7 +680,7 @@ function Example({ $app, initialState }) {
 			// 반짝임이 완료되면 애니메이션 종료
 			if (elapsed < blinkDuration) {
 				ball.material.emissive.setHex(newEmissive);
-				requestAnimationFrame(blink);
+				blinkAniId = requestAnimationFrame(blink);
 			} else {
 				// 반짝임이 완료되면 초기값으로 재설정
 				ball.material.emissive.setHex(initialEmissive);
@@ -664,7 +688,7 @@ function Example({ $app, initialState }) {
 		}
 
 		// 애니메이션 시작
-		requestAnimationFrame(blink);
+		blinkAniId = requestAnimationFrame(blink);
 	}
 
 	function shouldPerformAction(code) {
@@ -717,7 +741,7 @@ function Example({ $app, initialState }) {
 	function initEventListeners() {
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
-		renderer.domElement.addEventListener('mousemove', containerMouseMove);
+		// renderer.domElement.addEventListener('mousemove', containerMouseMove);
 	}
 
 	this.init = () => {
