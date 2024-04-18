@@ -69,15 +69,17 @@ function Tournament({ $app, initialState }) {
 				const regex = /^[\uAC00-\uD7A3\u3040-\u30FF\u4E00-\u9FAF\u0030-\u0039\u0041-\u005A\u0061-\u007A]+$/;
 				return regex.test(segment);
 			}
+			if (tournamentName){
 			if (validateURLSegment(tournamentName) && tournamentName.length < 20) {
 				const message = {
 					message_type: "create",
 					tournament_name: tournamentName,
 				};
 				gameSocket.send(JSON.stringify(message));
-			}else {
-				alert("The string must not contain spaces, special characters, and must be 20 characters or less");
+			} else {
+				alert(`${locale.tournament.promptAlert}`);
 			}
+		}
 		});
 		const refreshBtn = this.$element.querySelector("#refreshBtn");
 		refreshBtn.addEventListener("click", () => {
@@ -205,6 +207,7 @@ function Tournament({ $app, initialState }) {
 					let tournamentURL = `${tournamentName}/${round}`;
 					sessionStorage.setItem("idValue", tournamentURL);
 					let targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
+					closeSocket();
 					navigate(targetURL);
 					// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 				}
@@ -216,10 +219,7 @@ function Tournament({ $app, initialState }) {
 
 	this.goBackToList = () => {
 		// 소켓 연결을 끊음
-		if (gameSocket) {
-			gameSocket.close();
-			gameSocket = null;
-		}
+		closeSocket();
 		$("#nav-bar").hidden = false;
 		// 토너먼트 리스트를 다시 요청
 		this.render();
@@ -228,6 +228,7 @@ function Tournament({ $app, initialState }) {
 	//소켓 연결시 사용
 	this.connectWebSocket = async (url) => {
 		return new Promise((resolve, reject) => {
+			closeSocket();
 			gameSocket = new WebSocket(
 				`wss://${process.env.BASE_IP}/ws/tournament_game/${url}/`
 			);
