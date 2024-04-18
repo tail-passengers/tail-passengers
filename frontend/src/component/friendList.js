@@ -9,6 +9,7 @@ export default function renderFriendList(content, parentElement) {
 	const renderFriendListField = (content, parentElement) => {
 		const language = getCurrentLanguage();
 		const locale = locales[language] || locales.en;
+
 		let contentHTML = `
 			<form class="tp-pf-form tp-pf-form-friends tp-sl-card-row tp-pf-card-row-height default-container row g-2">
 				<div>
@@ -112,5 +113,4 @@ export default function renderFriendList(content, parentElement) {
 	};
 
 	renderFriendListField(content, parentElement);
-
 }
