@@ -122,7 +122,7 @@ const koLocale = {
 	},
 	router: {
 		invalid: "잘못된 접근입니다.",
-		confirm: "잘못된 접근입니다. 홈으로 화면으로 돌아가시겠습니까?\n\n\nOK -> 홈으로 가기 \nCancel -> 모드 선택 화면으로 가기",
+		confirm: "잘못된 접근입니다. 홈으로 화면으로 돌아가시겠습니까?\nOK -> 홈으로 가기 \nCancel -> 모드 선택 화면으로 가기",
 	},
 };
 

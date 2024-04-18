@@ -24,9 +24,7 @@ function Router($container) {
 						navBar.querySelector(".lang-group").classList.add("visually-hidden");
 					} else {
 						navBar.querySelector(".lang-group").classList.remove("visually-hidden");
-						
 				}
-
 		if (!(currentPage instanceof Dashboard)) {
 			const chart = document.getElementById("bar-chart");
 			if (chart) {
@@ -38,7 +36,6 @@ function Router($container) {
     const init = () => {
         window.addEventListener("historychange", ({ detail }) => {
             const { to, isReplace } = detail;
-						console.log(to);
 						if (to != "/") {
 							
 						}

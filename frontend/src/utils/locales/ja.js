@@ -54,7 +54,7 @@ const jaLocale = {
 		mainText: "試合結果",
 		winner: "優勝者",
 		loser: "敗者",
-		goHome: "帰る",
+		goHome: "戻る",
 	},
 	rank: {
 			mainText: "トッププレイヤー",
@@ -122,7 +122,7 @@ const jaLocale = {
 	},
 	router: {
 		invalid: "無効の連絡先",
-		confirm: "間違ったアプローチです。\n\n\nOK -> ホーム画面に戻りますか \nCancel -> モード選択画面に戻ります。",
+		confirm: "間違ったアプローチです。\nOK -> ホーム画面に戻りますか \nCancel -> モード選択画面に戻ります。",
 	},
 };
 

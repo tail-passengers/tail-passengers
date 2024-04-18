@@ -122,7 +122,7 @@ const enLocale = {
 	},
 	router: {
 		invalid: "This is invalid contact",
-		confirm: "Your approach seems to be incorrect. Would you like to navigate to the home page?\n\n\nOK -> Go to home\nCancel -> Go back to the previous page",
+		confirm: "Your approach seems to be incorrect. Would you like to navigate to the home page?\nOK -> Go to home\nCancel -> Go back to the previous page",
 	},
 };
 
