@@ -97,6 +97,10 @@ export const fetchModifyMyInfoRequest = async (myData) => {
                 referrerPolicy: "origin",
             }
         );
+        if (response.status === 400) {
+            alert("duplicate nickname")
+            return;
+        }
 
         const data = await response.json();
         return data;

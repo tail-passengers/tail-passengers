@@ -210,7 +210,8 @@ export function addProfileModalEventListener(profileModal, flag) {
 			}
 			const myData = new FormData(modifyForm);
 			const updataMyInfo = await fetchModifyMyInfoRequest(myData);
-			closeProfileModal(profileModal);
+			if (updataMyInfo !== undefined)
+				closeProfileModal(profileModal);
 		});
 	}
 }
