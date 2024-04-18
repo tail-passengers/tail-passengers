@@ -6,6 +6,7 @@ const enLocale = {
         rank: "RANK",
         records: "RECORDS",
         profile: "Profile",
+        dashboard: "DASHBOARD",
         logout: "Logout",
         language: "Language",
         english: "English",

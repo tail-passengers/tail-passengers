@@ -6,6 +6,7 @@ const jaLocale = {
         rank: "ランク",
         records: "記録",
         profile: "プロフィール",
+        dashboard: "ダッシュボード",
         settings: "設定",
         logout: "ログアウト",
         language: "言語",

@@ -7,6 +7,7 @@ const koLocale = {
         records: "기록",
         profile: "프로필",
         settings: "설정",
+        dashboard: "대시보드",
         logout: "로그아웃",
         language: "언어",
         english: "English",
