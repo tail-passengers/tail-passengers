@@ -21,6 +21,7 @@ function Tournament({ $app, initialState }) {
 		window.removeEventListener("popstate", closeSocket);
 	}
 	this.render = () => {
+		console.log("!");
 		const language = getCurrentLanguage();
 		const locale = locales[language] || locales.en;
 		this.$element.innerHTML = `
@@ -64,15 +65,16 @@ function Tournament({ $app, initialState }) {
 		);
 		createTournamentBtn.addEventListener("click", () => {
 			tournamentName = prompt(`${locale.tournament.noticePrompt}`);
-			const message = {
-				message_type: "create",
-				tournament_name: tournamentName,
-			};
-			const regex = /^[`~!@#$%^&*()_+-={},./<>?;':"\s\t\n\r]+|\s+$/g;
-			if (regex.test(tournamentName) || tournamentName.length > 20) {
-				alert("Strings must not consist solely of whitespace or be longer than 20 characters.");
+
+			const regex = /^[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣0-9\s]*$/;
+			if (!regex.test(tournamentName) || tournamentName.length > 20) {
+				alert("문자열은 공백을 포함하지 않고, 특수문자를 사용할 수 없으며, 20자 이내여야 합니다.");
 			}
 			else {
+				const message = {
+					message_type: "create",
+					tournament_name: tournamentName,
+				};
 				gameSocket.send(JSON.stringify(message));
 			}
 		});
