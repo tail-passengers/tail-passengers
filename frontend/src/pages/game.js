@@ -80,7 +80,6 @@ function Example({ $app, initialState }) {
 		document.removeEventListener('keydown', handleKeyDown);
 		document.removeEventListener('keyup', handleKeyUp);
 		window.removeEventListener("popstate", clearThreeJs);
-		$("#nav-bar").hidden = false;
 		scene = null;
 		camera = null;
 		renderer = null;
