@@ -219,7 +219,13 @@ class GeneralGameConsumer(AsyncWebsocketConsumer):
                         game.get_db_data(), winner_id, loser_id
                     )
                     self.db_complete = True
-                await self.send(game.build_complete_json())
+                    await self.channel_layer.group_send(
+                        self.game_group_name,
+                        {
+                            "type": "game.message",
+                            "message": game.build_complete_json(),
+                        },
+                    )
             except ValidationError:
                 await self.send(game.build_complete_json(is_error=True))
 
