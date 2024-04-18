@@ -78,10 +78,6 @@ export function addFriendListEventListener() {
 	const friendBtnGrps = document.querySelectorAll(".tp-fl-btn-group");
 	friendBtnGrps.forEach(async friendBtnGrp => {
 		const statusValue = friendBtnGrp.children[2].value;
-		const requestUserId = friendBtnGrp.closest("tr").querySelector(".tp-fl-request-intra-id").value;
-		const responseUserId = friendBtnGrp.closest("tr").querySelector(".tp-fl-response-intra-id").value;
-		const displayIntraIdElem = friendBtnGrp.closest("tr").querySelector(".tp-fl-display-intra-id");
-
 
 		const myIntraId = await fetchMyIntraId();
 		if (statusValue === "0" && myIntraId === requestUserId) { // "0" : pending, "1" : accepted
@@ -114,7 +110,7 @@ export function addProfileModalEventListener(profileModal, flag) {
 			if (flag === "MY") {
 				renderMyInfoForm(myInfo[0], formContainer);
 			} else if (flag === "FRIENDS") {
-				const friendsList = await fetchAllFriends(myInfo[0].nickname);
+				const friendsList = await fetchAllFriends(myInfo[0].intra_id);
 				deleteIntervalId();
 				const intervalId = renderFriendList(friendsList, formContainer);
 				localStorage.setItem('intervalId', intervalId);
