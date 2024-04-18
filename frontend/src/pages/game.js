@@ -53,12 +53,12 @@ function Example({ $app, initialState }) {
 	function gameEnd() {
 		$("#nav-bar").hidden = false;
 		if (score.player1 > score.player2) {
-			winner = "Left Player";
-			loser = "Right Player";
+			winner = "1P";
+			loser = "2P";
 		}
 		else {
-			winner = "Left Player";
-			loser = "Right Player";
+			winner = "2P";
+			loser = "1P";
 		}
 		sessionStorage.setItem("winner", winner);
 		sessionStorage.setItem("loser", loser);
@@ -554,14 +554,16 @@ function Example({ $app, initialState }) {
 			// D 키가 눌려 있을 때의 동작
 			// paddle1과 camera를 이동시킴
 			movePaddle1WithKeyboard(1);
-		} if (keyState.ArrowLeft) {
-			// 왼쪽 화살표가 눌려 있을 때의 동작
-			// paddle2와 camera2를 이동시킴
-			movePaddle2WithKeyboard(1);
-		} if (keyState.ArrowRight) {
-			// 오른쪽 화살표가 눌려 있을 때의 동작
-			// paddle2와 camera2를 이동시킴
-			movePaddle2WithKeyboard(-1);
+			if (modeChange == true) {
+			} if (keyState.ArrowLeft) {
+				// 왼쪽 화살표가 눌려 있을 때의 동작
+				// paddle2와 camera2를 이동시킴
+				movePaddle2WithKeyboard(1);
+			} if (keyState.ArrowRight) {
+				// 오른쪽 화살표가 눌려 있을 때의 동작
+				// paddle2와 camera2를 이동시킴
+				movePaddle2WithKeyboard(-1);
+			}
 		}
 
 		// 다른 여러 키를 처리하는 로직 추가
