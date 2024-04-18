@@ -1,7 +1,7 @@
 import { routes } from "./utils/routeInfo.js";
 import NotFound from "./pages/notFound.js";
 import Profile from "./pages/profile.js";
-import General, { closeSocket } from "./pages/general.js";
+import { closeSocket } from "./pages/general.js";
 import { fetchUser } from "./utils/fetches.js";
 import { deleteCSRFToken } from "./utils/cookie.js";
 
