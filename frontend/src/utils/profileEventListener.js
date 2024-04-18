@@ -78,10 +78,6 @@ export function addFriendListEventListener() {
 	const friendBtnGrps = document.querySelectorAll(".tp-fl-btn-group");
 	friendBtnGrps.forEach(async friendBtnGrp => {
 		const statusValue = friendBtnGrp.children[2].value;
-		const requestUserId = friendBtnGrp.closest("tr").querySelector(".tp-fl-request-intra-id").value;
-		const responseUserId = friendBtnGrp.closest("tr").querySelector(".tp-fl-response-intra-id").value;
-		const displayIntraIdElem = friendBtnGrp.closest("tr").querySelector(".tp-fl-display-intra-id");
-
 
 		const myIntraId = await fetchMyIntraId();
 		if (statusValue === "0" && myIntraId === requestUserId) { // "0" : pending, "1" : accepted
@@ -210,7 +206,8 @@ export function addProfileModalEventListener(profileModal, flag) {
 			}
 			const myData = new FormData(modifyForm);
 			const updataMyInfo = await fetchModifyMyInfoRequest(myData);
-			closeProfileModal(profileModal);
+			if (updataMyInfo !== undefined)
+				closeProfileModal(profileModal);
 		});
 	}
 }

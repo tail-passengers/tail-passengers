@@ -61,12 +61,7 @@ export default function renderFriendList(content, parentElement) {
 									</div>
 								</td>
 								<td class="text-left align-middle tp-fl-display-intra-id col-2">
-										<input type="hidden" class="tp-fl-request-intra-id" value=${
-                                            data.request_intra_id
-                                        }></input>
-										<input type="hidden" class="tp-fl-response-intra-id" value=${
-                                            data.response_intra_id
-                                        }></input>
+                                    ${data.nickname}
 								</td>
 								<td class="text-center align-middle col-1 tp-onoff-status">
 									<div class="online-indicator">
