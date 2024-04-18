@@ -2,8 +2,8 @@ import { getCurrentLanguage, changeLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
 export function renderFooterSection() {
-	const footerContainer = document.querySelector("#footer");
-	footerContainer.innerHTML = renderFooter();
+  const footerContainer = document.querySelector("#footer");
+  footerContainer.innerHTML = renderFooter();
 }
 
 export default function renderFooter() {
@@ -30,4 +30,3 @@ export default function renderFooter() {
 		</footer>
   `;
 }
-

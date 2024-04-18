@@ -1,5 +1,5 @@
 export default function renderLoginModal() {
-    return `
+  return `
 	<div class="modal">
 		<div class="modal__content">
 			<div class="back color-6">

@@ -2,10 +2,14 @@ import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 import { addProfileModalEventListener } from "../utils/profileEventListener.js";
 
-export default function renderRequestModal(selectBtn, parentElement, requestId) {
-	const language = getCurrentLanguage();
-	const locale = locales[language] || locales.en;
-	let contentHTML = `
+export default function renderRequestModal(
+  selectBtn,
+  parentElement,
+  requestId
+) {
+  const language = getCurrentLanguage();
+  const locale = locales[language] || locales.en;
+  let contentHTML = `
 		<div class="modal tp-sl-card-row tp-modal-div" tabindex="-1">
 			<div class="modal-dialog default-container">
 				<div class="modal-content tp-modal-accept tp-bgc-primary tp-friend-modal-content">
@@ -69,27 +73,25 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 	</div>
 	`;
 
-	let requestModal = document.createRange().createContextualFragment(contentHTML);
-	const prevModal = parentElement.querySelector(".tp-modal-div");
-	if (prevModal)
-	{
-		parentElement.removeChild(prevModal);
-	}
-	parentElement.appendChild(requestModal);
-	parentElement.style.display = "";
-	addProfileModalEventListener(parentElement, "FRIENDS");
+  let requestModal = document
+    .createRange()
+    .createContextualFragment(contentHTML);
+  const prevModal = parentElement.querySelector(".tp-modal-div");
+  if (prevModal) {
+    parentElement.removeChild(prevModal);
+  }
+  parentElement.appendChild(requestModal);
+  parentElement.style.display = "";
+  addProfileModalEventListener(parentElement, "FRIENDS");
 
-	const acceptModalContent = parentElement.querySelector(".tp-modal-accept");
-	const refuseModalContent = parentElement.querySelector(".tp-modal-refuse");
+  const acceptModalContent = parentElement.querySelector(".tp-modal-accept");
+  const refuseModalContent = parentElement.querySelector(".tp-modal-refuse");
 
-	if (selectBtn === "ACCEPT")
-	{
-		acceptModalContent.classList.remove("visually-hidden");
-		refuseModalContent.classList.add("visually-hidden");
-	}
-	else if (selectBtn === "REFUSE")
-	{
-		refuseModalContent.classList.remove("visually-hidden");
-		acceptModalContent.classList.add("visually-hidden");
-	}	
+  if (selectBtn === "ACCEPT") {
+    acceptModalContent.classList.remove("visually-hidden");
+    refuseModalContent.classList.add("visually-hidden");
+  } else if (selectBtn === "REFUSE") {
+    refuseModalContent.classList.remove("visually-hidden");
+    acceptModalContent.classList.add("visually-hidden");
+  }
 }

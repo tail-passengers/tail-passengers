@@ -5,7 +5,7 @@ import jaLocale from "./ja.js";
 const locales = {
   en: enLocale,
   ko: koLocale,
-  ja: jaLocale
+  ja: jaLocale,
 };
 
 export default locales;

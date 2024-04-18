@@ -5,10 +5,10 @@ import { addProfileModalEventListener } from "../utils/profileEventListener.js";
 import { replaceHttpWithHttps } from "../utils/imageUpload.js";
 
 export default function renderModifyFormModal(myInfo, parentElement) {
-	const language = getCurrentLanguage();
-	const locale = locales[language] || locales.en;
-	const renderModalForm = (parentElement) => {
-		let contentHTML = `
+  const language = getCurrentLanguage();
+  const locale = locales[language] || locales.en;
+  const renderModalForm = (parentElement) => {
+    let contentHTML = `
 			<div class="modal tp-sl-card-row tp-modal-div" tabindex="-1">
 				<div class="modal-dialog default-container">
 					<div class="modal-content tp-modal-modify tp-bgc-primary tp-myinfo-modal-content default-container">
@@ -88,42 +88,47 @@ export default function renderModifyFormModal(myInfo, parentElement) {
 			</div>
 		`;
 
-		const modifyModal = document.createRange().createContextualFragment(contentHTML);
-		const prevModal = parentElement.querySelector(".tp-modal-div");
-		if (prevModal)
-		{
-			parentElement.removeChild(prevModal);
-		}
-		parentElement.appendChild(modifyModal);
-		parentElement.style.display = "";
-	};
+    const modifyModal = document
+      .createRange()
+      .createContextualFragment(contentHTML);
+    const prevModal = parentElement.querySelector(".tp-modal-div");
+    if (prevModal) {
+      parentElement.removeChild(prevModal);
+    }
+    parentElement.appendChild(modifyModal);
+    parentElement.style.display = "";
+  };
 
-	const handlerHouseValue = function(houseName) {
+  const handlerHouseValue = function (houseName) {
     const house = $(".tp-pf-modal-house");
     const options = house.querySelectorAll(".tp-pf-house-item");
-    options.forEach(option => {
-        if (option.value === houseName) {
-            option.selected = true;
-        }
+    options.forEach((option) => {
+      if (option.value === houseName) {
+        option.selected = true;
+      }
     });
-	}
+  };
 
-	const renderUserInfo = function (content) {
-		if (content) {
-			const nickname = $(".tp-pf-modal-nickname");
-			const intraId = $(".tp-pf-modal-intraId");
-			const profileImg = $(".tp-pf-photo-modal-thumnail");
-			const record = $(".tp-pf-modal-record");
-			nickname.value = content.nickname;
-			intraId.value = content.intra_id;
-			content.profile_image = replaceHttpWithHttps(content.profile_image);
-			profileImg.src = content.profile_image;
-			record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
-			handlerHouseValue(content.house);
-		}
-	};
+  const renderUserInfo = function (content) {
+    if (content) {
+      const nickname = $(".tp-pf-modal-nickname");
+      const intraId = $(".tp-pf-modal-intraId");
+      const profileImg = $(".tp-pf-photo-modal-thumnail");
+      const record = $(".tp-pf-modal-record");
+      nickname.value = content.nickname;
+      intraId.value = content.intra_id;
+      content.profile_image = replaceHttpWithHttps(content.profile_image);
+      profileImg.src = content.profile_image;
+      record.value =
+        content.win_count +
+        `${locale.myInfo.win}, ` +
+        content.lose_count +
+        `${locale.myInfo.lose}`;
+      handlerHouseValue(content.house);
+    }
+  };
 
-	renderModalForm(parentElement);
-	renderUserInfo(myInfo);
-	addProfileModalEventListener(parentElement, "MY");
+  renderModalForm(parentElement);
+  renderUserInfo(myInfo);
+  addProfileModalEventListener(parentElement, "MY");
 }

@@ -27,10 +27,7 @@ function General({ $app, initialState }) {
 		ballMaterials,
 		ballCustom = 0;
 
-	// TODO 제너럴 레디 후 토너먼트 가면 소켓 안끊는 문제
-
 	function clearThreeJs() {
-		//게임중 뒤로가기면 소켓 닫기, 아닌 경우는 직접 소켓 처리
 		if (state == "playing") {
 			closeSocket();
 		}
@@ -62,7 +59,6 @@ function General({ $app, initialState }) {
 
 	this.makeGame = async () => {
 		try {
-			// 세션스토리지에 저장된 UUID로 소켓 연결하기
 			gameMode = sessionStorage.getItem("gameMode");
 			gameIdValue = sessionStorage.getItem("idValue");
 			await this.connectWebSocket();
@@ -82,7 +78,6 @@ function General({ $app, initialState }) {
 	this.onGame = (event) => {
 		data = JSON.parse(event.data);
 		if (data.message_type == "ready") {
-			// 플레이어 정보 초기화
 			nickname = data.nickname;
 			playerNum = data.number;
 			gameSocket.send(event.data);
@@ -106,15 +101,12 @@ function General({ $app, initialState }) {
 			updateScore();
 			ballReset();
 		} else if (data.message_type == "end") {
-			//제너럴모드는 결과 띄우고 메세지 재전송, 결과메세지 받을 준비
 			state = "end";
 			clearThreeJs();
 			gameSocket.send(event.data);
 
-			//토너먼트 모드는 메세지 재전송, 플레이어에 따라 소켓 연결관리.
 			if (gameMode == "tournament_game") {
 				if (data.round != "3") {
-					// 졌으면 소켓 끊고 종료
 					closeSocket();
 					this.changeMsg("end");
 					$("#nav-bar").hidden = false;
@@ -128,7 +120,6 @@ function General({ $app, initialState }) {
 			} else {
 				gameSocket.send(event.data);
 				$("#nav-bar").hidden = true;
-				// 이겼으면 새 메세지리스너 등록 후 대기,
 				state = "playing";
 				this.$element.innerHTML = `
 					<div class='text-center h1 text-left tp-color-secondary'>${locale.general.waiting}</div>
@@ -159,12 +150,9 @@ function General({ $app, initialState }) {
 			running = false;
 		}
 	};
-	// final waiting중일 때 뒤로가기 누르면
 	this.finalGame = (event) => {
 		data = JSON.parse(event.data);
 		if (data.message_type == "ready") {
-			// this.renderPlaying(data);
-			// 1p, 2p 나랑 versus 저장
 			if (data["1p"] == nickname) {
 				playerNum = "player1";
 				versusNickname = data["2p"];
@@ -180,7 +168,6 @@ function General({ $app, initialState }) {
 			const targetURL = `https://${process.env.BASE_IP}/tournament_game/${tournamentURL}`;
 			closeSocket();
 			navigate(targetURL);
-			// 저장된 토너먼트 모드, 토너먼트방이름, 라운드 합쳐서 스토리지에 저장 후 게임 연결
 		}
 	};
 
@@ -236,8 +223,8 @@ function General({ $app, initialState }) {
 		});
 	};
 
-	let WIDTH = /*window.innerWidth,*/ 1920, //canvas.css에서 반응형으로 처리
-		HEIGHT = /*window.innerHeight*/ 1080 - (navBarHeight + footerHeight), //canvas.css에서 반응형으로 처리
+	let WIDTH = 1920,
+		HEIGHT = 1080 - (navBarHeight + footerHeight),
 		VIEW_ANGLE = 45,
 		ASPECT = WIDTH / HEIGHT,
 		NEAR = 1,
@@ -292,32 +279,21 @@ function General({ $app, initialState }) {
 			} else if (playerNum == "player2") {
 				camera.position.x = paddle2.position.x;
 			}
-			// camera2.position.x = paddle2.position.x;
 			ball.position.x = data.ball_x;
 			ball.position.y = data.ball_y;
 			ball.position.z = data.ball_z;
 			ball.$velocity.x = data.ball_vx;
 			ball.$velocity.z = data.ball_vz;
 
-			//camera1
 			renderer.setViewport(0, 0, WIDTH, HEIGHT);
 			renderer.setScissor(0, 0, WIDTH, HEIGHT);
 			renderer.setScissorTest(true);
 			renderer.render(scene, camera);
 
-			//camera2
-			// renderer.setViewport(WIDTH / 2, 0, WIDTH / 2, HEIGHT);
-			// renderer.setScissor(WIDTH / 2, 0, WIDTH / 2, HEIGHT);
-			// renderer.setScissorTest(true);
-			// renderer.render(scene, camera2);
 
-			// if (ball.$velocity.z < 0) {
-			// 	processCpuPaddle();
-			// }
 		}
 	};
 
-	// 패들 scene에 추가
 	function addPaddle(paddleColor, opacity) {
 		let paddleGeometry = new THREE.BoxGeometry(
 			PADDLE_WIDTH,
@@ -393,10 +369,6 @@ function General({ $app, initialState }) {
 			scene.add(camera);
 		}
 
-		// camera2 = new THREE.PerspectiveCamera(VIEW_ANGLE / 2, ASPECT / 2, NEAR, FAR);
-		// camera2.position.set(0, 100, (FIELD_LENGTH / 2) - 4000);
-		// camera2.rotateY(Math.PI);
-		// scene.add(camera2);
 
 		renderer = new THREE.WebGLRenderer();
 		renderer.setSize(WIDTH, HEIGHT);
@@ -406,7 +378,6 @@ function General({ $app, initialState }) {
 			contentDiv.appendChild(renderer.domElement);
 		}
 
-		// field
 		let fieldGeometry = new THREE.BoxGeometry(
 			FIELD_WIDTH,
 			5,
@@ -415,12 +386,11 @@ function General({ $app, initialState }) {
 			5,
 			1
 		),
-			fieldMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 }); //color: 0x442200
+			fieldMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
 		field = new THREE.Mesh(fieldGeometry, fieldMaterial);
 		field.position.set(0, -120, 0);
 		scene.add(field);
 
-		// floor texture
 		const woodTextureLoader = new THREE.TextureLoader();
 		const woodTexture = woodTextureLoader.load(
 			"../../public/assets/img/carpet.png"
@@ -440,11 +410,11 @@ function General({ $app, initialState }) {
 		floor.position.set(0, -120, 0);
 		scene.add(floor);
 
-		// wall texture
+
 		const wallTextureLoader = new THREE.TextureLoader();
 		let wallTexture = wallTextureLoader.load(
 			"../../public/assets/img/wall.png"
-		); // 벽면 텍스쳐 파일 경로로 수정
+		);
 		const wallMaterial = new THREE.MeshStandardMaterial({
 			map: wallTexture,
 		});
@@ -463,7 +433,6 @@ function General({ $app, initialState }) {
 		rightWall.position.set(FIELD_WIDTH / 2 + 2.5, 250, 0);
 		scene.add(rightWall);
 
-		// backwall
 		const backWallTextureLoader = new THREE.TextureLoader();
 		const backWallTexture = backWallTextureLoader.load(
 			"../../public/assets/img/backwall.png"
@@ -483,7 +452,6 @@ function General({ $app, initialState }) {
 		backWall.position.set(0, 250, -2500);
 		scene.add(backWall);
 
-		//frontwall
 		const frontWallTextureLoader = new THREE.TextureLoader();
 		const frontWallTexture = frontWallTextureLoader.load(
 			"../../public/assets/img/backwall.png"
@@ -503,11 +471,10 @@ function General({ $app, initialState }) {
 		frontWall.position.set(0, 250, 2500);
 		scene.add(frontWall);
 
-		// ceiling texture
 		const ceilingTextureLoader = new THREE.TextureLoader();
 		const ceilingTexture = ceilingTextureLoader.load(
 			"../../public/assets/img/ceiling.jpeg"
-		); // 천장 텍스처 파일 경로로 수정
+		);
 		const ceilingMaterial = new THREE.MeshStandardMaterial({
 			map: ceilingTexture,
 		});
@@ -524,9 +491,9 @@ function General({ $app, initialState }) {
 		scene.add(ceiling);
 
 		// light
-		mainLight = new THREE.HemisphereLight(0xffffff, 0x444455); //빛 색, 그림자 색
+		mainLight = new THREE.HemisphereLight(0xffffff, 0x444455);
 		scene.add(mainLight);
-		subLight = new THREE.PointLight(0xffffff, 1); // 빛 색, 밝기
+		subLight = new THREE.PointLight(0xffffff, 1);
 		subLight.position.set(0, 400, 0);
 		scene.add(subLight);
 
@@ -611,10 +578,10 @@ function General({ $app, initialState }) {
 		noticeElement = document.createElement("div");
 		noticeElement.innerHTML = `${nickname} vs ${versusNickname}<br>${locale.general.getReady}`;
 		noticeElement.style.textAlign = "center";
-		noticeElement.style.whiteSpace = "normal"; // white-space를 normal로 설정하여 개행이 적용되도록 합니다.
+		noticeElement.style.whiteSpace = "normal";
 		noticeElement.style.marginTop = "10px";
 		noticeElement.style.fontSize = "200%";
-		// noticeElement.style.position = 'absolute';
+
 		noticeElement.style.top = "50%";
 		noticeElement.style.left = "50%";
 		noticeElement.style.transform = "translate(-50%, -50%)";
@@ -807,27 +774,21 @@ function General({ $app, initialState }) {
 			// 반짝임이 완료되면 애니메이션 종료
 			if (elapsed < blinkDuration) {
 				ball.material.emissive.setHex(newEmissive);
-				//TODO 활성화
 				blinkAniId = requestAnimationFrame(blink);
 			} else {
 				// 반짝임이 완료되면 초기값으로 재설정
 				ball.material.emissive.setHex(initialEmissive);
 			}
 		}
-		//TODO 활성화
 		// 애니메이션 시작
 		blinkAniId = requestAnimationFrame(blink);
 	}
 
 	function shouldPerformAction(code) {
-		// 특정 조건을 만족하면 true를 반환하여 동작을 수행하도록 함
-		// 예를 들어, 공이 패들에 닿기 직전, 닿았을 때, 또는 패들에 맞고 튕겨 나간 직후에 해당하는 조건을 확인하여 반환
 		return isBallNearPaddle(code);
 	}
 
 	function isBallNearPaddle(code) {
-		// 공이 패들에 닿기 직전의 조건을 판단
-		// 예를 들어, 특정 거리 이내에 있을 때 true를 반환
 		if (playerNum == "player1") {
 			return Math.abs(ball.position.z - paddle1.position.z) < 50;
 		} else if (playerNum == "player2") {
@@ -837,27 +798,22 @@ function General({ $app, initialState }) {
 
 	// 키 상태 저장 객체
 	const keyState = {
-		KeyA: false, // A 키
-		KeyD: false, // D 키
-		ArrowLeft: false, // 왼쪽 화살표
-		ArrowRight: false, // 오른쪽 화살표
+		KeyA: false,
+		KeyD: false,
+		ArrowLeft: false,
+		ArrowRight: false,
 	};
 
-	// 키입력 이벤트 리스너 등록
 	this.initEventListeners = () => {
 		document.addEventListener("keydown", handleKeyPress);
 		document.addEventListener("keyup", handleKeyRelease);
 		window.addEventListener("beforeunload", removeScoreElement);
-		// renderer.domElement.addEventListener('mousemove', containerMouseMove);
-		// renderer.domElement.addEventListener('click', onMouseClick);
 	};
 
-	// 페이지에 들어갈 state를 설정해 각각 페이지를 띄우는 함수
 	this.state = initialState;
 	this.$element = document.createElement("div");
 	this.$element.className = "content default-container";
 
-	// 기본적인 SPA 페이지 로드동작
 	this.init = () => {
 		let parent = $("#app");
 		const child = $(".content");

@@ -4,10 +4,10 @@ import { $ } from "../utils/querySelector.js";
 import { addMyInfoEventListener } from "../utils/profileEventListener.js";
 
 export default function renderMyInfoForm(content, parentElement) {
-	const language = getCurrentLanguage();
-	const locale = locales[language] || locales.en;
-	const renderMyInfoField = (content, parentElement) => {
-		let contentHTML = `
+  const language = getCurrentLanguage();
+  const locale = locales[language] || locales.en;
+  const renderMyInfoField = (content, parentElement) => {
+    let contentHTML = `
 			<form class="tp-pf-form tp-pf-form-myinfo-view default-container tp-pf-forms tp-sl-card-row">
 					<div class="tp-pf-photo-box">
 							<div class="tp-pf-wd-blank"></div>
@@ -47,39 +47,42 @@ export default function renderMyInfoForm(content, parentElement) {
 				</div>
 			</form>
 		`;
-		const prevForm = parentElement.querySelector(".tp-pf-form");
-		if (prevForm) {
-			parentElement.removeChild(prevForm);
-		}
-		parentElement.innerHTML = contentHTML;
-		renderUserInfo(content);
-		addMyInfoEventListener(content);
-	};
+    const prevForm = parentElement.querySelector(".tp-pf-form");
+    if (prevForm) {
+      parentElement.removeChild(prevForm);
+    }
+    parentElement.innerHTML = contentHTML;
+    renderUserInfo(content);
+    addMyInfoEventListener(content);
+  };
 
-	const handlerHouseValue = function(houseName) {
+  const handlerHouseValue = function (houseName) {
     const house = $(".tp-pf-input-house");
     const options = house.querySelectorAll(".tp-pf-house-item");
-    options.forEach(option => {
-        if (option.value === houseName) {
-            option.selected = true;
-        }
+    options.forEach((option) => {
+      if (option.value === houseName) {
+        option.selected = true;
+      }
     });
-	}
+  };
 
-	const renderUserInfo = function (content) {
-			const nickname = $(".tp-pf-input-nickname");
-			const intraId = $(".tp-pf-input-intraId");
-			const profileImg = $(".tp-pf-photo-thumnail");
-			const record = $(".tp-pf-input-record");
-			if (nickname && intraId && profileImg && record && content) {
-				nickname.value = content.nickname;
-				intraId.value = content.intra_id;
-				profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
-				record.value = content.win_count + `${locale.myInfo.win}, ` + content.lose_count + `${locale.myInfo.lose}`;
-				handlerHouseValue(content.house);
-			}
-	}
+  const renderUserInfo = function (content) {
+    const nickname = $(".tp-pf-input-nickname");
+    const intraId = $(".tp-pf-input-intraId");
+    const profileImg = $(".tp-pf-photo-thumnail");
+    const record = $(".tp-pf-input-record");
+    if (nickname && intraId && profileImg && record && content) {
+      nickname.value = content.nickname;
+      intraId.value = content.intra_id;
+      profileImg.src = `https://${process.env.BASE_IP}` + content.profile_image;
+      record.value =
+        content.win_count +
+        `${locale.myInfo.win}, ` +
+        content.lose_count +
+        `${locale.myInfo.lose}`;
+      handlerHouseValue(content.house);
+    }
+  };
 
-	renderMyInfoField(content, parentElement);
-
+  renderMyInfoField(content, parentElement);
 }

@@ -3,23 +3,22 @@ import { navigate } from "../utils/navigate.js";
 import { getCurrentLanguage } from "../utils/languageUtils.js";
 import locales from "../utils/locales/locales.js";
 
-
 function GameResult({ initialState }) {
-	this.state = initialState;
-	this.$element = document.createElement("div");
-	this.$element.className = "content";
+  this.state = initialState;
+  this.$element = document.createElement("div");
+  this.$element.className = "content";
 
-	this.render = () => {
-		$("#nav-bar").hidden = true;
-		const language = getCurrentLanguage();
-		const locale = locales[language] || locales.en;
+  this.render = () => {
+    $("#nav-bar").hidden = true;
+    const language = getCurrentLanguage();
+    const locale = locales[language] || locales.en;
 
-		const gameMode = sessionStorage.getItem('gameMode');
-		const winner = sessionStorage.getItem('winner');
-		const loser = sessionStorage.getItem('loser');
+    const gameMode = sessionStorage.getItem("gameMode");
+    const winner = sessionStorage.getItem("winner");
+    const loser = sessionStorage.getItem("loser");
 
-		if (gameMode == "general_game") {
-			this.$element.innerHTML = `
+    if (gameMode == "general_game") {
+      this.$element.innerHTML = `
 							<div class="container">
 									<div class="mb-3 mt-3">
 									<div class="my-3"></div>
@@ -56,12 +55,10 @@ function GameResult({ initialState }) {
 							</div>
 					</div>
 			`;
-
-		}
-		else if (gameMode == "tournament_game") {
-			const etc1 = sessionStorage.getItem('etc1');
-			const etc2 = sessionStorage.getItem('etc2');
-			this.$element.innerHTML = `
+    } else if (gameMode == "tournament_game") {
+      const etc1 = sessionStorage.getItem("etc1");
+      const etc2 = sessionStorage.getItem("etc2");
+      this.$element.innerHTML = `
 					<div class="content default-container">
 							<div class="container">
 									<div class="mb-3 mt-3">
@@ -87,31 +84,31 @@ function GameResult({ initialState }) {
 							</div>
 					</div>
 			`;
-		}
-		const homeBtn = this.$element.querySelector("#homeBtn");
-		homeBtn.addEventListener("click", () => {
-			$("#nav-bar").hidden = false;
-			let targetURL = `https://${process.env.BASE_IP}`;
-			navigate(targetURL);
-		});
-	};
+    }
+    const homeBtn = this.$element.querySelector("#homeBtn");
+    homeBtn.addEventListener("click", () => {
+      $("#nav-bar").hidden = false;
+      let targetURL = `https://${process.env.BASE_IP}`;
+      navigate(targetURL);
+    });
+  };
 
-	this.init = () => {
-		let parent = $("#app");
-		const child = $(".content");
-		if (parent && child) {
-			parent.removeChild(child);
-			parent.appendChild(this.$element);
-		}
-		let body = $("body");
-		const canvas = $("canvas");
-		if (canvas) {
-			body.removeChild(canvas);
-		}
-		this.render();
-	};
+  this.init = () => {
+    let parent = $("#app");
+    const child = $(".content");
+    if (parent && child) {
+      parent.removeChild(child);
+      parent.appendChild(this.$element);
+    }
+    let body = $("body");
+    const canvas = $("canvas");
+    if (canvas) {
+      body.removeChild(canvas);
+    }
+    this.render();
+  };
 
-	this.init();
+  this.init();
 }
 
 export default GameResult;
