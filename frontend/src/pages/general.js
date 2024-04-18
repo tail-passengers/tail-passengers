@@ -110,7 +110,7 @@ function General({ $app, initialState }) {
 				if (data.round != "3") {
 					// 졌으면 소켓 끊고 종료
 					state = "lose";
-					this.$element.innerHTML = endMsg();
+					this.changeMsg("end");
 					gameSocket.close();
 					gameSocket = null;
 					$("#nav-bar").hidden = false;
@@ -147,7 +147,7 @@ function General({ $app, initialState }) {
 				gameSocket.close();
 				gameSocket = null;
 			}
-			this.$element.innerHTML = errorMsg();
+			this.changeMsg("error");
 		}
 		else if (data.message_type == "complete") {
 			sessionStorage.setItem('winner', data.winner);
@@ -193,8 +193,9 @@ function General({ $app, initialState }) {
 
 
 
-	const endMsg = () => {
-		return `
+	this.changeMsg = (type) => {
+		if (type == "error") {
+			this.$element.innerHTML = `
         <div class="tp-sl-card-content-child">
             <div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
@@ -202,11 +203,16 @@ function General({ $app, initialState }) {
                 </div>
             </div>
         </div>
+				<div class="tp-sl-card-container default-container text-center">
+            					<div class="tp-sl-btn-parent col">
+                				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 
+                				</button>
+										</div>
+									</div>
     `;
-	};
-
-	const errorMsg = () => {
-		return `
+		}
+		else {
+			this.$element.innerHTML = `
         <div class="tp-sl-card-content-child">
             <div>
                 <div class="loadingMsg default-container text-center tp-color-secondary">
@@ -214,7 +220,20 @@ function General({ $app, initialState }) {
                 </div>
             </div>
         </div>
+				<div class="tp-sl-card-container default-container text-center">
+            					<div class="tp-sl-btn-parent col">
+                				<button type="submit" id="homeBtn" class="btn tp-btn-primary tp-sl-btn-primary tp-sl-single-btn card h-100">${locale.result.goHome} 
+                				</button>
+										</div>
+									</div>
     `;
+		};
+		const homeBtn = this.$element.querySelector("#homeBtn");
+		homeBtn.addEventListener("click", () => {
+			$("#nav-bar").hidden = false;
+			let targetURL = `https://${process.env.BASE_IP}`;
+			navigate(targetURL);
+		});
 	};
 
 
