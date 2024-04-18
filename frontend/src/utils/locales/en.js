@@ -82,6 +82,9 @@ const enLocale = {
         friendsRequest: "FRIEND REQUEST",
         tooltipAccept: "Accept",
         tooltipRefuse: "Refuse",
+				acceptConfirmMessage: "Do you accept the friend request",
+				refuseConfirmMessage: "Do you Refuse the friend request",
+				waitingMessage: "Waiting for accept",
     },
     myInfo: {
         myNickname: "NICKNAME",

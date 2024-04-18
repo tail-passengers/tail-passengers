@@ -82,6 +82,9 @@ const jaLocale = {
         friendsRequest: "フレンド申請",
         tooltipAccept: "承認",
         tooltipRefuse: "拒否",
+				acceptConfirmMessage: "フレンド申請を承認しますか。",
+				refuseConfirmMessage: "フレンド申請を拒否しますか。",
+				waitingMessage: "フレンド承認待機中",
     },
     myInfo: {
         myNickname: "ニックネーム",

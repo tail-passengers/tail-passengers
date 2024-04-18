@@ -17,7 +17,8 @@ function SelectMode({ initialState }) {
     this.render = () => {
         const language = getCurrentLanguage();
         const locale = locales[language] || locales.en;
-
+				$("#nav-bar").hidden = false;
+				
         this.$element.innerHTML = `
       <div class="tp-sl-card-content-child">
         <div class="tp-sl-title-container default-container text-center tp-color-secondary">
@@ -96,10 +97,10 @@ function SelectMode({ initialState }) {
             parent.appendChild(this.$element);
         }
         let body = $("body");
-        const canvas = $("canvas");
-        if (canvas) {
-            body.removeChild(canvas);
-        }
+				const canvas = $("canvas");
+				if (canvas) {
+						canvas.parentNode.removeChild(canvas);
+				}
         this.render();
     };
 

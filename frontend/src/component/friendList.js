@@ -31,7 +31,7 @@ export default function renderFriendList(content, parentElement) {
         }
         parentElement.innerHTML = contentHTML;
         renderFriends(content, locale);
-        addFriendListEventListener();
+        addFriendListEventListener(locale);
     };
 
     const renderFriends = (users, locale) => {
@@ -70,7 +70,7 @@ export default function renderFriendList(content, parentElement) {
                                             data.friend_requests.status
                                         }></input>
 									</div>
-								</td>
+								</td> 
 								<td class="text-center align-middle col-1">
 									<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group">
 										<div class="tp-sl-btn-parent default-container">

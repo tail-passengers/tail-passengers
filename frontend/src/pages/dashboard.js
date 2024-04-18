@@ -8,21 +8,27 @@ import { navigate } from "../utils/navigate.js";
 import { $ } from "../utils/querySelector.js";
 
 function Dashboard({ initialState }) {
-    this.$chartCanvas = null;
-    this.myChart = null;
-
 		this.state = initialState;
-    this.$element = document.createElement("div");
-    this.$element.className = "content default-container tp-sl-card-content";
+		this.$element = document.createElement("div");
+		this.$element.className = "content tp-ds-content default-container tp-sl-card-content";
+		this.$chartCanvas = null;
+		this.myChart = null;
 
+
+		const language = getCurrentLanguage();
+		const locale = locales[language] || locales.en;
 
 		this.setState = () => {
 			this.render();
 	};
+	
 
 	this.render = async () => {
-			const language = getCurrentLanguage();
-			const locale = locales[language] || locales.en;
+		this.removeLanguageChangeListener = () => {
+			// 페이지를 떠날 때 언어 변경 이벤트 리스너를 제거합니다.
+			window.removeEventListener("languageChange", this.handleLanguageChange);
+		};
+
 			this.$element.innerHTML = `
 					<div class="content default-container" style="width:100%;">
 							<div class="sized-box"></div>
@@ -47,16 +53,25 @@ function Dashboard({ initialState }) {
 					const houseRates = apiResponse.house;
 					const userRates = apiResponse.rate;
 
-					this.renderChart(houseRates, userRates, locale);
-					this.renderRecords(gameLogs, locale);
+					this.renderChart(houseRates, userRates);
+					this.renderRecords(gameLogs);
 			}
+
+			window.addEventListener("beforeunload", this.removeLanguageChangeListener);
+
 	};
 
-	this.renderRecords = (gameLogs, locale) => {
+
+
+	this.renderRecords = (gameLogs) => {
 			const limitedGameLogs = gameLogs.slice(0, 5);
 
 			const recordsList = document.getElementById("records-list");
-			recordsList.innerHTML = "";
+			if (recordsList) {
+				recordsList.innerHTML = "";
+			} else {
+				return;
+			}
 
 			limitedGameLogs.forEach((log) => {
 					const user1 = log.player1.nickname;
@@ -70,22 +85,28 @@ function Dashboard({ initialState }) {
 					recordsList.appendChild(li);
 			});
 
-			this.renderMoreButton(gameLogs, locale);
+			this.renderMoreButton(gameLogs);
 	};
 
-	this.renderMoreButton = (gameLogs, locale) => {
-			const recordsList = document.getElementById("records-list");
+	this.renderMoreButton = (gameLogs) => {
+    const recordsList = document.getElementById("records-list");
 
-			if (gameLogs.length > 0) {
-					const moreButton = document.createElement("button");
-					moreButton.textContent = locale.home.more;
-					moreButton.classList.add("more-button");
-					moreButton.addEventListener("click", () => {
-							navigate("/records");
-					});
-					recordsList.appendChild(moreButton);
-			}
-	};
+    if (gameLogs.length > 0) {
+        const moreButton = document.createElement("button");
+        moreButton.classList.add("more-button");
+        moreButton.addEventListener("click", () => {
+            navigate("/records");
+        });
+        recordsList.appendChild(moreButton);
+        this.updateMoreButtonText(moreButton);
+				}
+		};
+
+		this.updateMoreButtonText = (moreButton) => {
+				const language = getCurrentLanguage();
+				const locale = locales[language] || locales.en;
+				moreButton.textContent = locale.home.more;
+		};
 
 	this.renderChart = (houseRates, userRates, locale) => {
 			const labels = Object.keys(houseRates);
@@ -142,7 +163,6 @@ function Dashboard({ initialState }) {
 											plugins: {
 													title: {
 															display: true,
-															text: locale.chartTitle,
 															font: {
 																	size: 18,
 															},
@@ -166,27 +186,26 @@ function Dashboard({ initialState }) {
 					);
 			
 	};
-	window.addEventListener(
-		"languageChange",
-		function () {
-				this.render();
-		}.bind(this)
-);
 
-this.init = () => {
-	let parent = $("#app");
-	const child = $(".content");
-	if (child) {
-			parent.removeChild(child);
-			parent.appendChild(this.$element);
-	}
-	let body = $("body");
-	const canvas = $("canvas");
-	if (canvas) {
-			body.removeChild(canvas);
-	}
-	this.render();
-};
+	this.init = () => {
+		let parent = $("#app");
+		const child = $(".content");
+		if (child) {
+				parent.removeChild(child);
+				parent.appendChild(this.$element);
+		}
+		let body = $("body");
+		const canvas = $("canvas");
+		if (canvas) {
+				body.removeChild(canvas);
+		}
+		this.render();
+	};
+
+	window.addEventListener("languageChange", async () => {
+		const gameLogs = await fetchGameLogs();
+		this.renderRecords(gameLogs);
+	});
 
 	this.init();
 }
