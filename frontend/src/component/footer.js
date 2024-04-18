@@ -7,19 +7,16 @@ export function renderFooterSection() {
 }
 
 export default function renderFooter() {
-	const language = getCurrentLanguage();
-	const locale = locales[language] || locales.en;
-
   return `
 		<footer class="tp-footer-container tp-bgc-secondary tp-color-primary">
 			<div class="p-4">
 				<div class="column">
 					<div class="row">
 						<div class="h2 col">
-							${locale.footer.brand}
+							Tail Passenger
 						</div>
 						<div class="h5 col default-container">
-							© 2024 Tail Passenger
+							© 2024.4.19 Tail Passenger
 						</div>
 					</div>
 					<div class="row">
