@@ -82,9 +82,9 @@ const koLocale = {
         friendsRequest: "친구 신청",
         tooltipAccept: "수락",
         tooltipRefuse: "거절",
-				acceptConfirmMessage: "친구 신청을 승인하시겠습니까",
-				refuseConfirmMessage: "친구 신청을 거절하시겠습니까",
-				waitingMessage: "친구 수락 대기중",
+		acceptConfirmMessage: "친구 신청을 승인하시겠습니까?",
+		refuseConfirmMessage: "친구 신청을 거절하시겠습니까?",
+		waitingMessage: "친구 수락 대기중",
     },
     myInfo: {
         myNickname: "닉네임",

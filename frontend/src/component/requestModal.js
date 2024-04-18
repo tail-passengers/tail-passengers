@@ -13,7 +13,7 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 						<h5 class="modal-title"></h5>
 					</div>
 					<div class="modal-body tp-friend-modal-body default-container">
-						<p>${locale.friendList.acceptConfirmMessage}?</p>
+						<p>${locale.friendList.acceptConfirmMessage}</p>
 					</div>
 					<div class="modal-footer tp-friend-modal-footer">
 						<input type="hidden" class="tp-fl-requestPK" value="${requestId}"></input>
@@ -42,7 +42,7 @@ export default function renderRequestModal(selectBtn, parentElement, requestId) 
 						<h5 class="modal-title"></h5>
 					</div>
 					<div class="modal-body tp-friend-modal-body default-container">
-						<p>${locale.friendList.acceptConfirmMessage}?</p>
+						<p>${locale.friendList.refuseConfirmMessage}</p>
 					</div>
 					<div class="modal-footer tp-friend-modal-footer">
 						<div class="tp-pf-btn-group d-grid gap-2 d-md-flex tp-fl-btn-group-modal">
