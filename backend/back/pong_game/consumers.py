@@ -324,7 +324,7 @@ class TournamentGameWaitConsumer(AsyncWebsocketConsumer):
 
     # TODO 지울 것
     async def disconnect(self, close_code) -> None:
-        super().disconnect()
+        super().disconnect(close_code)
         msg = "-----------------------------------\n"
         msg += f"{self.user.nickname}: Tournament Wait disconnect\n"
         msg += "-----------------------------------\n"
