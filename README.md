@@ -23,6 +23,26 @@
   </tbody>
 </table>
 
+## Run
+
+- git clone
+
+```shell
+$ git clone https://github.com/tail-passengers/tail-passengers.git
+$ cd tail-passengers
+$ git submodule init
+$ git submodule update
+$ make
+```
+
+- update
+
+```shell
+# in the tail-passengers directory
+$ git submodule update --remote
+$ make
+```
+
 ## Modeule
 
 - [x] `Web Major` Use a Framework as backend
