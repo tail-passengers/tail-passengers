@@ -1,3 +1,15 @@
+# .env 파일이 없으면 임시 .env 파일을 생성한다.
+ifeq ($(wildcard .env),)
+$(info Creating .env file...)
+$(shell cp .env_sample .env)
+endif
+
+# frontend 디렉토리에 .env 파일이 없으면 임시 .env 파일을 생성한다.
+ifeq ($(wildcard frontend/.env),)
+$(info Creating .env file in the frontend directory...)
+$(shell cp .env frontend/.env)
+endif
+
 all:
 	docker-compose -f ./docker-compose.yml up --build --detach
 
