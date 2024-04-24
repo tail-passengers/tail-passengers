@@ -38,9 +38,16 @@ $ make
 - update
 
 ```shell
-# in the tail-passengers directory
 $ git submodule update --remote
 $ make
+```
+
+- user 접속
+  - 42 oauth는 환경 파일을 따로 설정해야 가능합니다.
+  - 가능한 test 유저: Harry, Hermione, Ron, Ginny, Luna, Newt, Draco, Cho, Cedric, Gregory, Crabbe
+
+```
+https://127.0.0.1/api/v1/login/{test_user}
 ```
 
 ## Modeule
