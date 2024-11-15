@@ -1,28 +1,5 @@
 # Tail-passengers
 
-## Passengers
-
-### Front-end
-<table>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://github.com/jaekkang"><img src="https://avatars.githubusercontent.com/u/45617104?v=4"width="100px;" alt=""/><br /><sub><b>강재권</b></sub></a><br /></td>
-      <td align="center"><a href="https://github.com/sngsho"><img src="https://avatars.githubusercontent.com/u/96572410?v=4" width="100px;" alt=""/><br /><sub><b>이승효</b></sub></a><br /></td>
-      <td align="center"><a href="https://github.com/YunjooCho"><img src="https://avatars.githubusercontent.com/u/73283078?v=4" width="100px;" alt=""/><br /><sub><b>조윤주</b></sub></a><br /></td>
-    </tr>
-  </tbody>
-</table>
-
-### Back-end
-<table>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://github.com/Kdelphinus"><img src="https://avatars.githubusercontent.com/u/68101516?v=4"width="100px;" alt=""/><br /><sub><b>고명준</b></sub></a><br /></td>
-      <td align="center"><a href="https://github.com/guune"><img src="https://avatars.githubusercontent.com/u/108771739?v=4" width="100px;" alt=""/><br /><sub><b>홍규선</b></sub></a><br /></td>
-    </tr>
-  </tbody>
-</table>
-
 ## Run
 
 ### git clone
